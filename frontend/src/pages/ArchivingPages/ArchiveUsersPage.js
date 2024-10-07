@@ -9,7 +9,6 @@ import {
     TabPanels,
     Tab,
     TabPanel,
-    // Checkbox,
     VStack,
     Text,
     useToast,
@@ -20,8 +19,13 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Grid
+    Grid,
+    SimpleGrid,
+    Stat,
+    StatLabel,
+    StatNumber,
 } from '@chakra-ui/react';
+import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { users } from '../../data/users';
 
 const ArchiveUsersPage = () => {
@@ -46,7 +50,7 @@ const ArchiveUsersPage = () => {
     };
 
     const handleArchive = () => {
-        onOpen(); // Open confirmation modal
+        onOpen();
     };
 
     const confirmArchive = () => {
@@ -59,7 +63,7 @@ const ArchiveUsersPage = () => {
             })
         );
         setSelectedUsers([]);
-        onClose(); // Close modal after confirmation
+        onClose();
         toast({
             title: isArchiving ? 'Users Archived' : 'Users Unarchived',
             status: 'success',
@@ -75,22 +79,94 @@ const ArchiveUsersPage = () => {
             user.name.toLowerCase().includes(searchLower) ||
             user.rollNo.toLowerCase().includes(searchLower) ||
             user.branch.toLowerCase().includes(searchLower) ||
-            user.batch.toString().includes(searchLower) || // Ensures numeric values are also searchable
+            user.batch.toString().includes(searchLower) ||
             user.role.toLowerCase().includes(searchLower)
         );
     });
 
     const displayedUsers = filteredUsers.filter(user => (tabIndex === 0 ? !user.isArchived : user.isArchived));
 
+    // Prepare data for charts
+    const totalUsers = userList.length;
+    const archivedUsers = userList.filter(user => user.isArchived).length;
+    const nonArchivedUsers = totalUsers - archivedUsers;
+
+    const pieData = [
+        { name: 'Archived Students', value: userList.filter(user => user.isArchived && user.role === 'Student').length },
+        { name: 'Archived Professors', value: userList.filter(user => user.isArchived && user.role === 'Professor').length },
+    ];
+
+    const barData = [
+        { batch: 'Batch 2019', count: userList.filter(user => user.batch === "2019" && user.isArchived).length },
+        { batch: 'Batch 2020', count: userList.filter(user => user.batch === "2020" && user.isArchived).length },
+        { batch: 'Batch 2021', count: userList.filter(user => user.batch === "2021" && user.isArchived).length },
+        { batch: 'Batch 2022', count: userList.filter(user => user.batch === "2022" && user.isArchived).length },
+        { batch: 'Batch 2023', count: userList.filter(user => user.batch === "2023" && user.isArchived).length },
+    ];
+
     return (
         <Box bg="gray.100" minHeight="100vh" p={5}>
-            {/* Header and Search Section */}
+            {/* Header Section */}
             <Flex justify="space-between" align="center" mb={5} flexDirection={['column', 'row']}>
                 <Box p={4} bgGradient="linear(to-r, lightblue, lightgreen)" borderRadius="lg" shadow="md" mb={[4, 0]}>
                     <Text fontSize={['2xl', '4xl']} fontWeight="bold" color="white">
                         User Archive
                     </Text>
                 </Box>
+
+                {/* Statistics Section Beside the Heading */}
+                <Flex justify="center" align="center" flexWrap="wrap" ml={[0, 5]} mt={[4, 0]}>
+                    <Flex justify="center" align="center" mx={2}>
+                        <Stat>
+                            <StatLabel>Total Users Archived</StatLabel>
+                            <StatNumber>{archivedUsers}</StatNumber>
+                        </Stat>
+                    </Flex>
+                    <Flex justify="center" align="center" mx={2}>
+                        <Stat>
+                            <StatLabel>Total Users Not Archived</StatLabel>
+                            <StatNumber>{nonArchivedUsers}</StatNumber>
+                        </Stat>
+                    </Flex>
+                    <Flex justify="center" align="center" mx={2}>
+                        <Stat>
+                            <StatLabel>Total Users</StatLabel>
+                            <StatNumber>{totalUsers}</StatNumber>
+                        </Stat>
+                    </Flex>
+                </Flex>
+            </Flex>
+
+            {/* Chart Section */}
+            <SimpleGrid columns={[1, 1, 2]} spacing={10} mb={5}>
+                <Box p={5} bg="white" borderRadius="md" boxShadow="md" textAlign="center">
+                    <Text fontSize="xl" mb={4} fontWeight="bold">Archived Users by Role</Text>
+                    <Flex justify="center" align="center">
+                        <PieChart width={400} height={300}>
+                            <Pie data={pieData} dataKey="value" nameKey="name" outerRadius={80} fill="#82ca9d">
+                                {pieData.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={`hsl(${Math.random() * 360}, 70%, 60%)`} />
+                                ))}
+                            </Pie>
+                            <Tooltip />
+                        </PieChart>
+                    </Flex>
+                </Box>
+                <Box p={5} bg="white" borderRadius="md" boxShadow="md" textAlign="center">
+                    <Text fontSize="xl" mb={4} fontWeight="bold">Archived Students by Batch</Text>
+                    <Flex justify="center" align="center" height="300px">
+                        <BarChart width={400} height={300} data={barData}>
+                            <XAxis dataKey="batch" />
+                            <YAxis />
+                            <Tooltip />
+                            <Bar dataKey="count" fill="#82ca9d" />
+                        </BarChart>
+                    </Flex>
+                </Box>
+            </SimpleGrid>
+
+            {/* Search Input Section */}
+            <Flex justify="center" mb={5}>
                 <Input
                     placeholder="Search by name, roll number, etc."
                     value={searchTerm}
@@ -101,7 +177,6 @@ const ArchiveUsersPage = () => {
                     boxShadow="xl"
                     _hover={{ boxShadow: '2xl' }}
                     _focus={{ borderColor: 'lightgreen' }}
-                    mt={[4, 0]}
                 />
             </Flex>
 
@@ -110,7 +185,7 @@ const ArchiveUsersPage = () => {
                 <TabList justifyContent="center" mb={5}>
                     <Tab
                         _selected={{
-                            color: 'blue.500',  // Use a more visible color
+                            color: 'blue.500',
                             borderBottom: '3px solid',
                             borderColor: 'blue.500',
                             fontSize: ['md', 'lg'],
@@ -122,7 +197,7 @@ const ArchiveUsersPage = () => {
                     </Tab>
                     <Tab
                         _selected={{
-                            color: 'green.500',  // Use a more visible color
+                            color: 'green.500',
                             borderBottom: '3px solid',
                             borderColor: 'green.500',
                             fontSize: ['md', 'lg'],
@@ -154,7 +229,7 @@ const ArchiveUsersPage = () => {
 
             {/* Archive/Unarchive Button */}
             {selectedUsers.length > 0 && (
-                <Flex justifyContent="center" mt={5}>  {/* Flex container to center the button */}
+                <Flex justifyContent="center" mt={5}>
                     <Button
                         bgGradient="linear(to-r, lightgreen, lightblue)"
                         color="white"
@@ -201,22 +276,20 @@ const UserList = ({ users, selectedUsers, toggleSelectUser, isArchived }) => {
                         shadow="md"
                         p={4}
                         borderRadius="md"
-                        borderLeft="4px solid"  // Add left border
+                        borderLeft="4px solid"
                         borderColor={user.isArchived ? 'lightgreen' : 'lightblue'}
                         transition="all 0.2s ease"
                         bgGradient={
                             selectedUsers.includes(user.id)
-                                ? isArchived
+                                ? user.isArchived
                                     ? 'linear(to-r, lightgreen, white)'
                                     : 'linear(to-r, lightblue, white)'
                                 : 'none'
                         }
                         cursor="pointer"
-                        onClick={() => toggleSelectUser(user.id)}  // Make the entire card clickable
+                        onClick={() => toggleSelectUser(user.id)}
                     >
-                        {/* Grid layout to organize the card content */}
                         <Grid templateColumns={['1fr', '0.5fr 1fr auto']} gap={4} alignItems="center">
-                            {/* Roll Number in small colored block with alternating colors */}
                             <Box
                                 bg={isArchived ? 'lightblue' : 'lightgreen'}
                                 p={2}
@@ -239,20 +312,9 @@ const UserList = ({ users, selectedUsers, toggleSelectUser, isArchived }) => {
                                     Role: {user.role}
                                 </Text>
                                 <Text fontSize={['xs', 'sm']} color="gray.500">
-                                    Created: {user.timeOfCreation}
+                                    Created: {user.createdAt}
                                 </Text>
                             </Box>
-
-                            {/* Checkbox moved to the right corner */}
-                            {/* <Checkbox
-                                isChecked={selectedUsers.includes(user.id)}
-                                onChange={(e) => {
-                                    e.stopPropagation();  // Prevent checkbox click from triggering card click
-                                    toggleSelectUser(user.id);
-                                }}
-                                colorScheme={isArchived ? 'green' : 'blue'}
-                                justifySelf="end"
-                            /> */}
                         </Grid>
                     </Box>
                 ))

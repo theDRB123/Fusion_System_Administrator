@@ -19,9 +19,11 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Grid
+    Grid,
+    SimpleGrid
 } from '@chakra-ui/react';
-import { notifications } from '../../data/notifications'; // Update with actual data
+import { notifications } from '../../data/notifications';
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
 const ArchiveNotificationsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,19 +81,52 @@ const ArchiveNotificationsPage = () => {
 
     const displayedNotifications = filteredNotifications.filter(notification => (tabIndex === 0 ? !notification.isArchived : notification.isArchived));
 
+    // Create a function to get the stats for total, archived, and non-archived notifications
+    const getStats = () => {
+        const total = notificationList.length;
+        const archived = notificationList.filter(notification => notification.isArchived).length;
+        const nonArchived = total - archived;
+        return { total, archived, nonArchived };
+    };
+
+    const { total, archived, nonArchived } = getStats();
+
+    // Create a function to generate data for the bar chart based on the year
+    const getBarChartData = () => {
+        const years = [2019, 2020, 2021, 2022, 2023];
+        const counts = {};
+
+        // Initialize counts for each year
+        years.forEach(year => {
+            counts[year] = { year, archived: 0 };
+        });
+
+        // Count archived notifications for each year
+        notificationList.forEach(notification => {
+            const notificationYear = notification.year;
+            if (notification.isArchived && years.includes(notificationYear)) {
+                counts[notificationYear].archived += 1;
+            }
+        });
+
+        return Object.values(counts);
+    };
+
+    const barChartData = getBarChartData();
+
     return (
         <Box bg="gray.100" minHeight="100vh" p={5}>
-            {/* Header and Search Section */}
+            {/* Header and Stats Section */}
             <Flex justify="space-between" align="center" mb={5} flexDirection={['column', 'row']}>
                 <Box
-                    p={[2, 4]}  // Adjust padding for small screens
+                    p={[2, 4]}
                     bgGradient="linear(to-r, LightSeaGreen, MistyRose)"
                     borderRadius="lg"
                     shadow="md"
                     mb={[4, 0]}
                 >
                     <Text
-                        fontSize={['xl', '2xl', '4xl']}  // Adjust font size for responsiveness
+                        fontSize={['xl', '2xl', '4xl']}
                         fontWeight="bold"
                         color="white"
                         textAlign={['center', 'left']}
@@ -99,6 +134,53 @@ const ArchiveNotificationsPage = () => {
                         Notification Archive
                     </Text>
                 </Box>
+                <SimpleGrid columns={3} spacing={4} textAlign="center" mt={[4, 0]}>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Total</Text>
+                        <Text fontSize="xl">{total}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Archived</Text>
+                        <Text fontSize="xl">{archived}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Non-Archived</Text>
+                        <Text fontSize="xl">{nonArchived}</Text>
+                    </Box>
+                </SimpleGrid>
+            </Flex>
+
+            {/* Bar Chart Section for Archived Notifications by Year */}
+            <Box
+                p={5}
+                bg="white"
+                borderRadius="md"
+                boxShadow="md"
+                textAlign="center"
+                mb={5}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                flexDirection="column"
+            >
+                <Text fontSize="xl" mb={4} fontWeight="bold">
+                    Archived Notifications by Year (2019-2023)
+                </Text>
+                <BarChart
+                    width={600}
+                    height={300}
+                    data={barChartData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                    <XAxis dataKey="year" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="archived" fill="#82ca9d" />
+                </BarChart>
+            </Box>
+
+            {/* Search Section */}
+            <Flex justify="center" mb={5}>
                 <Input
                     placeholder="Search by title, message, etc."
                     value={searchTerm}
@@ -109,7 +191,6 @@ const ArchiveNotificationsPage = () => {
                     boxShadow="xl"
                     _hover={{ boxShadow: '2xl' }}
                     _focus={{ borderColor: 'LightSeaGreen' }}
-                    mt={[4, 0]}
                 />
             </Flex>
 
@@ -223,7 +304,6 @@ const NotificationList = ({ notifications, selectedNotifications, toggleSelectNo
                         onClick={() => toggleSelectNotification(notification.id)}
                     >
                         <Grid templateColumns={['1fr', '0.5fr 1fr auto']} gap={4} alignItems="center">
-                            {/* Title Block */}
                             <Box
                                 bg={isArchived ? 'LightSeaGreen' : 'MistyRose'}
                                 p={2}
@@ -232,7 +312,7 @@ const NotificationList = ({ notifications, selectedNotifications, toggleSelectNo
                                 color={!isArchived ? 'LightSeaGreen' : 'MistyRose'}
                                 fontWeight="bold"
                             >
-                                {notification.title}
+                                {notification.title} - {notification.year}
                             </Box>
 
                             {/* Notification Info */}

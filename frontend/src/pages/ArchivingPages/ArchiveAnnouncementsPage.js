@@ -19,9 +19,11 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Grid
+    Grid,
+    SimpleGrid
 } from '@chakra-ui/react';
 import { announcements } from '../../data/announcements';
+import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 
 const ArchiveAnnouncementsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -79,26 +81,106 @@ const ArchiveAnnouncementsPage = () => {
 
     const displayedAnnouncements = filteredAnnouncements.filter(announcement => (tabIndex === 0 ? !announcement.isArchived : announcement.isArchived));
 
+    // Create a function to get the stats for total, archived, and non-archived announcements
+    const getStats = () => {
+        const total = announcementList.length;
+        const archived = announcementList.filter(announcement => announcement.isArchived).length;
+        const nonArchived = total - archived;
+        return { total, archived, nonArchived };
+    };
+
+    const { total, archived, nonArchived } = getStats();
+
+    // Create a function to generate data for the bar chart based on the year
+    const getBarChartData = () => {
+        const years = [2019, 2020, 2021, 2022, 2023];
+        const counts = {};
+
+        // Initialize counts for each year
+        years.forEach(year => {
+            counts[year] = { year, archived: 0 };
+        });
+
+        // Count archived announcements for each year
+        announcementList.forEach(announcement => {
+            const announcementYear = announcement.year;
+            if (announcement.isArchived && years.includes(announcementYear)) {
+                counts[announcementYear].archived += 1;
+            }
+        });
+
+        return Object.values(counts);
+    };
+
+    const barChartData = getBarChartData();
+
     return (
         <Box bg="gray.100" minHeight="100vh" p={5}>
-            {/* Header and Search Section */}
+            {/* Header and Stats Section */}
             <Flex justify="space-between" align="center" mb={5} flexDirection={['column', 'row']}>
                 <Box
-                    p={[2, 4]}  // Smaller padding for small screens
+                    p={[2, 4]}
                     bgGradient="linear(to-r, lightcoral, lightyellow)"
                     borderRadius="lg"
                     shadow="md"
                     mb={[4, 0]}
                 >
                     <Text
-                        fontSize={['xl', '2xl', '4xl']}  // Adjust font size: 'xl' for small, '2xl' for medium, '4xl' for large
+                        fontSize={['xl', '2xl', '4xl']}
                         fontWeight="bold"
                         color="white"
-                        textAlign={['center', 'left']}  // Center the text on small screens
+                        textAlign={['center', 'left']}
                     >
                         Announcement Archive
                     </Text>
                 </Box>
+                <SimpleGrid columns={3} spacing={4} textAlign="center" mt={[4, 0]}>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Total</Text>
+                        <Text fontSize="xl">{total}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Archived</Text>
+                        <Text fontSize="xl">{archived}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Non-Archived</Text>
+                        <Text fontSize="xl">{nonArchived}</Text>
+                    </Box>
+                </SimpleGrid>
+            </Flex>
+
+            {/* Bar Chart Section for Archived Announcements by Year */}
+            <Box
+                p={5}
+                bg="white"
+                borderRadius="md"
+                boxShadow="md"
+                textAlign="center"
+                mb={5}
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                flexDirection="column"
+            >
+                <Text fontSize="xl" mb={4} fontWeight="bold">
+                    Archived Announcements by Year (2019-2023)
+                </Text>
+                <BarChart
+                    width={600}
+                    height={300}
+                    data={barChartData}
+                    margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+                >
+                    <XAxis dataKey="year" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="archived" fill="#82ca9d" />
+                </BarChart>
+            </Box>
+
+            {/* Search Section */}
+            <Flex justify="center" mb={5}>
                 <Input
                     placeholder="Search by title, message, etc."
                     value={searchTerm}
@@ -109,7 +191,6 @@ const ArchiveAnnouncementsPage = () => {
                     boxShadow="xl"
                     _hover={{ boxShadow: '2xl' }}
                     _focus={{ borderColor: 'lightcoral' }}
-                    mt={[4, 0]}
                 />
             </Flex>
 
@@ -209,7 +290,7 @@ const AnnouncementList = ({ announcements, selectedAnnouncements, toggleSelectAn
                         shadow="md"
                         p={4}
                         borderRadius="md"
-                        borderLeft="4px solid"  // Add left border
+                        borderLeft="4px solid"
                         borderColor={announcement.isArchived ? 'lightyellow' : 'lightcoral'}
                         transition="all 0.2s ease"
                         bgGradient={
@@ -222,9 +303,8 @@ const AnnouncementList = ({ announcements, selectedAnnouncements, toggleSelectAn
                         cursor="pointer"
                         onClick={() => toggleSelectAnnouncement(announcement.id)}
                     >
-                        {/* Grid layout to organize the card content */}
                         <Grid templateColumns={['1fr', '0.5fr 1fr auto']} gap={4} alignItems="center">
-                            {/* Title in small colored block with alternating colors */}
+                            {/* Title and Year Box */}
                             <Box
                                 bg={isArchived ? 'lightcoral' : 'lightyellow'}
                                 p={2}
@@ -233,12 +313,12 @@ const AnnouncementList = ({ announcements, selectedAnnouncements, toggleSelectAn
                                 color={!isArchived ? 'lightcoral' : 'lightyellow'}
                                 fontWeight="bold"
                             >
-                                {announcement.title}
+                                {announcement.title} - {announcement.year} {/* Display Year */}
                             </Box>
 
                             {/* Announcement Info */}
                             <Box>
-                                <Text fontSize={['md', 'lg']} fontFamily="Georgia, serif" fontWeight="bold">
+                                <Text fontSize={['md', 'lg']} fontFamily="Georgia, serif" fontWeight="medium">
                                     {announcement.message}
                                 </Text>
                                 <Text fontSize={['xs', 'sm']} color="gray.500">
