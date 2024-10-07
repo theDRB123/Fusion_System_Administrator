@@ -1,8 +1,23 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ChakraProvider } from '@chakra-ui/react';
+import ArchiveUsersPage from './pages/ArchivingPages/ArchiveUsersPage';
+import ArchiveNotificationsPage from './pages/ArchivingPages/ArchiveNotificationsPage';
+import ArchiveAnnouncementsPage from './pages/ArchivingPages/ArchiveAnnouncementsPage';
+import Dashboard from './pages/DashboardPage/Dashboard';
+
 function App() {
   return (
-    <div className="text-blue-500">
-      <h1 className="text-3xl font-bold underline">Hello, Chakra UI and Tailwind CSS!</h1>
-    </div>
+    <ChakraProvider>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/archive/users" element={<ArchiveUsersPage />} />
+          <Route path="/archive/notifications" element={<ArchiveNotificationsPage />} />
+          <Route path="/archive/announcements" element={<ArchiveAnnouncementsPage />} />
+        </Routes>
+      </Router>
+    </ChakraProvider>
   );
 }
 
