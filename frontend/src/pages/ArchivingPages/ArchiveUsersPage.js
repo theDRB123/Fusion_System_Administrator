@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Button,
@@ -21,9 +21,9 @@ import {
     ModalFooter,
     Grid,
     SimpleGrid,
-    Stat,
-    StatLabel,
-    StatNumber,
+    // Stat,
+    // StatLabel,
+    // StatNumber,
 } from '@chakra-ui/react';
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { users } from '../../data/users';
@@ -49,9 +49,9 @@ const ArchiveUsersPage = () => {
         );
     };
 
-    const handleArchive = () => {
+    const handleArchive = useCallback(() => {
         onOpen();
-    };
+    }, [onOpen]);
 
     const confirmArchive = () => {
         setUserList(
@@ -73,6 +73,21 @@ const ArchiveUsersPage = () => {
         });
     };
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                setIsArchiving(tabIndex === 0);
+                handleArchive();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [tabIndex, handleArchive]);
+
     const filteredUsers = userList.filter(user => {
         const searchLower = searchTerm.toLowerCase();
         return (
@@ -86,7 +101,6 @@ const ArchiveUsersPage = () => {
 
     const displayedUsers = filteredUsers.filter(user => (tabIndex === 0 ? !user.isArchived : user.isArchived));
 
-    // Prepare data for charts
     const totalUsers = userList.length;
     const archivedUsers = userList.filter(user => user.isArchived).length;
     const nonArchivedUsers = totalUsers - archivedUsers;
@@ -109,32 +123,31 @@ const ArchiveUsersPage = () => {
             {/* Header Section */}
             <Flex justify="space-between" align="center" mb={5} flexDirection={['column', 'row']}>
                 <Box p={4} bgGradient="linear(to-r, lightblue, lightgreen)" borderRadius="lg" shadow="md" mb={[4, 0]}>
-                    <Text fontSize={['2xl', '4xl']} fontWeight="bold" color="white">
+                    <Text
+                        fontSize={['xl', '2xl', '4xl']}
+                        fontWeight="bold"
+                        color="white"
+                        textAlign={['center', 'left']}
+                    >
                         User Archive
                     </Text>
                 </Box>
 
                 {/* Statistics Section Beside the Heading */}
-                <Flex justify="center" align="center" flexWrap="wrap" ml={[0, 5]} mt={[4, 0]}>
-                    <Flex justify="center" align="center" mx={2}>
-                        <Stat>
-                            <StatLabel>Total Users Archived</StatLabel>
-                            <StatNumber>{archivedUsers}</StatNumber>
-                        </Stat>
-                    </Flex>
-                    <Flex justify="center" align="center" mx={2}>
-                        <Stat>
-                            <StatLabel>Total Users Not Archived</StatLabel>
-                            <StatNumber>{nonArchivedUsers}</StatNumber>
-                        </Stat>
-                    </Flex>
-                    <Flex justify="center" align="center" mx={2}>
-                        <Stat>
-                            <StatLabel>Total Users</StatLabel>
-                            <StatNumber>{totalUsers}</StatNumber>
-                        </Stat>
-                    </Flex>
-                </Flex>
+                <SimpleGrid columns={3} spacing={4} textAlign="center" mt={[4, 0]}>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Total</Text>
+                        <Text fontSize="xl">{totalUsers}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Archived</Text>
+                        <Text fontSize="xl">{archivedUsers}</Text>
+                    </Box>
+                    <Box>
+                        <Text fontSize="lg" fontWeight="bold">Non-Archived</Text>
+                        <Text fontSize="xl">{nonArchivedUsers}</Text>
+                    </Box>
+                </SimpleGrid>
             </Flex>
 
             {/* Chart Section */}
@@ -159,7 +172,7 @@ const ArchiveUsersPage = () => {
                             <XAxis dataKey="batch" />
                             <YAxis />
                             <Tooltip />
-                            <Bar dataKey="count" fill="#82ca9d" />
+                            <Bar dataKey="count" fill="#90EE90" />
                         </BarChart>
                     </Flex>
                 </Box>

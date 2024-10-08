@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
     Box,
     Button,
@@ -24,6 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { announcements } from '../../data/announcements';
 import { BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
+import { useBreakpointValue } from '@chakra-ui/react';
 
 const ArchiveAnnouncementsPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -46,9 +47,9 @@ const ArchiveAnnouncementsPage = () => {
         );
     };
 
-    const handleArchive = () => {
+    const handleArchive = useCallback(() => {
         onOpen();
-    };
+    }, [onOpen]);
 
     const confirmArchive = () => {
         setAnnouncementList(
@@ -70,6 +71,21 @@ const ArchiveAnnouncementsPage = () => {
         });
     };
 
+    useEffect(() => {
+        const handleKeyDown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                setIsArchiving(tabIndex === 0);
+                handleArchive();
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [tabIndex, handleArchive]);
+
     const filteredAnnouncements = announcementList.filter(announcement => {
         const searchLower = searchTerm.toLowerCase();
         return (
@@ -81,7 +97,9 @@ const ArchiveAnnouncementsPage = () => {
 
     const displayedAnnouncements = filteredAnnouncements.filter(announcement => (tabIndex === 0 ? !announcement.isArchived : announcement.isArchived));
 
-    // Create a function to get the stats for total, archived, and non-archived announcements
+    const chartWidth = useBreakpointValue({ base: 300, md: 500, lg: 600 });
+    const chartHeight = useBreakpointValue({ base: 200, md: 300 });
+
     const getStats = () => {
         const total = announcementList.length;
         const archived = announcementList.filter(announcement => announcement.isArchived).length;
@@ -91,17 +109,14 @@ const ArchiveAnnouncementsPage = () => {
 
     const { total, archived, nonArchived } = getStats();
 
-    // Create a function to generate data for the bar chart based on the year
     const getBarChartData = () => {
         const years = [2019, 2020, 2021, 2022, 2023];
         const counts = {};
 
-        // Initialize counts for each year
         years.forEach(year => {
             counts[year] = { year, archived: 0 };
         });
 
-        // Count archived announcements for each year
         announcementList.forEach(announcement => {
             const announcementYear = announcement.year;
             if (announcement.isArchived && years.includes(announcementYear)) {
@@ -162,20 +177,21 @@ const ArchiveAnnouncementsPage = () => {
                 justifyContent="center"
                 alignItems="center"
                 flexDirection="column"
+                w="100%"
             >
                 <Text fontSize="xl" mb={4} fontWeight="bold">
                     Archived Announcements by Year (2019-2023)
                 </Text>
                 <BarChart
-                    width={600}
-                    height={300}
+                    width={chartWidth}
+                    height={chartHeight}
                     data={barChartData}
                     margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
                     <XAxis dataKey="year" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="archived" fill="#82ca9d" />
+                    <Bar dataKey="archived" fill="#F08080" />
                 </BarChart>
             </Box>
 
@@ -313,7 +329,7 @@ const AnnouncementList = ({ announcements, selectedAnnouncements, toggleSelectAn
                                 color={!isArchived ? 'lightcoral' : 'lightyellow'}
                                 fontWeight="bold"
                             >
-                                {announcement.title} - {announcement.year} {/* Display Year */}
+                                {announcement.title} - {announcement.year} 
                             </Box>
 
                             {/* Announcement Info */}
