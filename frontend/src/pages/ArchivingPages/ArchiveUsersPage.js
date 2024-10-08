@@ -9,7 +9,6 @@ import {
     TabPanels,
     Tab,
     TabPanel,
-    VStack,
     Text,
     useToast,
     useDisclosure,
@@ -19,11 +18,7 @@ import {
     ModalHeader,
     ModalBody,
     ModalFooter,
-    Grid,
     SimpleGrid,
-    // Stat,
-    // StatLabel,
-    // StatNumber,
 } from '@chakra-ui/react';
 import { PieChart, Pie, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from 'recharts';
 import { users } from '../../data/users';
@@ -90,13 +85,14 @@ const ArchiveUsersPage = () => {
 
     const filteredUsers = userList.filter(user => {
         const searchLower = searchTerm.toLowerCase();
-        return (
-            user.name.toLowerCase().includes(searchLower) ||
-            user.rollNo.toLowerCase().includes(searchLower) ||
-            user.branch.toLowerCase().includes(searchLower) ||
-            user.batch.toString().includes(searchLower) ||
-            user.role.toLowerCase().includes(searchLower)
-        );
+
+        return [
+            user.name,
+            user.rollNo,
+            user.branch,
+            user.batch?.toString(),
+            user.role,
+        ].some(field => field && field.toLowerCase().includes(searchLower));
     });
 
     const displayedUsers = filteredUsers.filter(user => (tabIndex === 0 ? !user.isArchived : user.isArchived));
@@ -241,20 +237,19 @@ const ArchiveUsersPage = () => {
             </Tabs>
 
             {/* Archive/Unarchive Button */}
-            {selectedUsers.length > 0 && (
-                <Flex justifyContent="center" mt={5}>
-                    <Button
-                        bgGradient="linear(to-r, lightgreen, lightblue)"
-                        color="white"
-                        onClick={() => {
-                            setIsArchiving(tabIndex === 0);
-                            handleArchive();
-                        }}
-                    >
-                        {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
-                    </Button>
-                </Flex>
-            )}
+            <Flex justifyContent="center" mt={5}>
+                <Button
+                    bgGradient="linear(to-r, lightgreen, lightblue)"
+                    color="white"
+                    onClick={() => {
+                        setIsArchiving(tabIndex === 0);
+                        handleArchive();
+                    }}
+                    isDisabled={selectedUsers.length === 0} 
+                >
+                    {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
+                </Button>
+            </Flex>
 
             {/* Confirmation Modal */}
             <Modal isOpen={isOpen} onClose={onClose}>
@@ -278,63 +273,55 @@ const ArchiveUsersPage = () => {
     );
 };
 
-const UserList = ({ users, selectedUsers, toggleSelectUser, isArchived }) => {
+const UserList = ({ users, selectedUsers, toggleSelectUser }) => {
     return (
-        <VStack align="stretch" spacing={4} overflowY="scroll" maxHeight="500px">
+        <SimpleGrid columns={[1, 2, 3]} spacing={4} height="400px" overflowY="scroll" p={2}>
             {users.length > 0 ? (
                 users.map(user => (
                     <Box
                         key={user.id}
                         bg="white"
                         shadow="md"
-                        p={4}
-                        borderRadius="md"
-                        borderLeft="4px solid"
-                        borderColor={user.isArchived ? 'lightgreen' : 'lightblue'}
-                        transition="all 0.2s ease"
-                        bgGradient={
-                            selectedUsers.includes(user.id)
-                                ? user.isArchived
-                                    ? 'linear(to-r, lightgreen, white)'
-                                    : 'linear(to-r, lightblue, white)'
-                                : 'none'
-                        }
+                        borderRadius="lg"
+                        position="relative"
+                        borderWidth={selectedUsers.includes(user.id) ? '2px' : '1px'}
+                        borderColor={selectedUsers.includes(user.id) ? 'salmon' : 'gray.200'}
+                        borderLeft="4px"
+                        borderLeftColor={user.isArchived ? 'lightgreen' : 'lightblue'}
+                        transition="all 0.2s"
                         cursor="pointer"
                         onClick={() => toggleSelectUser(user.id)}
+                        p={3}
+                        h="150px"
+                        overflow="hidden"
                     >
-                        <Grid templateColumns={['1fr', '0.5fr 1fr auto']} gap={4} alignItems="center">
-                            <Box
-                                bg={isArchived ? 'lightblue' : 'lightgreen'}
-                                p={2}
-                                borderRadius="md"
-                                textAlign="center"
-                                color="white"
-                                fontWeight="bold"
-                            >
-                                {user.rollNo}
-                            </Box>
+                        <Text fontWeight="bold" fontSize="lg" mb={1}>
+                            {user.name}
+                        </Text>
+                        <Text fontSize="sm">Roll No: {user.rollNo}</Text>
+                        <Text fontSize="sm">Branch: {user.branch}</Text>
+                        <Text fontSize="sm">Batch: {user.batch}</Text>
+                        <Text fontSize="sm">Role: {user.role}</Text>
 
-                            {/* User Info */}
-                            <Box>
-                                <Text fontSize={['md', 'lg']} fontFamily="Georgia, serif" fontWeight="bold">
-                                    {user.name}
-                                </Text>
-                                <Text fontSize={['sm', 'md']}>Branch: {user.branch}</Text>
-                                <Text fontSize={['sm', 'md']}>Batch: {user.batch}</Text>
-                                <Text fontSize={['xs', 'sm']} color="gray.500">
-                                    Role: {user.role}
-                                </Text>
-                                <Text fontSize={['xs', 'sm']} color="gray.500">
-                                    Created: {user.createdAt}
-                                </Text>
-                            </Box>
-                        </Grid>
+                        {selectedUsers.includes(user.id) && (
+                            <Box
+                                position="absolute"
+                                right="10px"
+                                top="50%"
+                                transform="translateY(-50%)"
+                                w="20px"
+                                h="20px"
+                                borderRadius="50%"
+                                border="2px solid salmon"
+                                bg="salmon"
+                            />
+                        )}
                     </Box>
                 ))
             ) : (
                 <Text>No users found.</Text>
             )}
-        </VStack>
+        </SimpleGrid>
     );
 };
 

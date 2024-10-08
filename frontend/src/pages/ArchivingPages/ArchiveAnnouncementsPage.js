@@ -91,7 +91,8 @@ const ArchiveAnnouncementsPage = () => {
         return (
             announcement.title.toLowerCase().includes(searchLower) ||
             announcement.message.toLowerCase().includes(searchLower) ||
-            announcement.time.toLowerCase().includes(searchLower)
+            announcement.time.toLowerCase().includes(searchLower) ||
+            String(announcement.year).toLowerCase().includes(searchLower)
         );
     });
 
@@ -258,20 +259,19 @@ const ArchiveAnnouncementsPage = () => {
             </Tabs>
 
             {/* Archive/Unarchive Button */}
-            {selectedAnnouncements.length > 0 && (
-                <Flex justifyContent="center" mt={5}>
-                    <Button
-                        bgGradient="linear(to-r, lightyellow, lightcoral)"
-                        color="white"
-                        onClick={() => {
-                            setIsArchiving(tabIndex === 0);
-                            handleArchive();
-                        }}
-                    >
-                        {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
-                    </Button>
-                </Flex>
-            )}
+            <Flex justifyContent="center" mt={5}>
+                <Button
+                    bgGradient="linear(to-r, lightyellow, lightcoral)"
+                    color="white"
+                    onClick={() => {
+                        setIsArchiving(tabIndex === 0);
+                        handleArchive();
+                    }}
+                    isDisabled={selectedAnnouncements.length === 0} // Disable if no announcements are selected
+                >
+                    {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
+                </Button>
+            </Flex>
 
             {/* Confirmation Modal */}
             <Modal isOpen={isOpen} onClose={onClose}>
@@ -329,7 +329,7 @@ const AnnouncementList = ({ announcements, selectedAnnouncements, toggleSelectAn
                                 color={!isArchived ? 'lightcoral' : 'lightyellow'}
                                 fontWeight="bold"
                             >
-                                {announcement.title} - {announcement.year} 
+                                {announcement.title} - {announcement.year}
                             </Box>
 
                             {/* Announcement Info */}

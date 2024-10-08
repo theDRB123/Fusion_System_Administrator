@@ -91,7 +91,8 @@ const ArchiveNotificationsPage = () => {
         return (
             notification.title.toLowerCase().includes(searchLower) ||
             notification.message.toLowerCase().includes(searchLower) ||
-            notification.time.toLowerCase().includes(searchLower)
+            notification.time.toLowerCase().includes(searchLower) ||
+            String(notification.year).toLowerCase().includes(searchLower)
         );
     });
 
@@ -257,20 +258,19 @@ const ArchiveNotificationsPage = () => {
             </Tabs>
 
             {/* Archive/Unarchive Button */}
-            {selectedNotifications.length > 0 && (
-                <Flex justifyContent="center" mt={5}>
-                    <Button
-                        bgGradient="linear(to-r, MistyRose, LightSeaGreen)"
-                        color="white"
-                        onClick={() => {
-                            setIsArchiving(tabIndex === 0);
-                            handleArchive();
-                        }}
-                    >
-                        {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
-                    </Button>
-                </Flex>
-            )}
+            <Flex justifyContent="center" mt={5}>
+                <Button
+                    bgGradient="linear(to-r, MistyRose, LightSeaGreen)"
+                    color="white"
+                    onClick={() => {
+                        setIsArchiving(tabIndex === 0);
+                        handleArchive();
+                    }}
+                    isDisabled={selectedNotifications.length === 0}
+                >
+                    {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
+                </Button>
+            </Flex>
 
             {/* Confirmation Modal */}
             <Modal isOpen={isOpen} onClose={onClose}>
