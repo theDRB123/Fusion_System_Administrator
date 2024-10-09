@@ -245,7 +245,7 @@ const ArchiveUsersPage = () => {
                         setIsArchiving(tabIndex === 0);
                         handleArchive();
                     }}
-                    isDisabled={selectedUsers.length === 0} 
+                    isDisabled={selectedUsers.length === 0}
                 >
                     {tabIndex === 0 ? 'Archive Selected' : 'Unarchive Selected'}
                 </Button>
@@ -298,9 +298,12 @@ const UserList = ({ users, selectedUsers, toggleSelectUser }) => {
                         <Text fontWeight="bold" fontSize="lg" mb={1}>
                             {user.name}
                         </Text>
-                        <Text fontSize="sm">Roll No: {user.rollNo}</Text>
-                        <Text fontSize="sm">Branch: {user.branch}</Text>
-                        <Text fontSize="sm">Batch: {user.batch}</Text>
+                        {user.rollNo &&
+                            <Text fontSize="sm">Roll No: {user.rollNo}</Text>}
+                        {user.branch &&
+                            <Text fontSize="sm">Branch: {user.branch}</Text>}
+                        {user.batch &&
+                            <Text fontSize="sm">Batch: {user.batch}</Text>}
                         <Text fontSize="sm">Role: {user.role}</Text>
 
                         {selectedUsers.includes(user.id) && (
