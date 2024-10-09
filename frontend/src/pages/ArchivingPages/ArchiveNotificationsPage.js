@@ -332,7 +332,7 @@ const NotificationList = ({ notifications, selectedNotifications, toggleSelectNo
 
                             {/* Notification Info */}
                             <Box>
-                                <Text fontSize={['md', 'lg']} fontFamily="Georgia, serif" fontWeight="bold">
+                                <Text fontSize={['md', 'lg']} fontFamily="Georgia, serif" fontWeight="medium">
                                     {notification.message}
                                 </Text>
                                 <Text fontSize={['xs', 'sm']} color="gray.500">
