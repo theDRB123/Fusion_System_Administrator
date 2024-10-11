@@ -1,14 +1,21 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import GlobalsExtrainfo, GlobalsDesignation
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer
 
 # get list of all users
 @api_view(['GET'])
 def global_extrainfo_list(request):
     records = GlobalsExtrainfo.objects.all()
     serializer = GlobalExtraInfoSerializer(records, many=True)
+    return Response(serializer.data)
+
+# get list of all roles
+@api_view(['GET'])
+def global_designation_list(request):
+    records = GlobalsDesignation.objects.all()
+    serializer = GlobalsDesignationSerializer(records, many=True)
     return Response(serializer.data)
 
 # add a new role
@@ -58,3 +65,25 @@ def update_designation(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# modify role access
+@api_view(['PUT'])
+def modify_moduleaccess(request):
+    role_name = request.data.get('designation')
+    
+    if not role_name:
+        return Response({"error": "No role provided."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        designation = GlobalsModuleaccess.objects.get(designation=role_name)
+    except GlobalsModuleaccess.DoesNotExist:
+        return Response({"error": f"Designation with name '{designation}' not found."}, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = GlobalsModuleaccessSerializer(designation, data=request.data, partial=True)
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
