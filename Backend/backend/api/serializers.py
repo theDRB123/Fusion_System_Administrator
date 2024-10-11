@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GlobalsExtrainfo, GlobalsDesignation
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess
 
 class GlobalExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -10,3 +10,28 @@ class GlobalsDesignationSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalsDesignation
         fields = '__all__'
+        
+class GlobalsModuleaccessSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GlobalsModuleaccess
+        fields = [
+            'program_and_curriculum',
+            'course_registration',
+            'course_management',
+            'other_academics',
+            'spacs',
+            'department',
+            'examinations',
+            'hr',
+            'iwd',
+            'complaint_management',
+            'fts',
+            'purchase_and_store',
+            'rspc',
+            'hostel_management',
+            'mess_management',
+            'gymkhana',
+            'placement_cell',
+            'visitor_hostel',
+            'phc'
+        ]
