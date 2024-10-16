@@ -61,25 +61,6 @@ class GlobalsExtrainfo(models.Model):
         db_table = 'globals_extrainfo'
 
 
-class GlobalsFaculty(models.Model):
-    id = models.OneToOneField(GlobalsExtrainfo, models.DO_NOTHING, primary_key=True)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_faculty'
-
-
-class GlobalsFeedback(models.Model):
-    rating = models.IntegerField()
-    feedback = models.TextField()
-    timestamp = models.DateTimeField()
-    user = models.OneToOneField(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_feedback'
-
-
 class GlobalsHoldsdesignation(models.Model):
     held_at = models.DateTimeField()
     designation = models.ForeignKey(GlobalsDesignation, models.DO_NOTHING)
@@ -92,51 +73,8 @@ class GlobalsHoldsdesignation(models.Model):
         unique_together = (('user', 'designation'), ('working', 'designation'),)
 
 
-class GlobalsIssue(models.Model):
-    report_type = models.CharField(max_length=63)
-    module = models.CharField(max_length=63)
-    closed = models.BooleanField()
-    text = models.TextField()
-    title = models.CharField(max_length=255)
-    timestamp = models.DateTimeField()
-    added_on = models.DateTimeField()
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_issue'
-
-
-class GlobalsIssueImages(models.Model):
-    issue = models.ForeignKey(GlobalsIssue, models.DO_NOTHING)
-    issueimage = models.ForeignKey('GlobalsIssueimage', models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_issue_images'
-        unique_together = (('issue', 'issueimage'),)
-
-
-class GlobalsIssueSupport(models.Model):
-    issue = models.ForeignKey(GlobalsIssue, models.DO_NOTHING)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_issue_support'
-        unique_together = (('issue', 'user'),)
-
-
-class GlobalsIssueimage(models.Model):
-    image = models.CharField(max_length=100)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_issueimage'
-
-
 class GlobalsModuleaccess(models.Model):
+    # designation = models.ForeignKey(GlobalsDesignation, models.CASCADE)
     designation = models.CharField(max_length=155)
     program_and_curriculum = models.BooleanField()
     course_registration = models.BooleanField()
@@ -161,11 +99,3 @@ class GlobalsModuleaccess(models.Model):
     class Meta:
         managed = False
         db_table = 'globals_moduleaccess'
-
-
-class GlobalsStaff(models.Model):
-    id = models.OneToOneField(GlobalsExtrainfo, models.DO_NOTHING, primary_key=True)
-
-    class Meta:
-        managed = False
-        db_table = 'globals_staff'
