@@ -2,18 +2,16 @@ import React from 'react';
 import {
     Box, Flex, Grid, Heading, Text, Stat, StatLabel, StatNumber, SimpleGrid, Modal, ModalOverlay,
     ModalContent, ModalHeader, ModalCloseButton, ModalBody, useDisclosure, useBreakpointValue,
-    useColorMode, useColorModeValue, IconButton
+    IconButton
 } from "@chakra-ui/react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
-import { FaUser, FaBell, FaArchive, FaCog, FaUsers, FaMoon, FaSun } from "react-icons/fa";
+import { FaUser, FaBell, FaArchive, FaCog, FaUsers } from "react-icons/fa";
 import { motion } from 'framer-motion';
 
 const Dashboard = () => {
     const { isOpen: isUserModalOpen, onOpen: onUserModalOpen, onClose: onUserModalClose } = useDisclosure();
     const { isOpen: isRoleModalOpen, onOpen: onRoleModalOpen, onClose: onRoleModalClose } = useDisclosure();
     const { isOpen: isArchiveModalOpen, onOpen: onArchiveModalOpen, onClose: onArchiveModalClose } = useDisclosure();
-    const { toggleColorMode } = useColorMode();
-    const colorModeIcon = useColorModeValue(FaMoon, FaSun);
 
     const studentDataByYear = [
         { year: '2020', students: 120 },
@@ -21,11 +19,6 @@ const Dashboard = () => {
         { year: '2022', students: 160 },
         { year: '2023', students: 180 },
     ];
-
-    const quickActionColors = useColorModeValue(
-        ["lightcoral", "lightseagreen", "lightsalmon", "lightblue"],
-        ["#E53E3E", "#2B6CB0", "#ED8936", "#2C7A7B"]
-    );
 
     const userTypeData = [
         { name: 'Student', value: 350 },
@@ -51,7 +44,7 @@ const Dashboard = () => {
         const titleFontSize = useBreakpointValue({ base: 'md', md: 'lg', lg: 'xl' });
 
         return (
-            <Box bg={useColorModeValue('white', 'gray.700')} borderRadius="md" boxShadow="md" p={4}>
+            <Box bg='white' borderRadius="md" boxShadow="md" p={4}>
                 <Heading size={titleFontSize} mb={4}>{title}</Heading>
                 <Flex justify="center">{children}</Flex>
             </Box>
@@ -63,14 +56,9 @@ const Dashboard = () => {
     const pieChartSize = useBreakpointValue({ base: 200, md: 280, lg: 350 });
 
     return (
-        <Box p={5} bg={useColorModeValue("gray.100", "gray.800")} minH="100vh">
-            <Flex justifyContent="space-between" alignItems="center" mb={6}>
+        <Box p={5} bg="gray.100" minH="100vh">
+            <Flex justifyContent="space-between" alignItems="center" mb={6} color={'#333333'}>
                 <Heading>System Admin Dashboard</Heading>
-                <IconButton
-                    icon={React.createElement(colorModeIcon)}
-                    onClick={toggleColorMode}
-                    aria-label="Toggle Theme"
-                />
             </Flex>
 
             {/* Stats Section */}
@@ -82,12 +70,12 @@ const Dashboard = () => {
             </SimpleGrid>
 
             {/* Quick Actions Section */}
-            <Heading size="md" mb={4}>Quick Actions</Heading>
+            <Heading size="md" mb={4} color={'#333333'}>Quick Actions</Heading>
             <SimpleGrid columns={{ base: 1, md: 4 }} spacing={6} mb={8}>
-                <QuickAction title="Manage Users" icon={FaUsers} onClick={onUserModalOpen} color={quickActionColors[0]} />
-                <QuickAction title="Manage Roles" icon={FaCog} onClick={onRoleModalOpen} color={quickActionColors[1]} />
-                <QuickAction title="Archive Data" icon={FaArchive} onClick={onArchiveModalOpen} color={quickActionColors[2]} />
-                <QuickAction title="Mail" icon={FaBell} color={quickActionColors[3]} />
+                <QuickAction title="Manage Users" icon={FaUsers} onClick={onUserModalOpen} color={"lightcoral"} />
+                <QuickAction title="Manage Roles" icon={FaCog} onClick={onRoleModalOpen} color={"lightseagreen"} />
+                <QuickAction title="Archive Data" icon={FaArchive} onClick={onArchiveModalOpen} color={"lightsalmon"} />
+                <QuickAction title="Mail" icon={FaBell} color={"lightblue"} />
             </SimpleGrid>
 
             {/* Charts Section */}
@@ -189,9 +177,9 @@ const Dashboard = () => {
 
 // StatBox Component
 const StatBox = ({ title, count, icon }) => (
-    <Box as={motion.div} whileHover={{ scale: 1.05 }} transition="0.2s" bg={useColorModeValue("white", "gray.700")} boxShadow="md" p={4} borderRadius="md">
-        <Flex justifyContent="space-between" align="center">
-            <Stat>
+    <Box as={motion.div} whileHover={{ scale: 1.05 }} transition="0.2s" bg="white" boxShadow="md" p={4} borderRadius="md">
+        <Flex justifyContent="space-between" align="center" >
+            <Stat color="gray.500">
                 <StatLabel>{title}</StatLabel>
                 <StatNumber>{count}</StatNumber>
             </Stat>
@@ -227,13 +215,13 @@ const QuickAction = ({ title, icon, onClick, color }) => (
 // OptionCard Component
 const OptionCard = ({ title, route }) => (
     <Box
-        bg={useColorModeValue("white", "gray.700")}
+        bg="white"
         borderRadius="md"
         boxShadow="md"
         p={4}
         mb={4}
         cursor="pointer"
-        _hover={{ bg: useColorModeValue("gray.100", "gray.600") }}
+        _hover= "gray.100"
         onClick={() => window.location.href = route}
     >
         <Text fontWeight="bold">{title}</Text>
@@ -242,7 +230,7 @@ const OptionCard = ({ title, route }) => (
 
 // ActivityCard Component
 const ActivityCard = ({ title, date }) => (
-    <Box bg={useColorModeValue("white", "gray.700")} borderRadius="md" boxShadow="md" p={4}>
+    <Box bg="white" borderRadius="md" boxShadow="md" p={4}>
         <Text fontWeight="bold">{title}</Text>
         <Text color="gray.500">{date}</Text>
     </Box>
