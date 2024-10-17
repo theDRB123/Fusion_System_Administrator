@@ -129,7 +129,7 @@ const ResetUserPasswordPage = () => {
                             wordBreak: 'break-word',
                         }}
                     >
-                        Create User
+                        Reset Password
                     </Title>
                 </Button>
             </Flex>
@@ -207,7 +207,7 @@ const ResetUserPasswordPage = () => {
                         )}
 
                         <Button
-                            style={{ background: 'blue', color: 'white' }}
+                            style={{ background: 'light-blue', color: 'white' }}
                             onClick={openConfirmationDialog}
                             fullWidth
                         >
