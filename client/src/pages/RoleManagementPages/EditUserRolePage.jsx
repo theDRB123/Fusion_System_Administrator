@@ -2,14 +2,26 @@ import React, { useState, useRef } from 'react';
 import {
     Box,
     Button,
-    TextInput,
+    Input,
+    Select,
     Text,
     Stack,
-    Flex,
-    Grid,
-    Select,
+    useMantineTheme,
+    SimpleGrid,
     Modal,
+    Group,
+    Container,
+    Title,
+    Flex,
+    TextInput,
+    Tabs,
+    Space,
+    Divider,
+    Checkbox,
+    Center
 } from '@mantine/core';
+import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
+import { Icon3dCubeSphere } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { PieChart, Pie, Cell, Legend } from 'recharts';
@@ -17,6 +29,12 @@ import { roles } from '../../data/roles';
 import { users } from '../../data/users';
 
 const EditUserRolePage = () => {
+    const stats = [
+        { title: 'Total Roles', icon: 'speakerPhone', value: '5,173', diff: 34, time: "In last year" },
+        { title: 'Edit User Role', icon: 'speakerPhone', value: '573', diff: -30, time: "In last year" },
+        { title: 'Total User', icon: 'speakerPhone', value: '2,543', diff: 18, time: "In last year" },
+    ];
+    const [archiveAnnouncementStats, setArchiveAnnouncementStats] = useState(stats)
     const [userName, setUserName] = useState('');
     const [userRollNumber, setUserRollNumber] = useState('');
     const [currentRole, setCurrentRole] = useState('');
@@ -106,7 +124,7 @@ const EditUserRolePage = () => {
 
     return (
         <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', padding: '1rem' }}>
-            <Flex justify="space-between" align="center" mb="1rem" direction={['column', 'row']}>
+            {/* <Flex justify="space-between" align="center" mb="1rem" direction={['column', 'row']}>
                 <Box
                     sx={{
                         padding: '1rem',
@@ -142,12 +160,52 @@ const EditUserRolePage = () => {
                         <Text fontSize="xl">{rolesCreatedThisYear}</Text>
                     </Box>
                 </Grid>
+            </Flex> */}
+
+<Flex
+                direction={{ base: 'column', sm: 'row' }}
+                gap={{ base: 'sm', sm: 'lg' }}
+                justify={{ sm: 'center' }}
+            >
+                <Button
+                    variant="gradient"
+                    size="xl"
+                    radius="xs"
+                    gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+                    sx={{
+                        display: 'block',
+                        width: { base: '100%', sm: 'auto' },
+                        whiteSpace: 'normal',
+                        padding: '1rem',
+                        textAlign: 'center',
+                    }}
+                >
+                    <Title
+                        order={1}
+                        sx={{
+                            fontSize: { base: 'lg', sm: 'xl' },
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        Edit User Role
+                    </Title>
+                </Button>
             </Flex>
+
+            <StatsGrid data={archiveAnnouncementStats} /> 
+
+            <Divider
+                my="xs"
+                labelPosition="center"
+                label={<Icon3dCubeSphere size={12} />}
+            />
+
 
             <Flex direction={{ base: 'column', lg: 'row' }} >
                 {/* Form Section */}
                 <Box
-                    w="100%" md:w="50%"
+                    w="100%" md:w="50%" pl="lg"
                 >
                     <Stack spacing="1rem">
                         {/* User Name Input */}
@@ -208,7 +266,7 @@ const EditUserRolePage = () => {
                 >
                     {/* Bar Chart Section */}
                     <Box>
-                        <Text fontSize="xl" fontWeight="bold" mb="1rem">
+                        <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
                             Number of Privileges by Role
                         </Text>
                         <ResponsiveContainer width="100%" height={300}>
@@ -223,7 +281,7 @@ const EditUserRolePage = () => {
 
                     {/* Pie Chart Section */}
                     <Box>
-                        <Text fontSize="xl" fontWeight="bold" mb="1rem">
+                        <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
                             Number of Users by Role
                         </Text>
                         <ResponsiveContainer width="100%" height={300}>
