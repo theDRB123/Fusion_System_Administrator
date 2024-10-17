@@ -2,7 +2,7 @@ import { BarChart } from '@mantine/charts';
 // import { data } from './data';
 import { Title } from '@mantine/core'; // Import for heading
 
-export function Simple({title, data, colors}) {
+export function Simple({title, data, colors, datakey}) {
     return (
         <div>
             {/* Heading */}
@@ -14,7 +14,7 @@ export function Simple({title, data, colors}) {
             <BarChart
                 h={250}
                 data={data}
-                dataKey="year"
+                dataKey={datakey}
                 series={colors}
                 tickLine="y"
                 styles={{

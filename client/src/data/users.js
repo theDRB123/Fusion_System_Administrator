@@ -28,5 +28,5 @@ export const users = [
     { id: 27, name: "Prof. Evans", branch: "ME", password: "user@123" ,role: "Professor", createdAt: "2023-03-02 14:30:00", isArchived: false },
     { id: 28, name: "Prof. Scott", branch: "CSE", password: "user@123" ,role: "Professor", createdAt: "2023-03-02 14:30:00", isArchived: false },
     { id: 29, name: "Prof. Sciver", branch: "ECE", password: "user@123" ,role: "Professor", createdAt: "2023-03-02 14:30:00", isArchived: false },
-    { id: 30, name: "Prof. King", branch: "CSE", password: "user@123" ,role: "Professor", createdAt: "2023-03-02 14:30:00", isArchived: false },
+    { id: 30, name: "Prof. King", branch: "CSE", password: "user@123" ,role: "Assistant Professor", createdAt: "2023-03-02 14:30:00", isArchived: true},
 ];

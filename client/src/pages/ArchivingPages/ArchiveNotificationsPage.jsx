@@ -170,7 +170,12 @@ const ArchiveNotificationsPage = () => {
                 }
             />
 
-            <Simple title={"Archived Notifications by year"} data={notificationData} colors={colors} />
+            <Simple
+                title={"Archived Notifications by year"}
+                data={notificationData}
+                colors={colors}
+                datakey={'year'}
+            />
 
 
             <Box>
