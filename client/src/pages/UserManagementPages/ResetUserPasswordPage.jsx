@@ -8,9 +8,20 @@ import {
     Stack,
     Modal,
     TextInput,
+    Group,
+    Tabs,
+    Container,
+    Title,
+    Space,
+    SimpleGrid,
+    Divider,
+    Checkbox,
+    Center
 } from '@mantine/core';
+
 import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
 import '@mantine/notifications/styles.css';
+import { Icon3dCubeSphere } from '@tabler/icons-react';
 
 const ResetUserPasswordPage = () => {
     const [formData, setFormData] = useState({
@@ -69,7 +80,7 @@ const ResetUserPasswordPage = () => {
 
     return (
         <Box style={{ background: '#f7f7f7', minHeight: '100vh', padding: '20px' }}>
-            <Flex justify="space-between" align="center" mb="20px" direction={{ base: 'column', sm: 'row' }}>
+            {/* <Flex justify="space-between" align="center" mb="20px" direction={{ base: 'column', sm: 'row' }}>
                 <Box
                     style={{
                         padding: '10px',
@@ -91,7 +102,52 @@ const ResetUserPasswordPage = () => {
                         Reset Password
                     </Text>
                 </Box>
+            </Flex> */}
+            <Flex
+                direction={{ base: 'column', sm: 'row' }}
+                gap={{ base: 'sm', sm: 'lg' }}
+                justify={{ sm: 'center' }}
+            >
+                <Button
+                    variant="gradient"
+                    size="xl"
+                    radius="xs"
+                    gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+                    sx={{
+                        display: 'block',
+                        width: { base: '100%', sm: 'auto' },
+                        whiteSpace: 'normal',
+                        padding: '1rem',
+                        textAlign: 'center',
+                    }}
+                >
+                    <Title
+                        order={1}
+                        sx={{
+                            fontSize: { base: 'lg', sm: 'xl' },
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        Create User
+                    </Title>
+                </Button>
             </Flex>
+
+
+            {/* <StatsGrid data={archiveAnnouncementStats} />  */}
+
+            <Divider
+                my="xs"
+                // variant="dashed"
+                labelPosition="center"
+                label={
+                    <>
+                        <Icon3dCubeSphere size={12} />
+                    </>
+                }
+            />
+
 
             <Box
                 style={{
@@ -151,7 +207,7 @@ const ResetUserPasswordPage = () => {
                         )}
 
                         <Button
-                            style={{ background: '#F5B2B2', color: 'white' }}
+                            style={{ background: 'blue', color: 'white' }}
                             onClick={openConfirmationDialog}
                             fullWidth
                         >
