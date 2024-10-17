@@ -1,8 +1,12 @@
+import csv
+from django.http import HttpResponse
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
+from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess, AuthUser
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
+from io import StringIO
 
 # get list of all users
 @api_view(['GET'])
@@ -132,3 +136,59 @@ def modify_moduleaccess(request):
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+#bulk import of users via csv file
+@api_view(['POST'])
+def bulk_import_users(request):
+    if 'file' not in request.FILES:
+        return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    file = request.FILES['file']
+    if not file.name.endswith('.csv'):
+        return Response({"error": "Please upload a valid CSV file."}, status=status.HTTP_400_BAD_REQUEST)
+
+    file_data = file.read().decode('utf-8')
+    csv_data = csv.reader(StringIO(file_data))
+    
+    headers = next(csv_data)  
+    created_users = []
+    for row in csv_data:
+        try:
+            #CSV columns: username, first_name, last_name, email, password, is_staff, is_superuser
+            user_data = {
+                'username': row[0],
+                'first_name': row[1],
+                'last_name': row[2],
+                'email': row[3],
+                'password': row[4],  # You might need to hash the password.
+                'is_staff': row[5].lower() == 'true',
+                'is_superuser': row[6].lower() == 'true',
+                'is_active': True,  # Default active status
+            }
+            serializer = AuthUserSerializer(data=user_data)
+            if serializer.is_valid():
+                user = serializer.save()
+                user.set_password(user_data['password'])  # Hash the password
+                user.save()
+                created_users.append(serializer.data)
+            else:
+                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except IndexError:
+            return Response({"error": "Invalid data format."}, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({"message": f"{len(created_users)} users created successfully.", "users": created_users}, status=status.HTTP_201_CREATED)
+
+#bulk export of users via csv file
+@api_view(['GET'])
+def bulk_export_users(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users_export.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['username', 'first_name', 'last_name', 'email', 'is_staff', 'is_superuser'])
+    users = AuthUser.objects.all()
+    
+    for user in users:
+        writer.writerow([user.username, user.first_name, user.last_name, user.email, user.is_staff, user.is_superuser])
+    
+    return response
