@@ -17,6 +17,7 @@ import {
 import { useDisclosure } from '@mantine/hooks';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { users } from '../../data/users';
+import { createUser } from '../../api/Users';
 
 const CreateUserPage = () => {
     const theme = useMantineTheme();
@@ -30,6 +31,7 @@ const CreateUserPage = () => {
     });
 
     const [opened, { open, close }] = useDisclosure(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -39,17 +41,25 @@ const CreateUserPage = () => {
         }));
     };
 
-    const handleSubmit = () => {
-        close();
-        console.log('User Data:', formData);
-        setFormData({
-            name: '',
-            rollNo: '',
-            batch: '',
-            branch: '',
-            password: '',
-            role: 'Student',
-        });
+    const handleSubmit = async () => {
+        try {
+            setLoading(true);
+            await createUser(formData);
+            console.log('User added successfully!');
+            close();
+            setFormData({
+                name: '',
+                rollNo: '',
+                batch: '',
+                branch: '',
+                password: '',
+                role: 'Student',
+            });
+        } catch (error) {
+            alert('Failed to create user. Check console for details.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const openConfirmationDialog = () => {
