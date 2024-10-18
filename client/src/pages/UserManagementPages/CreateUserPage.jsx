@@ -13,13 +13,31 @@ import {
     Container,
     Title,
     Flex,
+    TextInput,
+    Tabs,
+    Space,
+    Divider,
+    Checkbox,
+    Center
 } from '@mantine/core';
+
+
 import { useDisclosure } from '@mantine/hooks';
+import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { users } from '../../data/users';
+import { announcements } from '../../data/announcements';
+
 import { createUser } from '../../api/Users';
 
 const CreateUserPage = () => {
+    const stats = [
+        { title: 'Total users', icon: 'speakerPhone', value: '5,173', diff: 34, time: "In last year" },
+        { title: 'Created user', icon: 'speakerPhone', value: '573', diff: -30, time: "In last year" },
+        { title: 'Total Students', icon: 'speakerPhone', value: '2,543', diff: 18, time: "In last year" },
+    ];
+    const [archiveAnnouncementStats, setArchiveAnnouncementStats] = useState(stats)
     const theme = useMantineTheme();
     const [formData, setFormData] = useState({
         name: '',
@@ -105,13 +123,13 @@ const CreateUserPage = () => {
     return (
         <Box sx={{ background: theme.colors.gray[0], minHeight: '100vh', padding: '2rem' }}>
             {/* Top Section */}
-            <Flex position="apart" mb="xl" justify='space-between'>
+            {/* <Flex position="apart" mb="xl" justify='space-between'>
                 <Box sx={{ background: theme.colors.blue[6], padding: '1rem', borderRadius: theme.radius.md }}>
                     <Title order={2} align="left" sx={{ color: 'white' }}>Create User</Title>
                 </Box>
 
 
-                {/* User Stats */}
+                
                 <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
                     <SimpleGrid cols={2} spacing="md">
                         <Box>
@@ -124,7 +142,52 @@ const CreateUserPage = () => {
                         </Box>
                     </SimpleGrid>
                 </Box>
+            </Flex> */}
+            <Flex
+                direction={{ base: 'column', sm: 'row' }}
+                gap={{ base: 'sm', sm: 'lg' }}
+                justify={{ sm: 'center' }}
+            >
+                <Button
+                    variant="gradient"
+                    size="xl"
+                    radius="xs"
+                    gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
+                    sx={{
+                        display: 'block',
+                        width: { base: '100%', sm: 'auto' },
+                        whiteSpace: 'normal',
+                        padding: '1rem',
+                        textAlign: 'center',
+                    }}
+                >
+                    <Title
+                        order={1}
+                        sx={{
+                            fontSize: { base: 'lg', sm: 'xl' },
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        Create User
+                    </Title>
+                </Button>
             </Flex>
+
+
+            <StatsGrid data={archiveAnnouncementStats} /> 
+
+            <Divider
+                my="xs"
+                // variant="dashed"
+                labelPosition="center"
+                label={
+                    <>
+                        <Icon3dCubeSphere size={12} />
+                    </>
+                }
+            />
+
 
             <Container size="lg" px="lg">
                 <Flex direction={{ base: 'column', md: 'row' }}>
