@@ -17,10 +17,14 @@ import ManageRoleAccessPage from './pages/RoleManagementPages/ManageRoleAccessPa
 
 import SystemAdminDashboard from './pages/DashboardPage/SystemAdminDashboard.jsx';
 
+import TopDrawer from './pages/TopDrawer/TopDrawer.jsx';
+
+
 function App() {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Router>
+        <TopDrawer/>
         <Routes>
           <Route path="/" element={<SystemAdminDashboard />} />
           <Route path="/UserManagement/CreateUser" element={<CreateUserPage />} />
