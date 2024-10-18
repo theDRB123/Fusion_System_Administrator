@@ -52,20 +52,37 @@ def get_user_role_by_email(request):
 def update_user_roles(request):
     email = request.data.get('email')
     roles_to_add = request.data.get('roles')
-    
+
     if not email or not roles_to_add:
         return Response({"error": "Email and roles are required."}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     user = get_object_or_404(AuthUser, email=email)
-    
+
+    # Get existing roles' names as a set of strings
     existing_roles = GlobalsHoldsdesignation.objects.filter(user=user)
     existing_role_names = set(existing_roles.values_list('designation__name', flat=True))
-    
-    roles_to_remove = existing_role_names - set(roles_to_add)
-    
+
+    # Normalize roles_to_add: Extract names from dicts and keep strings
+    processed_roles_to_add = set()
+
+    for role in roles_to_add:
+        if isinstance(role, dict):
+            # Check if 'name' key exists in the dictionary
+            if 'name' in role:
+                processed_roles_to_add.add(role['name'])  # Extract name from dict
+        elif isinstance(role, str):
+            processed_roles_to_add.add(role)  # Keep string as is
+
+    print("Processed roles_to_add:", processed_roles_to_add)  # Log processed roles_to_add
+
+    # Find roles to remove
+    roles_to_remove = existing_role_names - processed_roles_to_add
+
+    # Remove roles that are not in the new list
     GlobalsHoldsdesignation.objects.filter(user=user, designation__name__in=roles_to_remove).delete()
-    
-    for role_name in roles_to_add:
+
+    # Add new roles
+    for role_name in processed_roles_to_add:
         if role_name not in existing_role_names:
             designation = get_object_or_404(GlobalsDesignation, name=role_name)
             GlobalsHoldsdesignation.objects.create(
@@ -74,7 +91,7 @@ def update_user_roles(request):
                 user=user,
                 working=user
             )
-            
+
     return Response({"message": "User roles updated successfully."}, status=status.HTTP_200_OK)
         
 # get list of all roles

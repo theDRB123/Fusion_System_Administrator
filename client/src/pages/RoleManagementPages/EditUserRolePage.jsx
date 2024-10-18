@@ -94,10 +94,10 @@ const EditUserRolePage = () => {
       const updatedRoles = [...currentRoles, ...newRoles].filter((role, index, self) => self.indexOf(role) === index);
       console.log(updatedRoles);
 
-    //   await axios.put(`http://127.0.0.1:8000/api/update-user-roles`, {
-    //     email: email,
-    //     roles: updatedRoles,
-    //   });
+      await axios.put(`http://127.0.0.1:8000/api/update-user-roles/`, {
+        email: email,
+        roles: updatedRoles,
+      });
 
       notifications.show({
         title: "Success",
@@ -161,11 +161,6 @@ const EditUserRolePage = () => {
     "#4169E1",
   ];
 
-  // const roleOptions = roles.map((role) => ({
-  //     value: role.name,
-  //     label: role.name,
-  // }));
-
   return (
     <Box
       sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", padding: "1rem" }}
@@ -228,7 +223,7 @@ const EditUserRolePage = () => {
 
           {userDetails && (
             <Box mt="1rem">
-              <Text fontSize="xl" fontWeight="bold">
+              <Text fontSize="xl" fontWeight="extrabold">
                 Current Roles:{" "}
               </Text>
               <Stack spacing="sm">
