@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path('users/', views.global_extrainfo_list ,name='global_extrainfo_list'),
+    path('get-user-by-email/', views.get_user_by_email ,name='get_user_by_email'),
     path('view-privileges/', views.privileges_list, name='view_privileges'),
     path('add-new-privilege/', views.add_new_privilege, name='add_new_privilege'),
     path('view-roles/', views.global_designation_list ,name='global_designation_list'),

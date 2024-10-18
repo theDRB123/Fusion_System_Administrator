@@ -15,6 +15,21 @@ def global_extrainfo_list(request):
     serializer = GlobalExtraInfoSerializer(records, many=True)
     return Response(serializer.data)
 
+# get user by email
+@api_view(['GET'])
+def get_user_by_email(request):
+    email = request.query_params.get('email')
+    
+    if not email:
+        return Response({"error": "Email parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = AuthUser.objects.get(email=email)
+        serializer = AuthUserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    except AuthUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+        
 # get list of all roles
 @api_view(['GET'])
 def global_designation_list(request):

@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
-import { NotificationsProvider } from "@mantine/notifications";
+// import { NotificationsProvider } from "@mantine/notifications";
 
 import ArchiveUsersPage from "./pages/ArchivingPages/ArchiveUsersPage.jsx";
 import ArchiveNotificationsPage from "./pages/ArchivingPages/ArchiveNotificationsPage.jsx";
@@ -23,7 +23,7 @@ import TopDrawer from "./pages/TopDrawer/TopDrawer.jsx";
 function App() {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      <NotificationsProvider>
+      {/* <NotificationsProvider> */}
         <Router>
           <TopDrawer />
           <Routes>
@@ -63,7 +63,7 @@ function App() {
             />
           </Routes>
         </Router>
-      </NotificationsProvider>
+      {/* </NotificationsProvider> */}
     </MantineProvider>
   );
 }
