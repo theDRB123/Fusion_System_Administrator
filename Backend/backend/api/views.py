@@ -1,5 +1,7 @@
 import csv
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
@@ -44,39 +46,43 @@ def get_user_role_by_email(request):
     
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# update user's roles
+@api_view(['PUT'])
+def update_user_roles(request):
+    email = request.data.get('email')
+    roles_to_add = request.data.get('roles')
+    
+    if not email or not roles_to_add:
+        return Response({"error": "Email and roles are required."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    user = get_object_or_404(AuthUser, email=email)
+    
+    existing_roles = GlobalsHoldsdesignation.objects.filter(user=user)
+    existing_role_names = set(existing_roles.values_list('designation__name', flat=True))
+    
+    roles_to_remove = existing_role_names - set(roles_to_add)
+    
+    GlobalsHoldsdesignation.objects.filter(user=user, designation__name__in=roles_to_remove).delete()
+    
+    for role_name in roles_to_add:
+        if role_name not in existing_role_names:
+            designation = get_object_or_404(GlobalsDesignation, name=role_name)
+            GlobalsHoldsdesignation.objects.create(
+                held_at=timezone.now(),
+                designation=designation,
+                user=user,
+                working=user
+            )
+            
+    return Response({"message": "User roles updated successfully."}, status=status.HTTP_200_OK)
         
 # get list of all roles
 @api_view(['GET'])
 def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
     serializer = GlobalsDesignationSerializer(records, many=True)
-    return Response(serializer.data)
-
-# view list of previleges for a model
-@api_view(['GET'])
-def privileges_list(request):
-    content_type_number = request.data.get('content-type')
-    
-    if not content_type_number:
-        return Response({"error": "No content-type number provided."}, status=status.HTTP_400_BAD_REQUEST)
-
-    privileges = AuthPermission.objects.filter(content_type = content_type_number)
-    
-    if privileges.exists():
-        serializer = AuthPermissionSerializer(privileges, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    else :
-        return Response({"message": "No privileges found."}, status=status.HTTP_404_NOT_FOUND)
-    
-# add a new previlege for a model
-@api_view(['POST'])
-def add_new_privilege(request):
-    serializer = AuthPermissionSerializer(data=request.data)
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
-    else :
-        return Response(serializer.errors, status.HTTP_400_BAD_REQUEST) 
+    return Response(serializer.data) 
 
 # add a new role
 @api_view(['POST'])

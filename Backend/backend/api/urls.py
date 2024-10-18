@@ -4,8 +4,7 @@ from . import views
 urlpatterns = [
     path('users/', views.global_extrainfo_list ,name='global_extrainfo_list'),
     path('get-user-roles-by-email/', views.get_user_role_by_email ,name='get_user_role_by_email'),
-    path('view-privileges/', views.privileges_list, name='view_privileges'),
-    path('add-new-privilege/', views.add_new_privilege, name='add_new_privilege'),
+    path('update-user-roles/', views.update_user_roles ,name='update_user_roles'),
     path('view-roles/', views.global_designation_list ,name='global_designation_list'),
     path('create-role/', views.add_designation ,name='add_designation'),
     path('delete-role/', views.delete_designation ,name='delete_designation'),
