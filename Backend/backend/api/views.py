@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, AuthPermission
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, GlobalsHoldsDesignationSerializer, AuthUserSerializer, AuthPermissionSerializer
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, AuthPermissionSerializer
 from io import StringIO
 
 # get list of all users
@@ -28,8 +28,6 @@ def get_user_role_by_email(request):
         user_id = user.id
         
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user_id)
-        
-        holds_serializer = GlobalsHoldsDesignationSerializer(holds_designation_entries, many=True)
         
         designation_ids = [entry.designation_id for entry in holds_designation_entries]
         
