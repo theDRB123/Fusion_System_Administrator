@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GlobalsExtrainfo, GlobalsDesignation, AuthUser, GlobalsModuleaccess
+from .models import GlobalsExtrainfo, GlobalsDesignation, AuthUser, GlobalsModuleaccess, AuthPermission
 
 class GlobalExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,6 +14,11 @@ class GlobalsDesignationSerializer(serializers.ModelSerializer):
 class AuthUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = AuthUser
+        fields = '__all__'
+        
+class AuthPermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AuthPermission
         fields = '__all__'
         
 class GlobalsModuleaccessSerializer(serializers.ModelSerializer):

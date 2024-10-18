@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess, AuthUser
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess, AuthUser, AuthPermission
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, AuthPermissionSerializer
 from io import StringIO
 
 # get list of all users
@@ -21,6 +21,22 @@ def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
     serializer = GlobalsDesignationSerializer(records, many=True)
     return Response(serializer.data)
+
+@api_view(['GET'])
+def privileges_list(request):
+    content_type_number = request.data.get('content-type')
+    
+    if not content_type_number:
+        return Response({"error": "No content-type number provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+    privileges = AuthPermission.objects.filter(content_type = content_type_number)
+    
+    if privileges.exists():
+        serializer = AuthPermissionSerializer(privileges, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    else :
+        return Response({"message": "No privileges found."}, status=status.HTTP_404_NOT_FOUND)
+        
 
 # add a new role
 @api_view(['POST'])
