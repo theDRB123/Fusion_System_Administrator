@@ -22,7 +22,7 @@ def global_designation_list(request):
     serializer = GlobalsDesignationSerializer(records, many=True)
     return Response(serializer.data)
 
-# view list of previleges for a role
+# view list of previleges for a model
 @api_view(['GET'])
 def privileges_list(request):
     content_type_number = request.data.get('content-type')
@@ -38,7 +38,7 @@ def privileges_list(request):
     else :
         return Response({"message": "No privileges found."}, status=status.HTTP_404_NOT_FOUND)
     
-# add a new previlege for a role
+# add a new previlege for a model
 @api_view(['POST'])
 def add_new_privilege(request):
     serializer = AuthPermissionSerializer(data=request.data)
