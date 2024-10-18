@@ -4,8 +4,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess, AuthUser, AuthPermission
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, AuthPermissionSerializer
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, AuthPermission
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, GlobalsHoldsDesignationSerializer, AuthUserSerializer, AuthPermissionSerializer
 from io import StringIO
 
 # get list of all users
@@ -15,9 +15,9 @@ def global_extrainfo_list(request):
     serializer = GlobalExtraInfoSerializer(records, many=True)
     return Response(serializer.data)
 
-# get user by email
+# get user by email and then fetch the role details 
 @api_view(['GET'])
-def get_user_by_email(request):
+def get_user_role_by_email(request):
     email = request.query_params.get('email')
     
     if not email:
@@ -25,10 +25,27 @@ def get_user_by_email(request):
     
     try:
         user = AuthUser.objects.get(email=email)
-        serializer = AuthUserSerializer(user)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        user_id = user.id
+        
+        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user_id)
+        
+        holds_serializer = GlobalsHoldsDesignationSerializer(holds_designation_entries, many=True)
+        
+        designation_ids = [entry.designation_id for entry in holds_designation_entries]
+        
+        roles = GlobalsDesignation.objects.filter(id__in=designation_ids)
+        roles_serializer = GlobalsDesignationSerializer(roles, many=True)
+        
+        return Response({
+            "user": AuthUserSerializer(user).data,
+            "roles": roles_serializer.data,
+        }, status=status.HTTP_200_OK)
+        
     except AuthUser.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 # get list of all roles
 @api_view(['GET'])
