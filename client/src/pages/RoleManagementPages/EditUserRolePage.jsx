@@ -1,330 +1,318 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
-    Box,
-    Button,
-    Input,
-    Select,
-    Text,
-    Stack,
-    useMantineTheme,
-    SimpleGrid,
-    Modal,
-    Group,
-    Container,
-    Title,
-    Flex,
-    TextInput,
-    Tabs,
-    Space,
-    Divider,
-    Checkbox,
-    Center
-} from '@mantine/core';
-import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
-import { notifications } from '@mantine/notifications';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
-import { PieChart, Pie, Cell, Legend } from 'recharts';
-import { roles } from '../../data/roles';
-import { users } from '../../data/users';
+  Box,
+  Button,
+  Input,
+  Select,
+  Text,
+  Stack,
+  useMantineTheme,
+  SimpleGrid,
+  Modal,
+  Group,
+  Container,
+  Title,
+  Flex,
+  TextInput,
+  Tabs,
+  Space,
+  Divider,
+  Checkbox,
+  Center,
+  MultiSelect,
+} from "@mantine/core";
+import { StatsGrid } from "../../components/StatsGrid/StatsGrid";
+import { Icon3dCubeSphere } from "@tabler/icons-react";
+import { notifications } from "@mantine/notifications";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import { PieChart, Pie, Cell, Legend } from "recharts";
+import { roles } from "../../data/roles";
+import { users } from "../../data/users";
+import axios from "axios";
 
 const EditUserRolePage = () => {
-    const stats = [
-        { title: 'Total Roles', icon: 'speakerPhone', value: '5,173', diff: 34, time: "In last year" },
-        { title: 'Edit User Role', icon: 'speakerPhone', value: '573', diff: -30, time: "In last year" },
-        { title: 'Total User', icon: 'speakerPhone', value: '2,543', diff: 18, time: "In last year" },
-    ];
-    const [archiveAnnouncementStats, setArchiveAnnouncementStats] = useState(stats)
-    const [userName, setUserName] = useState('');
-    const [userRollNumber, setUserRollNumber] = useState('');
-    const [currentRole, setCurrentRole] = useState('');
-    const [newRole, setNewRole] = useState('');
+  const [email, setEmail] = useState("");
+  const [userDetails, setUserDetails] = useState(null);
+  const [roles, setRoles] = useState([]);
+  const [currentRoles, setCurrentRoles] = useState([]);
+  const [newRoles, setNewRoles] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
 
-    const [isOpen, setIsOpen] = useState(false);
-    const cancelRef = useRef();
+  const stats = [
+    {
+      title: "Total Roles",
+      icon: "speakerPhone",
+      value: "5,173",
+      diff: 34,
+      time: "In last year",
+    },
+    {
+      title: "Edit User Role",
+      icon: "speakerPhone",
+      value: "573",
+      diff: -30,
+      time: "In last year",
+    },
+    {
+      title: "Total User",
+      icon: "speakerPhone",
+      value: "2,543",
+      diff: 18,
+      time: "In last year",
+    },
+  ];
+  const [archiveAnnouncementStats, setArchiveAnnouncementStats] =
+    useState(stats);
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        switch (name) {
-            case 'userName':
-                setUserName(value);
-                break;
-            case 'userRollNumber':
-                setUserRollNumber(value);
-                break;
-            case 'currentRole':
-                setCurrentRole(value);
-                break;
-            case 'newRole':
-                setNewRole(value);
-                break;
-            default:
-                break;
-        }
-    };
+  const cancelRef = useRef();
 
-    const handleSubmit = () => {
-        setIsOpen(false);
-        console.log('User Details Submitted:', {
-            userName,
-            userRollNumber,
-            currentRole,
-            newRole,
-        });
+  const fetchUserAndRoleDetails = async () => {
+    try {
+      const response = await axios.get(
+        `http://127.0.0.1:8000/api/get-user-roles-by-email?email=${email}`
+      );
+      setUserDetails(response.data.user);
+      setCurrentRoles(response.data.roles);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: "Could not fetch user details. Please check the email.",
+        color: "red",
+      });
+    }
+  };
 
-        notifications.show({
-            title: 'User Information Submitted',
-            message: 'The user details have been successfully submitted.',
-            color: 'green',
-        });
+  const handleSubmit = async () => {
+    try {
+      const updatedRoles = [...currentRoles, ...newRoles].filter((role, index, self) => self.indexOf(role) === index);
+      console.log(updatedRoles);
 
-        setUserName('');
-        setUserRollNumber('');
-        setCurrentRole('');
-        setNewRole('');
-    };
+      await axios.put(`http://127.0.0.1:8000/api/update-user-roles/`, {
+        email: email,
+        roles: updatedRoles,
+      });
 
-    const openConfirmationDialog = () => {
-        setIsOpen(true);
-    };
+      notifications.show({
+        title: "Success",
+        message: "User roles updated successfully.",
+        color: "green",
+      });
+      setCurrentRoles(updatedRoles);
+      setNewRoles([]);
+      setIsOpen(false);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: "Could not update user roles.",
+        color: "red",
+      });
+    }
+  };
 
-    const getUserCountsByRole = () => {
-        const counts = {};
-        users.forEach((user) => {
-            counts[user.role] = (counts[user.role] || 0) + 1;
-        });
+  const handleRemoveRole = (role) => {
+    setCurrentRoles((prevRoles) => prevRoles.filter((r) => r !== role));
+  };
 
-        return Object.entries(counts).map(([role, count]) => ({
-            role,
-            count,
-        }));
-    };
+  const fetchAvailableRoles = async () => {
+    try {
+      const response = await axios.get(`http://127.0.0.1:8000/api/view-roles`);
+      setRoles(response.data);
+    } catch (error) {
+      notifications.show({
+        title: "Error",
+        message: "Could not fetch available roles.",
+        color: "red",
+      });
+    }
+  };
 
-    const getPrivilegesCount = () => {
-        return roles.map((role) => ({
-            name: role.name,
-            privilegeCount: role.privileges.length,
-        }));
-    };
+  useEffect(() => {
+    fetchAvailableRoles();
+  }, []);
 
-    const privilegeData = getPrivilegesCount();
-    const userRoleData = getUserCountsByRole();
-    const totalRoles = roles.length;
-    const currentYear = new Date().getFullYear();
-    const rolesCreatedThisYear = roles.filter(
-        (role) => new Date(role.createdAt).getFullYear() === currentYear
-    ).length;
+  const getUserCountsByRole = () => {
+    const counts = {};
+    users.forEach((user) => {
+      counts[user.role] = (counts[user.role] || 0) + 1;
+    });
 
-    const colors = ['#4A90E2', '#005B96', '#0069B9', '#1E90FF', '#87CEFA', '#4682B4', '#4169E1'];
-
-    const roleOptions = roles.map((role) => ({
-        value: role.name,
-        label: role.name,
+    return Object.entries(counts).map(([role, count]) => ({
+      role,
+      count,
     }));
+  };
 
-    return (
-        <Box sx={{ backgroundColor: '#f0f0f0', minHeight: '100vh', padding: '1rem' }}>
-            {/* <Flex justify="space-between" align="center" mb="1rem" direction={['column', 'row']}>
-                <Box
-                    sx={{
-                        padding: '1rem',
-                        backgroundColor: '#228Be6',
-                        borderRadius: '8px',
-                        boxShadow: 'md',
-                        marginBottom: ['1rem', '0'],
-                    }}
-                >
-                    <Text
-                        sx={{
-                            fontSize: ['1.5rem', '2rem', '3rem'],
-                            fontWeight: 'bold',
-                            color: 'white',
-                            textAlign: ['center', 'left'],
-                        }}
-                    >
-                        Edit User Role
-                    </Text>
-                </Box>
+  const userRoleData = getUserCountsByRole();
 
-                <Grid columns={2} gutter="1rem" textAlign="center">
-                    <Box>
-                        <Text fontSize="lg" fontWeight="bold">
-                            Total Roles
-                        </Text>
-                        <Text fontSize="xl">{totalRoles}</Text>
-                    </Box>
-                    <Box>
-                        <Text fontSize="lg" fontWeight="bold">
-                            Roles Created This Year
-                        </Text>
-                        <Text fontSize="xl">{rolesCreatedThisYear}</Text>
-                    </Box>
-                </Grid>
-            </Flex> */}
+  const colors = [
+    "#4A90E2",
+    "#005B96",
+    "#0069B9",
+    "#1E90FF",
+    "#87CEFA",
+    "#4682B4",
+    "#4169E1",
+  ];
 
-<Flex
-                direction={{ base: 'column', sm: 'row' }}
-                gap={{ base: 'sm', sm: 'lg' }}
-                justify={{ sm: 'center' }}
-            >
-                <Button
-                    variant="gradient"
-                    size="xl"
-                    radius="xs"
-                    gradient={{ from: 'blue', to: 'cyan', deg: 90 }}
-                    sx={{
-                        display: 'block',
-                        width: { base: '100%', sm: 'auto' },
-                        whiteSpace: 'normal',
-                        padding: '1rem',
-                        textAlign: 'center',
-                    }}
-                >
-                    <Title
-                        order={1}
-                        sx={{
-                            fontSize: { base: 'lg', sm: 'xl' },
-                            lineHeight: 1.2,
-                            wordBreak: 'break-word',
-                        }}
-                    >
-                        Edit User Role
-                    </Title>
-                </Button>
-            </Flex>
+  return (
+    <Box
+      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", padding: "1rem" }}
+    >
+      <Flex
+        direction={{ base: "column", sm: "row" }}
+        gap={{ base: "sm", sm: "lg" }}
+        justify={{ sm: "center" }}
+      >
+        <Button
+          variant="gradient"
+          size="xl"
+          radius="xs"
+          gradient={{ from: "blue", to: "cyan", deg: 90 }}
+          sx={{
+            display: "block",
+            width: { base: "100%", sm: "auto" },
+            whiteSpace: "normal",
+            padding: "1rem",
+            textAlign: "center",
+          }}
+        >
+          <Title
+            order={1}
+            sx={{
+              fontSize: { base: "lg", sm: "xl" },
+              lineHeight: 1.2,
+              wordBreak: "break-word",
+            }}
+          >
+            Edit User Role
+          </Title>
+        </Button>
+      </Flex>
 
-            <StatsGrid data={archiveAnnouncementStats} /> 
+      <StatsGrid data={archiveAnnouncementStats} />
 
-            <Divider
-                my="xs"
-                labelPosition="center"
-                label={<Icon3dCubeSphere size={12} />}
+      <Divider
+        my="xs"
+        labelPosition="center"
+        label={<Icon3dCubeSphere size={12} />}
+      />
+
+      <Flex direction={{ base: "column", lg: "row" }}>
+        {/* Form Section */}
+        <Box w="100%" md:w="50%" pl="lg">
+          <Stack spacing="1rem">
+            {/* User Name Input */}
+            <TextInput
+              label="User Email"
+              placeholder="Enter user email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
             />
+            <Button onClick={fetchUserAndRoleDetails}>
+              Fetch User Details
+            </Button>
+          </Stack>
 
-
-            <Flex direction={{ base: 'column', lg: 'row' }} >
-                {/* Form Section */}
-                <Box
-                    w="100%" md:w="50%" pl="lg"
-                >
-                    <Stack spacing="1rem">
-                        {/* User Name Input */}
-                        <TextInput
-                            label="User Name"
-                            name="userName"
-                            placeholder="Enter user name"
-                            value={userName}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        {/* User Roll Number Input */}
-                        <TextInput
-                            label="User Roll Number"
-                            name="userRollNumber"
-                            placeholder="Enter user roll number"
-                            value={userRollNumber}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        {/* Current Role Dropdown */}
-                        <Select
-                            label="Current Role"
-                            name="currentRole"
-                            placeholder="Select current role"
-                            data={roleOptions}
-                            value={roleOptions.find((option) => option.value === currentRole)}
-                            onChange={(value) => setCurrentRole(value)}
-                            required
-                        />
-
-                        {/* New Role Dropdown */}
-                        <Select
-                            label="New Role"
-                            name="newRole"
-                            placeholder="Select new role"
-                            data={roleOptions}
-                            value={roleOptions.find((option) => option.value === newRole)}
-                            onChange={(value) => setNewRole(value)}
-                            required
-                        />
-
-                        <Button
-                            color="blue"
-                            onClick={openConfirmationDialog}
-                            fullWidth
-                        >
-                            Edit User Role
-                        </Button>
-                    </Stack>
-                </Box>
-
-                {/* Graphs Section */}
-                <Box
-                    w="100%" md:w="50%"
-                >
-                    {/* Bar Chart Section */}
-                    <Box>
-                        <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
-                            Number of Privileges by Role
-                        </Text>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <BarChart data={privilegeData}>
-                                <XAxis dataKey="name" />
-                                <YAxis />
-                                <Tooltip />
-                                <Bar dataKey="privilegeCount" fill="#4A90E2" />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </Box>
-
-                    {/* Pie Chart Section */}
-                    <Box>
-                        <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
-                            Number of Users by Role
-                        </Text>
-                        <ResponsiveContainer width="100%" height={300}>
-                            <PieChart>
-                                <Pie
-                                    data={userRoleData}
-                                    dataKey="count"
-                                    nameKey="role"
-                                    cx="50%"
-                                    cy="50%"
-                                    outerRadius={80}
-                                    fill="#1E90FF"
-                                    label
-                                >
-                                    {userRoleData.map((entry, index) => (
-                                        <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                                    ))}
-                                </Pie>
-                                <Legend />
-                            </PieChart>
-                        </ResponsiveContainer>
-                    </Box>
-                </Box>
-            </Flex>
-
-            {/* Confirmation Modal */}
-            <Modal
-                opened={isOpen}
-                onClose={() => setIsOpen(false)}
-                title="Confirm Submission"
-            >
-                <Text>Are you sure you want to update the user role?</Text>
-                <Flex justify="flex-end" gap="1rem" mt="1rem">
-                    <Button variant="default" onClick={() => setIsOpen(false)}>
-                        Cancel
+          {userDetails && (
+            <Box mt="1rem">
+              <Text fontSize="xl" fontWeight="extrabold">
+                Current Roles:{" "}
+              </Text>
+              <Stack spacing="sm">
+                {currentRoles.map((role) => (
+                  <Flex key={role} justify={"space-between"} align={"center"}>
+                    <Text>{role.name}</Text>
+                    <Button
+                      variant="outline"
+                      color="red"
+                      onClick={() => handleRemoveRole(role)}
+                    >
+                      Remove
                     </Button>
-                    <Button color="blue" onClick={handleSubmit}>
-                        Confirm
-                    </Button>
-                </Flex>
-            </Modal>
+                  </Flex>
+                ))}
+              </Stack>
+
+              <MultiSelect
+                label="Add new role"
+                placeholder="Select roles"
+                data={roles.map((role) => ({
+                  value: role.name,
+                  label: role.name,
+                }))}
+                value={newRoles}
+                onChange={setNewRoles}
+                mt="1rem"
+                searchable
+                clearable
+              />
+
+              <Button color="blue" onClick={() => setIsOpen(true)} mt="1rem">
+                Confirm Changes
+              </Button>
+            </Box>
+          )}
         </Box>
-    );
+
+        {/* Graphs Section */}
+        <Box w="100%" md:w="50%">
+          {/* Pie Chart Section */}
+          <Box>
+            <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
+              Number of Users by Role
+            </Text>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie
+                  data={userRoleData}
+                  dataKey="count"
+                  nameKey="role"
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={80}
+                  fill="#1E90FF"
+                  label
+                >
+                  {userRoleData.map((entry, index) => (
+                    <Cell
+                      key={`cell-${index}`}
+                      fill={colors[index % colors.length]}
+                    />
+                  ))}
+                </Pie>
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </Box>
+        </Box>
+      </Flex>
+
+      {/* Confirmation Modal */}
+      <Modal
+        opened={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Confirm Changes"
+      >
+        <Text>Are you sure you want to update the user roles?</Text>
+        <Flex justify="flex-end" gap="1rem" mt="1rem">
+          <Button variant="default" onClick={() => setIsOpen(false)}>
+            Cancel
+          </Button>
+          <Button color="blue" onClick={handleSubmit}>
+            Confirm
+          </Button>
+        </Flex>
+      </Modal>
+    </Box>
+  );
 };
 
 export default EditUserRolePage;
