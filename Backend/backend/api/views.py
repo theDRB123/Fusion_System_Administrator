@@ -193,7 +193,22 @@ def delete_user(request, pk):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+# get module access for a specific role
+@api_view(['GET'])
+def get_module_access(request):
+    role_name = request.query_params.get('designation')
+    
+    if not role_name:
+        return Response({"error": "No role provided."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        module_access = GlobalsModuleaccess.objects.get(designation=role_name)
+    except GlobalsModuleaccess.DoesNotExist:
+        return Response({"error": f"Module access for designation '{role_name}' not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = GlobalsModuleaccessSerializer(module_access)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
 # modify role access
 @api_view(['PUT'])
 def modify_moduleaccess(request):

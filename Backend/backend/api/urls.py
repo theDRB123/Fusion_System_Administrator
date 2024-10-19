@@ -9,6 +9,7 @@ urlpatterns = [
     path('create-role/', views.add_designation ,name='add_designation'),
     path('delete-role/', views.delete_designation ,name='delete_designation'),
     path('modify-role/', views.update_designation ,name='update_designation'),
+    path('get-module-access/', views.get_module_access, name='get_module_access'),
     path('modify-roleaccess/', views.modify_moduleaccess ,name='modify_moduleaccess'),
     path('users/add/', views.add_user, name='add-user'),
     path('users/<int:pk>/', views.user_detail, name='user-detail'),
