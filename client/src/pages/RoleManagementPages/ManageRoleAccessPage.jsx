@@ -74,7 +74,7 @@ const ManageRoleAccessPage = () => {
         setLoading(true);
 
         try {
-            const response = await axios.get(`http://127.0.0.1:8000/api/modify-roleaccess/`, {
+            const response = await axios.get(`http://127.0.0.1:8000/api/get-module-access/`, {
                 params: {designation: roleName},
             });
             setModuleAccess(response.data);
@@ -97,11 +97,14 @@ const ManageRoleAccessPage = () => {
         }));
     };
 
+    useEffect(() => {
+        console.log(moduleAccess);
+    }, [moduleAccess]);
+
     const handleSubmit = async () => {
         setIsOpen(false);
-
         try {
-            await axios.put(`http:127.0.0.1:8000/api/modify-roleaccess/`, {
+            await axios.put(`http://127.0.0.1:8000/api/modify-roleaccess/`, {
                 designation: roleName,
                 ...moduleAccess,
             });
@@ -121,63 +124,60 @@ const ManageRoleAccessPage = () => {
         };
     };
 
-//   const stats = [
-//     {
-//       title: "Total users",
-//       icon: "speakerPhone",
-//       value: "5,173",
-//       diff: 34,
-//       time: "In last year",
-//     },
-//     {
-//       title: "Total Roles",
-//       icon: "speakerPhone",
-//       value: "573",
-//       diff: -30,
-//       time: "In last year",
-//     },
-//     {
-//       title: "Created Roles",
-//       icon: "speakerPhone",
-//       value: "2,543",
-//       diff: 18,
-//       time: "In last year",
-//     },
-//   ];
-//   const [archiveAnnouncementStats, setArchiveAnnouncementStats] =
-//     useState(stats);
-// //   const [roleName, setRoleName] = useState("");
-// //   const [addPrivileges, setAddPrivileges] = useState([]);
-// //   const [removePrivileges, setRemovePrivileges] = useState([]);
+  const stats = [
+    {
+      title: "Total users",
+      icon: "speakerPhone",
+      value: "5,173",
+      diff: 34,
+      time: "In last year",
+    },
+    {
+      title: "Total Roles",
+      icon: "speakerPhone",
+      value: "573",
+      diff: -30,
+      time: "In last year",
+    },
+    {
+      title: "Created Roles",
+      icon: "speakerPhone",
+      value: "2,543",
+      diff: 18,
+      time: "In last year",
+    },
+  ];
 
-//   const cancelRef = useRef();
+  const [archiveAnnouncementStats, setArchiveAnnouncementStats] = useState(stats);
 
-//   const getPrivilegesCount = () => {
-//     return roles.map((role) => ({
-//       name: role.name,
-//       privilegeCount: role.privileges.length,
-//     }));
-//   };
+  const cancelRef = useRef();
 
-//   const getUserCountsByRole = () => {
-//     const counts = {};
-//     roles.forEach((role) => {
-//       counts[role.name] = (counts[role.name] || 0) + 1;
-//     });
+  const getPrivilegesCount = () => {
+    return roles.map((role) => ({
+      name: role.name,
+      privilegeCount: role.length,
+    }));
+  };
 
-//     return Object.entries(counts).map(([role, count]) => ({
-//       role,
-//       count,
-//     }));
-//   };
+  const getUserCountsByRole = () => {
+    const counts = {};
+    roles.forEach((role) => {
+      counts[role.name] = (counts[role.name] || 0) + 1;
+    });
 
-//   const privilegeData = getPrivilegesCount();
-//   const userRoleData = getUserCountsByRole();
-//   const totalRoles = roles.length;
-//   const currentYear = new Date().getFullYear();
-//   const rolesCreatedThisYear = roles.filter(
-//     (role) => new Date(role.createdAt).getFullYear() === currentYear
-//   ).length;
+    return Object.entries(counts).map(([role, count]) => ({
+      role,
+      count,
+    }));
+  };
+
+  const privilegeData = getPrivilegesCount();
+  const userRoleData = getUserCountsByRole();
+  const totalRoles = roles.length;
+  const currentYear = new Date().getFullYear();
+  const rolesCreatedThisYear = roles.filter(
+    (role) => new Date(role.createdAt).getFullYear() === currentYear
+  ).length;
 
   const colors = [
     "#4A90E2",
@@ -189,10 +189,10 @@ const ManageRoleAccessPage = () => {
     "#4169E1",
   ];
 
-//   const privilegeOptions = privileges.map((privilege) => ({
-//     value: privilege.name,
-//     label: privilege.name,
-//   }));
+  const privilegeOptions = privileges.map((privilege) => ({
+    value: privilege.name,
+    label: privilege.name,
+  }));
 
   return (
     <Box
@@ -289,9 +289,9 @@ const ManageRoleAccessPage = () => {
         </Box>
 
         {/* Graphs Section */}
-        {/* <Box w="100%" md:w="50%"> */}
+        <Box w="100%" md:w="50%">
           {/* Bar Chart Section */}
-          {/* <Box>
+          <Box>
             <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
               Number of Privileges by Role
             </Text>
@@ -303,10 +303,10 @@ const ManageRoleAccessPage = () => {
                 <Bar dataKey="privilegeCount" fill="#4A90E2" />
               </BarChart>
             </ResponsiveContainer>
-          </Box> */}
+          </Box>
 
           {/* Pie Chart Section */}
-          {/* <Box>
+          <Box>
             <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
               Number of Roles
             </Text>
@@ -332,8 +332,8 @@ const ManageRoleAccessPage = () => {
                 <Legend />
               </PieChart>
             </ResponsiveContainer>
-          </Box> */}
-        {/* </Box> */}
+          </Box>
+        </Box>
       </Flex>
 
       {/* Confirmation Modal */}
