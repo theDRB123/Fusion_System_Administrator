@@ -74,7 +74,6 @@ class GlobalsHoldsdesignation(models.Model):
 
 
 class GlobalsModuleaccess(models.Model):
-    # designation = models.ForeignKey(GlobalsDesignation, models.CASCADE)
     designation = models.CharField(max_length=155)
     program_and_curriculum = models.BooleanField()
     course_registration = models.BooleanField()
