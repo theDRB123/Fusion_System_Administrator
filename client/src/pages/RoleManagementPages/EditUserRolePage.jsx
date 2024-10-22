@@ -2,40 +2,17 @@ import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
   Button,
-  Input,
-  Select,
   Text,
   Stack,
-  useMantineTheme,
-  SimpleGrid,
   Modal,
-  Group,
-  Container,
-  Title,
   Flex,
   TextInput,
-  Tabs,
-  Space,
-  Divider,
-  Checkbox,
-  Center,
   MultiSelect,
+  Title,
 } from "@mantine/core";
-import { StatsGrid } from "../../components/StatsGrid/StatsGrid";
-import { Icon3dCubeSphere } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { PieChart, Pie, Cell, Legend } from "recharts";
-import { roles } from "../../data/roles";
-import { users } from "../../data/users";
 import axios from "axios";
+import { useMediaQuery } from "@mantine/hooks";
 
 const EditUserRolePage = () => {
   const [email, setEmail] = useState("");
@@ -44,45 +21,23 @@ const EditUserRolePage = () => {
   const [currentRoles, setCurrentRoles] = useState([]);
   const [newRoles, setNewRoles] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
-
-  const stats = [
-    {
-      title: "Total Roles",
-      icon: "speakerPhone",
-      value: "5,173",
-      diff: 34,
-      time: "In last year",
-    },
-    {
-      title: "Edit User Role",
-      icon: "speakerPhone",
-      value: "573",
-      diff: -30,
-      time: "In last year",
-    },
-    {
-      title: "Total User",
-      icon: "speakerPhone",
-      value: "2,543",
-      diff: 18,
-      time: "In last year",
-    },
-  ];
-  const [archiveAnnouncementStats, setArchiveAnnouncementStats] =
-    useState(stats);
-
-  const cancelRef = useRef();
+  const [loading, setLoading] = useState(false);
 
   const fetchUserAndRoleDetails = async () => {
     try {
+      setLoading(true);
       const response = await axios.get(
         `http://127.0.0.1:8000/api/get-user-roles-by-email?email=${email}`
       );
       setUserDetails(response.data.user);
       setCurrentRoles(response.data.roles);
+      setLoading(false);
     } catch (error) {
+      setLoading(false);
       notifications.show({
         title: "Error",
+        position: "top-center",
+        withCloseButton: true,
         message: "Could not fetch user details. Please check the email.",
         color: "red",
       });
@@ -91,7 +46,9 @@ const EditUserRolePage = () => {
 
   const handleSubmit = async () => {
     try {
-      const updatedRoles = [...currentRoles, ...newRoles].filter((role, index, self) => self.indexOf(role) === index);
+      const updatedRoles = [...currentRoles, ...newRoles].filter(
+        (role, index, self) => self.indexOf(role) === index
+      );
       console.log(updatedRoles);
 
       await axios.put(`http://127.0.0.1:8000/api/update-user-roles/`, {
@@ -101,6 +58,8 @@ const EditUserRolePage = () => {
 
       notifications.show({
         title: "Success",
+        position: "top-center",
+        withCloseButton: true,
         message: "User roles updated successfully.",
         color: "green",
       });
@@ -110,6 +69,8 @@ const EditUserRolePage = () => {
     } catch (error) {
       notifications.show({
         title: "Error",
+        position: "top-center",
+        withCloseButton: true,
         message: "Could not update user roles.",
         color: "red",
       });
@@ -127,6 +88,8 @@ const EditUserRolePage = () => {
     } catch (error) {
       notifications.show({
         title: "Error",
+        position: "top-center",
+        withCloseButton: true,
         message: "Could not fetch available roles.",
         color: "red",
       });
@@ -137,78 +100,71 @@ const EditUserRolePage = () => {
     fetchAvailableRoles();
   }, []);
 
-  const getUserCountsByRole = () => {
-    const counts = {};
-    users.forEach((user) => {
-      counts[user.role] = (counts[user.role] || 0) + 1;
-    });
-
-    return Object.entries(counts).map(([role, count]) => ({
-      role,
-      count,
-    }));
+  const handleEnterKeyPress = (event) => {
+    if (event.key === "Enter") {
+      fetchUserAndRoleDetails();
+    }
   };
 
-  const userRoleData = getUserCountsByRole();
+  useEffect(() => {
+    document.addEventListener("keydown", handleEnterKeyPress);
+    return () => {
+      document.removeEventListener("keydown", handleEnterKeyPress);
+    };
+  }, [email]);
 
-  const colors = [
-    "#4A90E2",
-    "#005B96",
-    "#0069B9",
-    "#1E90FF",
-    "#87CEFA",
-    "#4682B4",
-    "#4169E1",
-  ];
+  const matches = useMediaQuery('(min-width: 768px)');
 
   return (
     <Box
-      sx={{ backgroundColor: "#f0f0f0", minHeight: "100vh", padding: "1rem" }}
+      style={{
+        backgroundColor: "#f0f0f0",
+        minHeight: "100vh",
+        padding: "1rem",
+      }}
     >
+      {/* Title Button */}
       <Flex
-        direction={{ base: "column", sm: "row" }}
-        gap={{ base: "sm", sm: "lg" }}
-        justify={{ sm: "center" }}
+        justify="center"
+        align="center"
+        style={{
+          marginBottom: "2rem",
+        }}
       >
         <Button
           variant="gradient"
           size="xl"
           radius="xs"
           gradient={{ from: "blue", to: "cyan", deg: 90 }}
-          sx={{
-            display: "block",
-            width: { base: "100%", sm: "auto" },
-            whiteSpace: "normal",
-            padding: "1rem",
-            textAlign: "center",
+          w={matches && "500px"}
+          style={{
+            fontSize: "1.8rem",
+            lineHeight: 1.2,
           }}
         >
           <Title
             order={1}
-            sx={{
-              fontSize: { base: "lg", sm: "xl" },
-              lineHeight: 1.2,
+            align="center"
+            style={{
+              fontSize: "1.25rem",
               wordBreak: "break-word",
             }}
           >
-            Edit User Role
+            Edit User's Role
           </Title>
         </Button>
       </Flex>
 
-      <StatsGrid data={archiveAnnouncementStats} />
-
-      <Divider
-        my="xs"
-        labelPosition="center"
-        label={<Icon3dCubeSphere size={12} />}
-      />
-
-      <Flex direction={{ base: "column", lg: "row" }}>
-        {/* Form Section */}
-        <Box w="100%" md:w="50%" pl="lg">
+      <Flex
+        direction={{ base: "column", lg: "row" }}
+        style={{
+          gap: "2rem",
+          justifyContent: "center",
+        }}
+      >
+        {/* First Section - User Email Input */}
+        <Box style={{ width: "100%", flex: 1 }}>
           <Stack spacing="1rem">
-            {/* User Name Input */}
             <TextInput
               label="User Email"
               placeholder="Enter user email"
@@ -216,19 +172,50 @@ const EditUserRolePage = () => {
               onChange={(e) => setEmail(e.target.value)}
               required
             />
-            <Button onClick={fetchUserAndRoleDetails}>
-              Fetch User Details
-            </Button>
+            <Button onClick={fetchUserAndRoleDetails}>Fetch User Details</Button>
           </Stack>
+        </Box>
 
-          {userDetails && (
-            <Box mt="1rem">
-              <Text fontSize="xl" fontWeight="extrabold">
-                Current Roles:{" "}
+        {/* Second Section - Current Roles and New Role Selection */}
+        <Box
+          style={{
+            width: "100%",
+            flex: 1,
+            padding: "1rem",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+            maxHeight: "400px",
+            overflowY: "auto",
+          }}
+        >
+          {loading ? (
+            <Text>Loading roles...</Text>
+          ) : userDetails ? (
+            <Box>
+              <Text style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
+                Current Roles:
               </Text>
               <Stack spacing="sm">
                 {currentRoles.map((role) => (
-                  <Flex key={role} justify={"space-between"} align={"center"}>
+                  <Flex
+                    key={role}
+                    justify={"space-between"}
+                    align={"center"}
+                    style={{
+                      padding: "0.5rem 1rem",
+                      borderRadius: "4px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      transition: "background-color 0.2s",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#f0f0f0";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                    }}
+                  >
                     <Text>{role.name}</Text>
                     <Button
                       variant="outline"
@@ -255,43 +242,18 @@ const EditUserRolePage = () => {
                 clearable
               />
 
-              <Button color="blue" onClick={() => setIsOpen(true)} mt="1rem">
+              <Button
+                color="blue"
+                onClick={() => setIsOpen(true)}
+                mt="1rem"
+                fullWidth
+              >
                 Confirm Changes
               </Button>
             </Box>
+          ) : (
+            <Text>No user details found</Text>
           )}
-        </Box>
-
-        {/* Graphs Section */}
-        <Box w="100%" md:w="50%">
-          {/* Pie Chart Section */}
-          <Box>
-            <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
-              Number of Users by Role
-            </Text>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={userRoleData}
-                  dataKey="count"
-                  nameKey="role"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#1E90FF"
-                  label
-                >
-                  {userRoleData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </Box>
         </Box>
       </Flex>
 

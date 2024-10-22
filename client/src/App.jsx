@@ -19,51 +19,51 @@ import ManageRoleAccessPage from "./pages/RoleManagementPages/ManageRoleAccessPa
 import SystemAdminDashboard from "./pages/DashboardPage/SystemAdminDashboard.jsx";
 
 import TopDrawer from "./pages/TopDrawer/TopDrawer.jsx";
+import { Notifications } from '@mantine/notifications';
 
 function App() {
   return (
     <MantineProvider withGlobalStyles withNormalizeCSS>
-      {/* <NotificationsProvider> */}
-        <Router>
-          <TopDrawer />
-          <Routes>
-            <Route path="/" element={<SystemAdminDashboard />} />
-            <Route
-              path="/UserManagement/CreateUser"
-              element={<CreateUserPage />}
-            />
-            <Route
-              path="/UserManagement/DeleteUser"
-              element={<DeleteUserPage />}
-            />
-            <Route
-              path="/UserManagement/ResetUserPassword"
-              element={<ResetUserPasswordPage />}
-            />
-            <Route
-              path="/RoleManagement/CreateCustomRole"
-              element={<CreateCustomRolePage />}
-            />
-            <Route
-              path="/RoleManagement/EditUserRole"
-              element={<EditUserRolePage />}
-            />
-            <Route
-              path="/RoleManagement/ManageRoleAccess"
-              element={<ManageRoleAccessPage />}
-            />
-            <Route path="/archive/users" element={<ArchiveUsersPage />} />
-            <Route
-              path="/archive/notifications"
-              element={<ArchiveNotificationsPage />}
-            />
-            <Route
-              path="/archive/announcements"
-              element={<ArchiveAnnouncementsPage />}
-            />
-          </Routes>
-        </Router>
-      {/* </NotificationsProvider> */}
+      <Notifications />
+      <Router>
+        <TopDrawer />
+        <Routes>
+          <Route path="/" element={<SystemAdminDashboard />} />
+          <Route
+            path="/UserManagement/CreateUser"
+            element={<CreateUserPage />}
+          />
+          <Route
+            path="/UserManagement/DeleteUser"
+            element={<DeleteUserPage />}
+          />
+          <Route
+            path="/UserManagement/ResetUserPassword"
+            element={<ResetUserPasswordPage />}
+          />
+          <Route
+            path="/RoleManagement/CreateCustomRole"
+            element={<CreateCustomRolePage />}
+          />
+          <Route
+            path="/RoleManagement/EditUserRole"
+            element={<EditUserRolePage />}
+          />
+          <Route
+            path="/RoleManagement/ManageRoleAccess"
+            element={<ManageRoleAccessPage />}
+          />
+          <Route path="/archive/users" element={<ArchiveUsersPage />} />
+          <Route
+            path="/archive/notifications"
+            element={<ArchiveNotificationsPage />}
+          />
+          <Route
+            path="/archive/announcements"
+            element={<ArchiveAnnouncementsPage />}
+          />
+        </Routes>
+      </Router>
     </MantineProvider>
   );
 }
