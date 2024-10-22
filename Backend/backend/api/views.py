@@ -1,10 +1,12 @@
 import csv
 from django.http import HttpResponse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsModuleaccess, AuthUser
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
 from io import StringIO
 
@@ -15,12 +17,89 @@ def global_extrainfo_list(request):
     serializer = GlobalExtraInfoSerializer(records, many=True)
     return Response(serializer.data)
 
+# get user by email and then fetch the role details 
+@api_view(['GET'])
+def get_user_role_by_email(request):
+    email = request.query_params.get('email')
+    
+    if not email:
+        return Response({"error": "Email parameter is required"}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        user = AuthUser.objects.get(email=email)
+        user_id = user.id
+        
+        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user_id)
+        
+        designation_ids = [entry.designation_id for entry in holds_designation_entries]
+        
+        roles = GlobalsDesignation.objects.filter(id__in=designation_ids)
+        roles_serializer = GlobalsDesignationSerializer(roles, many=True)
+        
+        return Response({
+            "user": AuthUserSerializer(user).data,
+            "roles": roles_serializer.data,
+        }, status=status.HTTP_200_OK)
+        
+    except AuthUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# update user's roles
+@api_view(['PUT'])
+def update_user_roles(request):
+    email = request.data.get('email')
+    roles_to_add = request.data.get('roles')
+
+    if not email or not roles_to_add:
+        return Response({"error": "Email and roles are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+    user = get_object_or_404(AuthUser, email=email)
+
+    # Get existing roles' names as a set of strings
+    existing_roles = GlobalsHoldsdesignation.objects.filter(user=user)
+    existing_role_names = set(existing_roles.values_list('designation__name', flat=True))
+
+    # Normalize roles_to_add: Extract names from dicts and keep strings
+    processed_roles_to_add = set()
+
+    for role in roles_to_add:
+        if isinstance(role, dict):
+            # Check if 'name' key exists in the dictionary
+            if 'name' in role:
+                processed_roles_to_add.add(role['name'])  # Extract name from dict
+        elif isinstance(role, str):
+            processed_roles_to_add.add(role)  # Keep string as is
+
+    print("Processed roles_to_add:", processed_roles_to_add)  # Log processed roles_to_add
+
+    # Find roles to remove
+    roles_to_remove = existing_role_names - processed_roles_to_add
+
+    # Remove roles that are not in the new list
+    GlobalsHoldsdesignation.objects.filter(user=user, designation__name__in=roles_to_remove).delete()
+
+    # Add new roles
+    for role_name in processed_roles_to_add:
+        if role_name not in existing_role_names:
+            designation = get_object_or_404(GlobalsDesignation, name=role_name)
+            GlobalsHoldsdesignation.objects.create(
+                held_at=timezone.now(),
+                designation=designation,
+                user=user,
+                working=user
+            )
+
+    return Response({"message": "User roles updated successfully."}, status=status.HTTP_200_OK)
+        
 # get list of all roles
 @api_view(['GET'])
 def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
     serializer = GlobalsDesignationSerializer(records, many=True)
-    return Response(serializer.data)
+    return Response(serializer.data) 
 
 # add a new role
 @api_view(['POST'])
@@ -114,7 +193,22 @@ def delete_user(request, pk):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-
+# get module access for a specific role
+@api_view(['GET'])
+def get_module_access(request):
+    role_name = request.query_params.get('designation')
+    
+    if not role_name:
+        return Response({"error": "No role provided."}, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        module_access = GlobalsModuleaccess.objects.get(designation=role_name)
+    except GlobalsModuleaccess.DoesNotExist:
+        return Response({"error": f"Module access for designation '{role_name}' not found."}, status=status.HTTP_404_NOT_FOUND)
+    
+    serializer = GlobalsModuleaccessSerializer(module_access)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+    
 # modify role access
 @api_view(['PUT'])
 def modify_moduleaccess(request):
