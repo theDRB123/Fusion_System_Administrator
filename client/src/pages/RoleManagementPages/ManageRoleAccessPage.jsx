@@ -24,11 +24,10 @@ import {
   Center,
   Loader,
 } from "@mantine/core";
-import { Icon3dCubeSphere } from "@tabler/icons-react";
 import { notifications } from "@mantine/notifications";
 import { privileges } from "../../data/privileges";
 import axios from "axios";
-import { IconX, IconCheck } from '@tabler/icons-react';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import { useMediaQuery } from "@mantine/hooks";
 
 const ManageRoleAccessPage = () => {
@@ -39,8 +38,8 @@ const ManageRoleAccessPage = () => {
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  const xIcon = <IconX style={{ width: rem(20), height: rem(20) }} />;
-  const checkIcon = <IconCheck style={{ width: rem(20), height: rem(20) }} />;
+  const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+  const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
   useEffect(() => {
     const fetchRoles = async () => {

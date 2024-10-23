@@ -13,7 +13,7 @@ import {
   Progress,
   rem,
 } from "@mantine/core";
-import { IconX, IconCheck } from '@tabler/icons-react';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 import { notifications } from '@mantine/notifications';
 import { useMediaQuery } from "@mantine/hooks";
 
@@ -23,8 +23,8 @@ function getProgress(inputs) {
 }
 
 const CreateCustomRolePage = () => {
-  const xIcon = <IconX style={{ width: rem(20), height: rem(20) }} />;
-  const checkIcon = <IconCheck style={{ width: rem(20), height: rem(20) }} />;
+  const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+  const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
   const [roleDetails, setRoleDetails] = useState({
     name: "",

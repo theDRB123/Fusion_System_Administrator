@@ -14,7 +14,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import axios from "axios";
 import { useMediaQuery } from "@mantine/hooks";
-import { IconX, IconCheck } from '@tabler/icons-react';
+import { FaCheck, FaTimes } from 'react-icons/fa';
 
 const EditUserRolePage = () => {
   const [email, setEmail] = useState("");
@@ -25,8 +25,8 @@ const EditUserRolePage = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const xIcon = <IconX style={{ width: rem(20), height: rem(20) }} />;
-  const checkIcon = <IconCheck style={{ width: rem(20), height: rem(20) }} />;
+  const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+  const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
   const fetchUserAndRoleDetails = async () => {
     try {
