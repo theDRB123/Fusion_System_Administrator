@@ -19,9 +19,9 @@ import {
     Center
 } from '@mantine/core';
 
+import { FaCube } from 'react-icons/fa';
 import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
 import '@mantine/notifications/styles.css';
-import { FaCube } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
