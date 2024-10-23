@@ -23,7 +23,7 @@ import {
 
 
 import { useDisclosure } from '@mantine/hooks';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { FaCube } from 'react-icons/fa';
 import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
 import { users } from '../../data/users';
@@ -197,7 +197,7 @@ const CreateUserPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />

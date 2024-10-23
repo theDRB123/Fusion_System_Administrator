@@ -11,8 +11,8 @@ import {
     Menu,
     Button,
 } from '@mantine/core';
-import { IconUser, IconArchive, IconRosetteFilled, IconSettings, IconTrash, IconMessageCircle } from '@tabler/icons-react';
-import { useNavigate } from 'react-router-dom'; // Import navigation hook
+import { FaUser, FaArchive, FaAward, FaCog, FaTrash, FaCommentDots } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 import classes from './FeaturesCards.module.css';
 
 // Mock data for features with menu items and routes
@@ -20,31 +20,31 @@ const mockdata = [
     {
         title: 'Manage Users',
         description: 'Create a User, Delete a User & Reset the Password of a User.',
-        icon: IconUser,
+        icon: FaUser,
         menuItems: [
-            { label: 'Create a User', icon: IconSettings, color: 'green', route: '/UserManagement/CreateUser' },
-            { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
-            { label: 'Reset Password', icon: IconMessageCircle, color: 'blue', route: '/UserManagement/ResetUserPassword' },
+            { label: 'Create a User', icon: FaCog, color: 'green', route: '/UserManagement/CreateUser' },
+            { label: 'Delete a User', icon: FaTrash, color: 'red', route: '/UserManagement/DeleteUser' },
+            { label: 'Reset Password', icon: FaCommentDots, color: 'blue', route: '/UserManagement/ResetUserPassword' },
         ],
     },
     {
         title: 'Manage Roles',
         description: 'Create a Custom Role, Manage Role Access & Edit Role Access.',
-        icon: IconRosetteFilled,
+        icon: FaAward,
         menuItems: [
-            { label: 'Create Custom Role', icon: IconSettings, color: 'green', route: '/RoleManagement/CreateCustomRole' },
-            { label: 'Manage Role Access', icon: IconSettings, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
-            { label: 'Edit Role Access', icon: IconSettings, color: 'blue', route: '/RoleManagement/EditUserRole' },
+            { label: 'Create Custom Role', icon: FaCog, color: 'green', route: '/RoleManagement/CreateCustomRole' },
+            { label: 'Manage Role Access', icon: FaCog, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
+            { label: 'Edit Role Access', icon: FaCog, color: 'blue', route: '/RoleManagement/EditUserRole' },
         ],
     },
     {
         title: 'Archive Management',
         description: 'Archive Users, Announcements & Notifications.',
-        icon: IconArchive,
+        icon: FaArchive,
         menuItems: [
-            { label: 'Archive Users', icon: IconArchive, color: 'green', route: '/archive/users' },
-            { label: 'Archive Announcements', icon: IconArchive, color: 'orange', route: '/archive/announcements' },
-            { label: 'Archive Notifications', icon: IconArchive, color: 'blue', route: '/archive/notifications' },
+            { label: 'Archive Users', icon: FaArchive, color: 'green', route: '/archive/users' },
+            { label: 'Archive Announcements', icon: FaArchive, color: 'orange', route: '/archive/announcements' },
+            { label: 'Archive Notifications', icon: FaArchive, color: 'blue', route: '/archive/notifications' },
         ],
     },
 ];
