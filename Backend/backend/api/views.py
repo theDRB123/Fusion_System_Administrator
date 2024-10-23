@@ -16,7 +16,7 @@ import string
 
 def create_password(request):
     first_name = request.data.get('name').split(' ')[0].capitalize()
-    roll_no_part = ''.join(request.data.get('rollNo').split('')[-3:-1])
+    roll_no_part = request.data.get('rollNo')[-3:].lower()
     special_characters = string.punctuation
     random_specials = ''.join(random.choice(special_characters) for _ in range(2))
     return f'{first_name}{roll_no_part}{random_specials}'
@@ -231,6 +231,23 @@ def delete_user(request, pk):
         user = AuthUser.objects.get(pk=pk)
         user.delete()
         return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
+    except AuthUser.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['POST'])
+def reset_password(request):
+    roll_no = request.data.get('rollNo')
+    try:
+        user = AuthUser.objects.get(username=roll_no.lower())
+        new_password = create_password(request)
+        while new_password == user.password:
+            new_password = create_password(request)
+        
+        user.password = new_password
+        user.save()
+        return Response({"password": new_password,"message": "Password reset successfully."}, status=status.HTTP_200_OK)
     except AuthUser.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:

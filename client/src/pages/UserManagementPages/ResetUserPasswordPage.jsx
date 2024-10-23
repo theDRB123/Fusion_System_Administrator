@@ -22,13 +22,12 @@ import {
 import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
 import '@mantine/notifications/styles.css';
 import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         rollNo: '',
-        newPassword1: '',
-        newPassword2: '',
     });
 
     const [errorMessage, setErrorMessage] = useState('');
@@ -44,38 +43,36 @@ const ResetUserPasswordPage = () => {
     };
 
     const openConfirmationDialog = () => {
-        // Check if passwords match
-        if (formData.newPassword1 !== formData.newPassword2) {
-            setErrorMessage('Passwords do not match.');
-        } else if (formData.newPassword1.trim() === '') {
-            setErrorMessage('Password cannot be empty.');
-        } else if (formData.newPassword1.length < 6) {
-            setErrorMessage('Password must be at least 6 characters.');
+        if (formData.name.trim() === '' || formData.rollNo.trim() === '') {
+            setErrorMessage('Please fill all the fields.');
         } else {
-            setOpened(true); // Open confirmation dialog if passwords match
+            setOpened(true);
         }
     };
 
-    const handleSubmit = () => {
-        // Close the modal
-        setOpened(false);
-
-        // Logic to handle form submission (e.g., send password reset request to server)
-        console.log('Reset Password for:', formData);
-
-        showNotification({
-            title: 'Password Reset',
-            message: `Password for ${formData.name} has been reset successfully.`,
-            color: 'green',
-        });
-
-        // Reset form after submission
-        setFormData({
-            name: '',
-            rollNo: '',
-            newPassword1: '',
-            newPassword2: '',
-        });
+    const handleSubmit = async () => {
+        try{
+            setOpened(false);
+            const response = await resetPassword(formData);
+            console.log('Reset Password for:', formData);
+            close();
+            showNotification({
+                title: 'Password Reset',
+                message: `Password for ${formData.name} has been reset successfully.\nNew password: ${response.password}`,
+                color: 'green',
+            });
+            setFormData({
+                name: '',
+                rollNo: '',
+            });
+        }
+        catch(e){
+            showNotification({
+                title: 'Error',
+                message: 'An error occurred while resetting password.   ',
+                color: 'red',
+            });
+        }
     };
 
     return (
@@ -180,26 +177,6 @@ const ResetUserPasswordPage = () => {
                             required
                         />
 
-                        <TextInput
-                            label="New Password"
-                            name="newPassword1"
-                            type="password"
-                            placeholder="Enter new password"
-                            value={formData.newPassword1}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextInput
-                            label="Confirm New Password"
-                            name="newPassword2"
-                            type="password"
-                            placeholder="Confirm new password"
-                            value={formData.newPassword2}
-                            onChange={handleChange}
-                            required
-                        />
-
                         {errorMessage && (
                             <Text color="red" style={{ fontSize: '14px' }}>
                                 {errorMessage}
@@ -221,6 +198,7 @@ const ResetUserPasswordPage = () => {
             <Modal
                 opened={opened}
                 onClose={() => setOpened(false)}
+                title="Reset Password"
             >
                 <Text>
                     Are you sure you want to reset the password for {formData.name}?
