@@ -1,4 +1,5 @@
 import csv
+import datetime
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
@@ -9,6 +10,16 @@ from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
 from io import StringIO
+import random
+import string
+
+
+def create_password(request):
+    first_name = request.data.get('name').split(' ')[0].capitalize()
+    roll_no_part = ''.join(request.data.get('rollNo').split('')[-3:-1])
+    special_characters = string.punctuation
+    random_specials = ''.join(random.choice(special_characters) for _ in range(2))
+    return f'{first_name}{roll_no_part}{random_specials}'
 
 # get list of all users
 @api_view(['GET'])
@@ -149,9 +160,41 @@ def update_designation(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+def add_extra_ino_to_user(request,user):
+    extra_info_data = {
+        'title': request.data.get('title'),
+        'sex': request.data.get('sex'),
+        'date_of_birth': request.data.get('date_of_birth'),
+        'user_status': request.data.get('user_status'),
+        'address': request.data.get('address'),
+        'phone_no': request.data.get('phone_no'),
+        'user_type': request.data.get('user_type'),
+        'profile_picture': request.data.get('profile_picture', None),
+        'about_me': request.data.get('about_me'),
+        'date_modified': datetime.datetime.now().isoformat(),
+        'department': request.data.get('department'),
+        'user': user
+    }
+    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
+    if extra_info_serializer.is_valid():
+        extra_info_serializer.save()
+        return Response(extra_info_serializer.data, status=status.HTTP_201_CREATED)
+    return Response(extra_info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 @api_view(['POST'])
 def add_user(request):
-    serializer = AuthUserSerializer(data=request.data)
+    data = {
+        'password': create_password(request),
+        'is_superuser': request.data.get('is_superuser') or False,
+        'username': request.data.get('rollNo').lower(),
+        'first_name': request.data.get('name').split(' ')[0].capitalize(),
+        'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '',
+        'email': f'{request.data.get('rollNo').lower()}@iiitdmj.ac.in',
+        'is_staff': request.data.get('role')=='Student',
+        'is_active': True,
+        'date_joined': datetime.datetime.now().isoformat(),
+    }
+    serializer = AuthUserSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)

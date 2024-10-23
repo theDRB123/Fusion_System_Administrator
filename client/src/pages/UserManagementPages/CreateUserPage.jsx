@@ -30,6 +30,7 @@ import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
 
 import { createUser } from '../../api/Users';
+import { showNotification } from '@mantine/notifications';
 
 const CreateUserPage = () => {
     const stats = [
@@ -50,6 +51,7 @@ const CreateUserPage = () => {
 
     const [opened, { open, close }] = useDisclosure(false);
     const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -57,6 +59,7 @@ const CreateUserPage = () => {
             ...prevData,
             [name]: value,
         }));
+        setErrorMessage('');
     };
 
     const handleSubmit = async () => {
@@ -65,23 +68,36 @@ const CreateUserPage = () => {
             await createUser(formData);
             console.log('User added successfully!');
             close();
+            showNotification({
+                title: 'User Created',
+                message: 'User has been created successfully.',
+                color: 'teal',
+            });
             setFormData({
                 name: '',
                 rollNo: '',
-                batch: '',
-                branch: '',
                 password: '',
                 role: 'Student',
             });
         } catch (error) {
-            alert('Failed to create user. Check console for details.');
+            showNotification({
+                title: 'Error',
+                message: 'An error occurred while creating user.',
+                color: 'red',
+            });
         } finally {
             setLoading(false);
         }
     };
 
     const openConfirmationDialog = () => {
-        open();
+        if (formData.name.trim() === '') {
+            setErrorMessage('Name cannot be empty.');
+        }
+        else if (formData.rollNo.trim() === '') {
+            setErrorMessage('Roll number cannot be empty.');
+        }
+        else open();
     };
 
     const getUsersByYear = () => {
@@ -121,7 +137,7 @@ const CreateUserPage = () => {
     }).length;
 
     return (
-        <Box sx={{ background: theme.colors.gray[0], minHeight: '100vh', padding: '2rem' }}>
+        <Box sx={{ background: theme.colors.gray[0], minHeight: '100vh', padding: '2rem' }} mt={'20px'}>
             {/* Top Section */}
             {/* <Flex position="apart" mb="xl" justify='space-between'>
                 <Box sx={{ background: theme.colors.blue[6], padding: '1rem', borderRadius: theme.radius.md }}>
@@ -175,8 +191,6 @@ const CreateUserPage = () => {
             </Flex>
 
 
-            <StatsGrid data={archiveAnnouncementStats} /> 
-
             <Divider
                 my="xs"
                 // variant="dashed"
@@ -190,17 +204,18 @@ const CreateUserPage = () => {
 
 
             <Container size="lg" px="lg">
-                <Flex direction={{ base: 'column', md: 'row' }}>
+                <Flex justify={'center'} direction={{ base: 'column', md: 'row' }}>
                     {/* Form Section */}
-                    <Box w="50%">
+                    <Box w="50%" mt={'20px'}>
                         <form>
                             <Stack>
                                 <Input
-                                    placeholder="Enter user name"
+                                    placeholder="Enter full name"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
                                     label="Name"
+                                    required
                                 />
                                 <Input
                                     placeholder="Enter roll number"
@@ -208,29 +223,13 @@ const CreateUserPage = () => {
                                     value={formData.rollNo}
                                     onChange={handleChange}
                                     label="Roll Number"
+                                    required
                                 />
-                                <Input
-                                    placeholder="Enter batch year (e.g., 2020)"
-                                    name="batch"
-                                    value={formData.batch}
-                                    onChange={handleChange}
-                                    label="Batch"
-                                />
-                                <Input
-                                    placeholder="Enter branch (e.g., CSE)"
-                                    name="branch"
-                                    value={formData.branch}
-                                    onChange={handleChange}
-                                    label="Branch"
-                                />
-                                <Input
-                                    placeholder="Enter password"
-                                    type="password"
-                                    name="password"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    label="Password"
-                                />
+                                {errorMessage && (
+                                    <Text color="red" style={{ fontSize: '14px' }}>
+                                        {errorMessage}
+                                    </Text>
+                                )}
                                 <Select
                                     label="Role"
                                     name="role"
@@ -244,46 +243,6 @@ const CreateUserPage = () => {
                                 <Button onClick={openConfirmationDialog}>Create User</Button>
                             </Stack>
                         </form>
-                    </Box>
-
-                    {/* Charts Section */}
-                    <Box w="50%">
-                        {/* Bar Chart */}
-                        <Box mb="lg">
-                            <Text align="center" weight={500} mb="md">Number of Users by Year of Creation</Text>
-                            <ResponsiveContainer width="100%" height={chartHeight}>
-                                <BarChart data={yearData}>
-                                    <XAxis dataKey="year" />
-                                    <YAxis />
-                                    <Tooltip />
-                                    <Bar dataKey="count" fill={theme.colors.blue[6]} />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </Box>
-
-                        {/* Pie Chart */}
-                        <Box>
-                            <Text align="center" weight={500} mb="md">User Distribution by Role</Text>
-                            <ResponsiveContainer width="100%" height={chartHeight}>
-                                <PieChart>
-                                    <Pie
-                                        data={roleData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        outerRadius={80}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {roleData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip />
-                                    <Legend />
-                                </PieChart>
-                            </ResponsiveContainer>
-                        </Box>
                     </Box>
                 </Flex>
             </Container>
