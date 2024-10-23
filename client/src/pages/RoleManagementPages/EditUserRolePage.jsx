@@ -64,6 +64,7 @@ const EditUserRolePage = () => {
         color: "green",
       });
       setCurrentRoles(updatedRoles);
+      fetchUserAndRoleDetails();
       setNewRoles([]);
       setIsOpen(false);
     } catch (error) {
@@ -174,6 +175,52 @@ const EditUserRolePage = () => {
             />
             <Button onClick={fetchUserAndRoleDetails}>Fetch User Details</Button>
           </Stack>
+
+          {userDetails && (
+            <Box
+              style={{
+                width: "100%",
+                padding: "1rem",
+                marginTop: "1rem",
+                borderRadius: "8px",
+                boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
+                position: "relative",
+                backgroundColor: "white",
+              }}
+            >
+              {/* Status Label at the top right */}
+              <Box
+                style={{
+                  position: "absolute",
+                  top: "0.5rem",
+                  right: "0.5rem",
+                  backgroundColor: userDetails.is_active ? "green" : "red",
+                  color: "white",
+                  padding: "0.25rem 0.5rem",
+                  borderRadius: "4px",
+                }}
+              >
+                {userDetails.is_active ? "Active" : "Non-Active"}
+              </Box>
+
+              {/* User Details */}
+              <Stack spacing="1rem">
+                <Text style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                  Name: {userDetails.first_name} [{userDetails.is_staff ? "Staff Member" : "Student"}]
+                </Text>
+                <Text style={{ fontSize: "1.1rem", fontWeight: "bold" }}>Roll No: {userDetails.username}</Text>
+
+                {/* Display formatted date joined */}
+                <Text style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
+                  Date Joined: {new Date(userDetails.date_joined).toLocaleDateString(undefined, {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </Text>
+              </Stack>
+            </Box>
+          )}
         </Box>
 
         {/* Second Section - Current Roles and New Role Selection */}
@@ -186,48 +233,55 @@ const EditUserRolePage = () => {
             borderRadius: "8px",
             boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.1)",
             maxHeight: "400px",
-            overflowY: "auto",
           }}
         >
           {loading ? (
             <Text>Loading roles...</Text>
           ) : userDetails ? (
             <Box>
-              <Text style={{ fontSize: "1.25rem", fontWeight: "bold" }}>
-                Current Roles:
-              </Text>
-              <Stack spacing="sm">
-                {currentRoles.map((role) => (
-                  <Flex
-                    key={role}
-                    justify={"space-between"}
-                    align={"center"}
-                    style={{
-                      padding: "0.5rem 1rem",
-                      borderRadius: "4px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      transition: "background-color 0.2s",
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.backgroundColor = "#f0f0f0";
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.backgroundColor = "transparent";
-                    }}
-                  >
-                    <Text>{role.name}</Text>
-                    <Button
-                      variant="outline"
-                      color="red"
-                      onClick={() => handleRemoveRole(role)}
+              <Text style={{ fontSize: "1.25rem", fontWeight: "bold" }}>Current Roles:</Text>
+              {/* Scrollable roles section */}
+              <Box
+                style={{
+                  maxHeight: "200px",
+                  overflowY: "auto",
+                  paddingRight: "1rem",
+                }}
+              >
+                <Stack spacing="sm">
+                  {currentRoles.map((role) => (
+                    <Flex
+                      key={role}
+                      justify={"space-between"}
+                      align={"center"}
+                      style={{
+                        padding: "0.5rem 1rem",
+                        borderRadius: "4px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        transition: "background-color 0.2s",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = "#f0f0f0";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = "transparent";
+                      }}
                     >
-                      Remove
-                    </Button>
-                  </Flex>
-                ))}
-              </Stack>
+                      <Text>{role.name}</Text>
+                      <Button
+                        variant="outline"
+                        color="red"
+                        onClick={() => handleRemoveRole(role)}
+                      >
+                        Remove
+                      </Button>
+                    </Flex>
+                  ))}
+                </Stack>
+              </Box>
 
+              {/* Non-scrollable section */}
               <MultiSelect
                 label="Add new role"
                 placeholder="Select roles"
@@ -237,7 +291,6 @@ const EditUserRolePage = () => {
                 }))}
                 value={newRoles}
                 onChange={setNewRoles}
-                mt="1rem"
                 searchable
                 clearable
               />
