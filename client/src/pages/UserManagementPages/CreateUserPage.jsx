@@ -18,7 +18,9 @@ import {
     Space,
     Divider,
     Checkbox,
-    Center
+    Center,
+    FileInput,
+    Pill
 } from '@mantine/core';
 
 
@@ -29,7 +31,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, Resp
 import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
 
-import { createUser } from '../../api/Users';
+import { bulkUploadUsers, createUser } from '../../api/Users';
 import { showNotification } from '@mantine/notifications';
 
 const CreateUserPage = () => {
@@ -40,6 +42,7 @@ const CreateUserPage = () => {
     ];
     const [archiveAnnouncementStats, setArchiveAnnouncementStats] = useState(stats)
     const theme = useMantineTheme();
+    const [file, setFile] = useState(null);
     const [formData, setFormData] = useState({
         name: '',
         rollNo: '',
@@ -62,10 +65,21 @@ const CreateUserPage = () => {
         setErrorMessage('');
     };
 
+    const handleFileSubmit = (file) => {
+        setFile(file);
+        console.log(file);
+        setErrorMessage('');
+    }
+
     const handleSubmit = async () => {
         try {
             setLoading(true);
-            await createUser(formData);
+            if(file){
+                const formData = new FormData();
+                formData.append('file', file);
+                await bulkUploadUsers(formData);
+            }
+            else await createUser(formData);
             console.log('User added successfully!');
             close();
             showNotification({
@@ -91,6 +105,9 @@ const CreateUserPage = () => {
     };
 
     const openConfirmationDialog = () => {
+        if (file) {
+            open();
+        }
         if (formData.name.trim() === '') {
             setErrorMessage('Name cannot be empty.');
         }
@@ -122,6 +139,7 @@ const CreateUserPage = () => {
         return [
             { name: 'Student', value: roleCount.Student },
             { name: 'Faculty', value: roleCount.Faculty },
+            { name: 'Staff', value: roleCount.Staff },
         ];
     };
 
@@ -139,26 +157,6 @@ const CreateUserPage = () => {
     return (
         <Box sx={{ background: theme.colors.gray[0], minHeight: '100vh', padding: '2rem' }} mt={'20px'}>
             {/* Top Section */}
-            {/* <Flex position="apart" mb="xl" justify='space-between'>
-                <Box sx={{ background: theme.colors.blue[6], padding: '1rem', borderRadius: theme.radius.md }}>
-                    <Title order={2} align="left" sx={{ color: 'white' }}>Create User</Title>
-                </Box>
-
-
-                
-                <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                    <SimpleGrid cols={2} spacing="md">
-                        <Box>
-                            <Text weight={500}>Total Users</Text>
-                            <Text>{totalUsers}</Text>
-                        </Box>
-                        <Box>
-                            <Text weight={500}>Users Created This Year</Text>
-                            <Text>{usersCreatedThisYear}</Text>
-                        </Box>
-                    </SimpleGrid>
-                </Box>
-            </Flex> */}
             <Flex
                 direction={{ base: 'column', sm: 'row' }}
                 gap={{ base: 'sm', sm: 'lg' }}
@@ -203,7 +201,7 @@ const CreateUserPage = () => {
             />
 
 
-            <Container size="lg" px="lg">
+            <Stack size="lg" px="lg" w={'100%'} mx={'0px'}>
                 <Flex justify={'center'} direction={{ base: 'column', md: 'row' }}>
                     {/* Form Section */}
                     <Box w="50%" mt={'20px'}>
@@ -225,7 +223,7 @@ const CreateUserPage = () => {
                                     label="Roll Number"
                                     required
                                 />
-                                {errorMessage && (
+                                {errorMessage && !file && (
                                     <Text color="red" style={{ fontSize: '14px' }}>
                                         {errorMessage}
                                     </Text>
@@ -238,6 +236,7 @@ const CreateUserPage = () => {
                                     data={[
                                         { value: 'Student', label: 'Student' },
                                         { value: 'Faculty', label: 'Faculty' },
+                                        { value: 'Staff', label: 'Staff' },
                                     ]}
                                 />
                                 <Button onClick={openConfirmationDialog}>Create User</Button>
@@ -245,7 +244,43 @@ const CreateUserPage = () => {
                         </form>
                     </Box>
                 </Flex>
-            </Container>
+                <Divider
+                    mt="20px"
+                    // variant="dashed"
+                    labelPosition="center"
+                    label={
+                        <>
+                            <Icon3dCubeSphere size={12} />
+                        </>
+                    }
+                />
+                <Stack justify='center' align='center' mt={'20px'}>
+                    <Title
+                        order={1}
+                        sx={{
+                            fontSize: { base: 'lg', sm: 'xl' },
+                            lineHeight: 1.2,
+                            wordBreak: 'break-word',
+                        }}
+                    >
+                        Through CSV
+                    </Title>
+                    <FileInput
+                        onChange={handleFileSubmit}
+                        size="md"
+                        radius="xs"
+                        placeholder="Attach a CSV"
+                        w={'50%'}
+                    />
+                    <Button 
+                        onClick={handleSubmit}
+                        w={'50%'}
+                        mt={'10px'}
+                    >
+                        Create User
+                    </Button>
+                </Stack>
+            </Stack>
 
             {/* Confirmation Modal */}
             <Modal

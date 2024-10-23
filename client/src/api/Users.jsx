@@ -21,3 +21,13 @@ export const resetPassword = async (userData) => {
         throw error;
     }
 }
+
+export const bulkUploadUsers = async (userData) => {
+    try {
+        const response = await axios.post(API_URL+'/users/import/', userData);
+        return response.data;
+    } catch (error) {
+        console.error('Error uploading users:', error.response?.data || error.message);
+        throw error;
+    }
+}

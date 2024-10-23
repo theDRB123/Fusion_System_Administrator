@@ -16,6 +16,7 @@ import {
 import { IconX, IconCheck } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useMediaQuery } from "@mantine/hooks";
+import { createCustomRole } from "../../api/Roles";
 
 function getProgress(inputs) {
   const filledInputs = inputs.filter((input) => input.length > 0);
@@ -49,15 +50,16 @@ const CreateCustomRolePage = () => {
     }
 
     try {
-      await axios.post(
-        "http://127.0.0.1:8000/api/create-role/",
-        roleDetails,
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await createCustomRole(roleDetails);
+      // await axios.post(
+      //   "http://127.0.0.1:8000/api/create-role/",
+      //   roleDetails,
+      //   {
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //   }
+      // );
 
       notifications.show({
         icon: checkIcon,

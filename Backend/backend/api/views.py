@@ -13,10 +13,9 @@ from io import StringIO
 import random
 import string
 
-
-def create_password(request):
-    first_name = request.data.get('name').split(' ')[0].capitalize()
-    roll_no_part = request.data.get('rollNo')[-3:].lower()
+def create_password(data):
+    first_name = data.get('name').split(' ')[0].capitalize()
+    roll_no_part = data.get('rollNo')[-3:].upper()
     special_characters = string.punctuation
     random_specials = ''.join(random.choice(special_characters) for _ in range(2))
     return f'{first_name}{roll_no_part}{random_specials}'
@@ -117,8 +116,33 @@ def global_designation_list(request):
 def add_designation(request):
     serializer = GlobalsDesignationSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data, status.HTTP_201_CREATED)
+        role = serializer.save()
+        data = {
+            'designation' : role.name,
+            'program_and_curriculum' : False,
+            'course_registration' : False,
+            'course_management' : False,
+            'other_academics' : False,
+            'spacs' : False,
+            'department' : False,
+            'examinations' : False,
+            'hr' : False,
+            'iwd' : False,
+            'complaint_management' : False,
+            'fts' : False,
+            'purchase_and_store' : False,
+            'rspc' : False,
+            'hostel_management' : False,
+            'mess_management' : False,
+            'gymkhana' : False,
+            'placement_cell' : False,
+            'visitor_hostel' : False,
+            'phc' : False,
+        }
+        module_serializer = GlobalsModuleaccessSerializer(data=data)
+        if module_serializer.is_valid():
+            module_serializer.save()
+        return Response({'role': serializer.data, 'modules': module_serializer.data}, status.HTTP_201_CREATED)
     else :
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
@@ -184,12 +208,12 @@ def add_extra_ino_to_user(request,user):
 @api_view(['POST'])
 def add_user(request):
     data = {
-        'password': create_password(request),
+        'password': create_password(request.data),
         'is_superuser': request.data.get('is_superuser') or False,
-        'username': request.data.get('rollNo').lower(),
+        'username': request.data.get('rollNo').upper(),
         'first_name': request.data.get('name').split(' ')[0].capitalize(),
         'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '',
-        'email': f'{request.data.get('rollNo').lower()}@iiitdmj.ac.in',
+        'email': f'{request.data.get('rollNo').upper()}@iiitdmj.ac.in',
         'is_staff': request.data.get('role')=='Student',
         'is_active': True,
         'date_joined': datetime.datetime.now().isoformat(),
@@ -240,10 +264,10 @@ def delete_user(request, pk):
 def reset_password(request):
     roll_no = request.data.get('rollNo')
     try:
-        user = AuthUser.objects.get(username=roll_no.lower())
-        new_password = create_password(request)
+        user = AuthUser.objects.get(username=roll_no.upper())
+        new_password = create_password(request.data)
         while new_password == user.password:
-            new_password = create_password(request)
+            new_password = create_password(request.data)
         
         user.password = new_password
         user.save()
@@ -308,22 +332,24 @@ def bulk_import_users(request):
     created_users = []
     for row in csv_data:
         try:
-            #CSV columns: username, first_name, last_name, email, password, is_staff, is_superuser
+            data = {
+                'rollNo': row[0],
+                'name': row[1],
+            }
             user_data = {
-                'username': row[0],
-                'first_name': row[1],
-                'last_name': row[2],
-                'email': row[3],
-                'password': row[4],  # You might need to hash the password.
-                'is_staff': row[5].lower() == 'true',
-                'is_superuser': row[6].lower() == 'true',
-                'is_active': True,  # Default active status
+                'password': create_password(data),
+                'username': row[0].upper(),
+                'first_name': row[1].split(' ')[0].capitalize(),
+                'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '',
+                'email': f'{row[0].upper()}@iiitdmj.ac.in',
+                'is_staff': row[2]=='Student',
+                'is_superuser': row[3] or False,
+                'is_active': True,
+                'date_joined': datetime.datetime.now().isoformat(),
             }
             serializer = AuthUserSerializer(data=user_data)
             if serializer.is_valid():
-                user = serializer.save()
-                user.set_password(user_data['password'])  # Hash the password
-                user.save()
+                serializer.save()
                 created_users.append(serializer.data)
             else:
                 return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
