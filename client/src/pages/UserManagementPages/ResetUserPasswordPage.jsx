@@ -19,9 +19,9 @@ import {
     Center
 } from '@mantine/core';
 
-import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
+import { showNotification } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { FaDiceD6 } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
@@ -140,7 +140,7 @@ const ResetUserPasswordPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />

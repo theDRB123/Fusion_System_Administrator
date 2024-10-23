@@ -25,9 +25,7 @@ import {
 
 
 import { useDisclosure } from '@mantine/hooks';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
-import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
-import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from 'recharts';
+import { FaDiceD6 } from 'react-icons/fa';
 import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
 
@@ -73,18 +71,27 @@ const CreateUserPage = () => {
 
     const handleSubmit = async () => {
         try {
+            let response;
             setLoading(true);
             if(file){
                 const formData = new FormData();
                 formData.append('file', file);
-                await bulkUploadUsers(formData);
+                response = await bulkUploadUsers(formData);
             }
-            else await createUser(formData);
+            else response = await createUser(formData);
             console.log('User added successfully!');
             close();
+
+            if (response.skipped_users_count > 0) {
+                console.log('in')
+                const csvUrl = URL.createObjectURL(new Blob([response.skipped_users_csv], { type: 'text/csv' }));
+                console.log('out', csvUrl)
+                downloadCSV(csvUrl, 'skipped_users.csv');
+            }
+
             showNotification({
                 title: 'User Created',
-                message: 'User has been created successfully.',
+                message: `${response.created_users.length} User has been created successfully.\n${response.skipped_users_count ? `${response.skipped_users_count} User skipped.` : '' }`,
                 color: 'teal',
             });
             setFormData({
@@ -115,6 +122,16 @@ const CreateUserPage = () => {
             setErrorMessage('Roll number cannot be empty.');
         }
         else open();
+    };
+
+    const downloadCSV = (url, filename) => {
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', filename);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        URL.revokeObjectURL(url);
     };
 
     const getUsersByYear = () => {
@@ -195,7 +212,7 @@ const CreateUserPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />
@@ -250,7 +267,7 @@ const CreateUserPage = () => {
                     labelPosition="center"
                     label={
                         <>
-                            <Icon3dCubeSphere size={12} />
+                            <FaDiceD6 size={12} />
                         </>
                     }
                 />
@@ -277,7 +294,7 @@ const CreateUserPage = () => {
                         w={'50%'}
                         mt={'10px'}
                     >
-                        Create User
+                        Create Users
                     </Button>
                 </Stack>
             </Stack>

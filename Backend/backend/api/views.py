@@ -315,7 +315,6 @@ def modify_moduleaccess(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-#bulk import of users via csv file
 @api_view(['POST'])
 def bulk_import_users(request):
     if 'file' not in request.FILES:
@@ -328,9 +327,14 @@ def bulk_import_users(request):
     file_data = file.read().decode('utf-8')
     csv_data = csv.reader(StringIO(file_data))
     
-    headers = next(csv_data)  
+    headers = next(csv_data)
     created_users = []
+    failed_users = []
+    
     for row in csv_data:
+        if len(row) < 4:
+            failed_users.append(row)
+            continue
         try:
             data = {
                 'rollNo': row[0],
@@ -342,7 +346,7 @@ def bulk_import_users(request):
                 'first_name': row[1].split(' ')[0].capitalize(),
                 'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '',
                 'email': f'{row[0].upper()}@iiitdmj.ac.in',
-                'is_staff': row[2]=='Student',
+                'is_staff': row[2] == 'Staff',
                 'is_superuser': row[3] or False,
                 'is_active': True,
                 'date_joined': datetime.datetime.now().isoformat(),
@@ -352,11 +356,28 @@ def bulk_import_users(request):
                 serializer.save()
                 created_users.append(serializer.data)
             else:
-                return Response({"error": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                failed_users.append(row)
         except IndexError:
-            return Response({"error": "Invalid data format."}, status=status.HTTP_400_BAD_REQUEST)
+            failed_users.append(row)
+        
+    response_data = {
+        "message": f"{len(created_users)} users created successfully.",
+        "created_users": created_users,
+        "skipped_users_count": len(failed_users),
+    }
 
-    return Response({"message": f"{len(created_users)} users created successfully.", "users": created_users}, status=status.HTTP_201_CREATED)
+    if failed_users:
+        output = StringIO()
+        writer = csv.writer(output)
+        writer.writerow(headers)
+
+        for failed_user in failed_users:
+            writer.writerow(failed_user)
+
+        output.seek(0)
+        response_data["skipped_users_csv"] = output.getvalue()
+
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 #bulk export of users via csv file
 @api_view(['GET'])
