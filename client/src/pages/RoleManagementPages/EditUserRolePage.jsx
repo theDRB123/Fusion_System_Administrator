@@ -6,6 +6,7 @@ import {
   Stack,
   Modal,
   Flex,
+  rem,
   TextInput,
   MultiSelect,
   Title,
@@ -13,6 +14,7 @@ import {
 import { notifications } from "@mantine/notifications";
 import axios from "axios";
 import { useMediaQuery } from "@mantine/hooks";
+import { IconX, IconCheck } from '@tabler/icons-react';
 
 const EditUserRolePage = () => {
   const [email, setEmail] = useState("");
@@ -22,6 +24,9 @@ const EditUserRolePage = () => {
   const [newRoles, setNewRoles] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const xIcon = <IconX style={{ width: rem(20), height: rem(20) }} />;
+  const checkIcon = <IconCheck style={{ width: rem(20), height: rem(20) }} />;
 
   const fetchUserAndRoleDetails = async () => {
     try {
@@ -36,6 +41,7 @@ const EditUserRolePage = () => {
       setLoading(false);
       notifications.show({
         title: "Error",
+        icon: xIcon,
         position: "top-center",
         withCloseButton: true,
         message: "Could not fetch user details. Please check the email.",
@@ -59,6 +65,7 @@ const EditUserRolePage = () => {
       notifications.show({
         title: "Success",
         position: "top-center",
+        icon: checkIcon,
         withCloseButton: true,
         message: "User roles updated successfully.",
         color: "green",
@@ -71,6 +78,7 @@ const EditUserRolePage = () => {
       notifications.show({
         title: "Error",
         position: "top-center",
+        icon: xIcon,
         withCloseButton: true,
         message: "Could not update user roles.",
         color: "red",
@@ -87,13 +95,7 @@ const EditUserRolePage = () => {
       const response = await axios.get(`http://127.0.0.1:8000/api/view-roles`);
       setRoles(response.data);
     } catch (error) {
-      notifications.show({
-        title: "Error",
-        position: "top-center",
-        withCloseButton: true,
-        message: "Could not fetch available roles.",
-        color: "red",
-      });
+      console.log(error.response);
     }
   };
 
