@@ -23,7 +23,7 @@ const mockdata = [
         icon: IconUser,
         menuItems: [
             { label: 'Create a User', icon: IconSettings, color: 'green', route: '/UserManagement/CreateUser' },
-            { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
+            // { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
             { label: 'Reset Password', icon: IconMessageCircle, color: 'blue', route: '/UserManagement/ResetUserPassword' },
         ],
     },
