@@ -63,14 +63,6 @@ const ManageRoleAccessPage = () => {
     }, []);
 
     const fetchModuleAccess = async () => {
-        if(!roleName){
-            notifications.show({
-                title: "Error",
-                message: "Please select a role before fetching data.",
-                color: "red",
-            });
-            return;
-        }
         setLoading(true);
 
         try {
@@ -237,7 +229,7 @@ const ManageRoleAccessPage = () => {
         label={<Icon3dCubeSphere size={12} />}
       />
 
-      <Flex direction={{ base: "column", lg: "row" }}>
+      <Flex direction={{ base: "column", lg: "row" }} >
         {/* Form Section */}
         <Box w="100%" md:w="50%" pl="lg">
           <Stack spacing="1rem">
@@ -263,76 +255,42 @@ const ManageRoleAccessPage = () => {
                 </Flex>
             )}
           </Stack>
-
           {moduleAccess && (
-            <Stack>
-                <Text fontSize="xl" fontWeight="bold">
-                    Manage module access for {roleName}
-                </Text>
+            <>
+              <Text 
+                fontSize="xl" 
+                fontWeight="bold" 
+                align="center" 
+                color="blue" // You can choose any color value
+                mb="md" // Adds space to the bottom (margin-bottom)
+              >
+                Manage module access for {roleName}
+              </Text>
 
+              <Grid>
                 {Object.keys(moduleAccess).map((module) => (
+                  <Grid.Col
+                    key={module}
+                    span={{base:12,sm:6,md:4}}
+                  >
                     <Checkbox
-                        key={module}
-                        label={module.replace(/_/g, " ")}
-                        checked={moduleAccess[module]}
-                        onChange={() => handleModuleChange(module)}
+                      label={module.replace(/_/g, " ")}
+                      checked={moduleAccess[module]}
+                      onChange={() => handleModuleChange(module)}
                     />
+                  </Grid.Col>
                 ))}
+              </Grid>
 
-                <Group position="right" mt="md">
-                    <Button color="blue" onClick={() => setIsOpen(true)}>
-                        Confirm changes
-                    </Button>
-                </Group>
-            </Stack>
+              <Flex align="center" justify="center" mt="md">
+                <Button color="blue" onClick={() => setIsOpen(true)}>
+                  Confirm changes
+                </Button>
+              </Flex>
+
+            </>
           )}
-        </Box>
 
-        {/* Graphs Section */}
-        <Box w="100%" md:w="50%">
-          {/* Bar Chart Section */}
-          <Box>
-            <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
-              Number of Privileges by Role
-            </Text>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={privilegeData}>
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="privilegeCount" fill="#4A90E2" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Box>
-
-          {/* Pie Chart Section */}
-          <Box>
-            <Text fontSize="xl" fontWeight="bold" mb="1rem" align="center">
-              Number of Roles
-            </Text>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={userRoleData}
-                  dataKey="count"
-                  nameKey="role"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={80}
-                  fill="#1E90FF"
-                  label
-                >
-                  {userRoleData.map((entry, index) => (
-                    <Cell
-                      key={`cell-${index}`}
-                      fill={colors[index % colors.length]}
-                    />
-                  ))}
-                </Pie>
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </Box>
         </Box>
       </Flex>
 
