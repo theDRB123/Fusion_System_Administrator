@@ -21,7 +21,7 @@ import {
 
 import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
 import '@mantine/notifications/styles.css';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { FaCube } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
@@ -51,7 +51,7 @@ const ResetUserPasswordPage = () => {
     };
 
     const handleSubmit = async () => {
-        try{
+        try {
             setOpened(false);
             const response = await resetPassword(formData);
             console.log('Reset Password for:', formData);
@@ -66,7 +66,7 @@ const ResetUserPasswordPage = () => {
                 rollNo: '',
             });
         }
-        catch(e){
+        catch (e) {
             showNotification({
                 title: 'Error',
                 message: 'An error occurred while resetting password.   ',
@@ -140,7 +140,7 @@ const ResetUserPasswordPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />

@@ -1,35 +1,28 @@
 import { Group, Paper, SimpleGrid, Text } from '@mantine/core';
 import {
-    IconUserPlus,
-    IconDiscount2,
-    IconReceipt2,
-    IconCoin,
-    IconArrowUpRight,
-    IconArrowDownRight,
-    IconSettings,
-    IconArchive,
-    IconUserCancel,
-    IconUserFilled,
-    IconArchiveFilled,
-    IconSettingsFilled,
-    IconTrashFilled,
-    IconSpeakerphone,
-} from '@tabler/icons-react';
+    FaUser,
+    FaCog,
+    FaArchive,
+    FaTrash,
+    FaBullhorn,
+    FaArrowUp,
+    FaArrowDown
+} from 'react-icons/fa';
+
 import classes from './StatsGrid.module.css';
 
 const icons = {
-    user: IconUserFilled,
-    settings: IconSettingsFilled,
-    arch: IconArchiveFilled,
-    del: IconTrashFilled,
-    speakerPhone: IconSpeakerphone,
+    user: FaUser,
+    settings: FaCog,
+    arch: FaArchive,
+    del: FaTrash,
+    speakerPhone: FaBullhorn,
 };
 
-
-export function StatsGrid({data}) {
+export function StatsGrid({ data }) {
     const stats = data.map((stat) => {
         const Icon = icons[stat.icon];
-        const DiffIcon = stat.diff > 0 ? IconArrowUpRight : IconArrowDownRight;
+        const DiffIcon = stat.diff > 0 ? FaArrowUp : FaArrowDown;
 
         return (
             <Paper withBorder p="md" radius="md" key={stat.title}>
@@ -37,7 +30,7 @@ export function StatsGrid({data}) {
                     <Text size="xs" c="dimmed" className={classes.title}>
                         {stat.title}
                     </Text>
-                    <Icon className={classes.icon} size="1.4rem" stroke={1.5} />
+                    <Icon className={classes.icon} size="1.4rem" />
                 </Group>
 
                 <Group align="flex-end" gap="xs" mt={25}>
@@ -50,6 +43,7 @@ export function StatsGrid({data}) {
             </Paper>
         );
     });
+
     return (
         <div className={classes.root}>
             <SimpleGrid cols={{ base: 1, xs: 2, md: data.length }}>{stats}</SimpleGrid>

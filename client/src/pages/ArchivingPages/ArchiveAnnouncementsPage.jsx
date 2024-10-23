@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
 import {
     Box,
     Text,
@@ -10,18 +9,17 @@ import {
     Title,
     Space,
     SimpleGrid,
-    Divider,
     Modal,
     Button,
     Flex,
     Checkbox,
     Center
 } from '@mantine/core'
-import { Icon3dCubeSphere } from '@tabler/icons-react';
 import { Simple } from '../../charts/BarChart/Simple/Simple';
 import { useDisclosure } from '@mantine/hooks';
 import { announcements } from '../../data/announcements';
 import { showNotification } from '@mantine/notifications';
+
 const ArchiveAnnouncementsPage = () => {
     const stats = [
         { title: 'Total Announcements', icon: 'speakerPhone', value: '5,173', diff: 34, time: "In last year" },
@@ -156,19 +154,6 @@ const ArchiveAnnouncementsPage = () => {
                     </Title>
                 </Button>
             </Flex>
-
-            <StatsGrid data={archiveAnnouncementStats} />
-
-            <Divider
-                my="xs"
-                // variant="dashed"
-                labelPosition="center"
-                label={
-                    <>
-                        <Icon3dCubeSphere size={12} />
-                    </>
-                }
-            />
 
             <Simple title={"Archived Announcements by year"} data={announcementData} colors={colors} />
 

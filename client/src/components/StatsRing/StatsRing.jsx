@@ -1,14 +1,15 @@
 import { RingProgress, Title, Text, SimpleGrid, Paper, Center, Group, rem, Space } from '@mantine/core';
-import { IconArrowUpRight, IconArrowDownRight, IconUser, IconArchive, IconArchiveFilled, IconUserCancel, IconUserEdit } from '@tabler/icons-react';
-import classes from '../FeaturesCards/FeaturesCards.module.css'
+import { FaUser, FaArchive, FaTrashAlt, FaUserEdit } from 'react-icons/fa'; // Importing icons from react-icons
+import { IoArrowUpCircle, IoArrowDownCircle } from 'react-icons/io5'; // Importing arrow icons
+import classes from '../FeaturesCards/FeaturesCards.module.css';
 
 const icons = {
-    user: IconUser,
-    arch: IconArchive,
-    del: IconUserCancel,
-    role: IconUserEdit,
-    up: IconArrowUpRight,
-    down: IconArrowDownRight,
+    user: FaUser,
+    arch: FaArchive,
+    del: FaTrashAlt,
+    role: FaUserEdit,
+    up: IoArrowUpCircle,
+    down: IoArrowDownCircle,
 };
 
 const data = [
@@ -45,7 +46,7 @@ export function StatsRing() {
                         sections={[{ value: stat.progress, color: stat.color }]}
                         label={
                             <Center>
-                                <Icon style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
+                                <Icon style={{ width: rem(20), height: rem(20) }} />
                             </Center>
                         }
                     />
@@ -63,11 +64,13 @@ export function StatsRing() {
         );
     });
 
-    return <div>
-        <Title order={2} className={classes.title} ta="center" mt="sm">
-            Recent Actions
-            <Space h="xl" />
-        </Title>
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>
-    </div>;
+    return (
+        <div>
+            <Title order={2} className={classes.title} ta="center" mt="sm">
+                Recent Actions
+                <Space h="xl" />
+            </Title>
+            <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>
+        </div>
+    );
 }
