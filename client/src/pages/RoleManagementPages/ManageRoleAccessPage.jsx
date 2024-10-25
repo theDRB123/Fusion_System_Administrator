@@ -44,7 +44,7 @@ const ManageRoleAccessPage = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/view-roles`);
+        const response = await axios.get(`http://localhost:8001/api/view-roles`);
         setRoles(response.data.map((role) => ({
           label: role.name,
           value: role.name,
@@ -68,7 +68,7 @@ const ManageRoleAccessPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/get-module-access/`, {
+      const response = await axios.get(`http://localhost:8001/api/get-module-access/`, {
         params: { designation: roleName },
       });
       setModuleAccess(response.data);
@@ -101,7 +101,7 @@ const ManageRoleAccessPage = () => {
   const handleSubmit = async () => {
     setIsOpen(false);
     try {
-      await axios.put(`http://127.0.0.1:8000/api/modify-roleaccess/`, {
+      await axios.put(`http://localhost:8001/api/modify-roleaccess/`, {
         designation: roleName,
         ...moduleAccess,
       });
@@ -269,13 +269,13 @@ const ManageRoleAccessPage = () => {
               </Text>
 
               <Grid>
-                {Object.keys(moduleAccess).map((module) => (
+                {Object.keys(moduleAccess).filter((module) => module !== "designation").map((module) => (
                   <Grid.Col
                     key={module}
                     span={{ base: 12, sm: 6, md: 4 }}
                   >
                     <Checkbox
-                      label={module.replace(/_/g, " ")}
+                      label={module.replace(/_/g, " ").toUpperCase()}
                       checked={moduleAccess[module]}
                       onChange={() => handleModuleChange(module)}
                     />

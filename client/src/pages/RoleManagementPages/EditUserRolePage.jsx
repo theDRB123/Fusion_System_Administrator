@@ -32,7 +32,7 @@ const EditUserRolePage = () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/get-user-roles-by-email?email=${email}`
+        `http://localhost:8001/api/get-user-roles-by-email?email=${email}`
       );
       setUserDetails(response.data.user);
       setCurrentRoles(response.data.roles);
@@ -57,7 +57,7 @@ const EditUserRolePage = () => {
       );
       console.log(updatedRoles);
 
-      await axios.put(`http://127.0.0.1:8000/api/update-user-roles/`, {
+      await axios.put(`http://localhost:8001/api/update-user-roles/`, {
         email: email,
         roles: updatedRoles,
       });
@@ -92,7 +92,7 @@ const EditUserRolePage = () => {
 
   const fetchAvailableRoles = async () => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/view-roles`);
+      const response = await axios.get(`http://localhost:8001/api/view-roles`);
       setRoles(response.data);
     } catch (error) {
       console.log(error.response);
