@@ -20,7 +20,7 @@ import {
 } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
-import { FaDiceD6 } from 'react-icons/fa';
+import { FaDiceD6, FaCheck, FaTimes } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
@@ -28,6 +28,9 @@ const ResetUserPasswordPage = () => {
         name: '',
         rollNo: '',
     });
+
+    const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+    const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
     const [errorMessage, setErrorMessage] = useState('');
     const [opened, setOpened] = useState(false);
@@ -57,6 +60,9 @@ const ResetUserPasswordPage = () => {
             close();
             showNotification({
                 title: 'Password Reset',
+                position: "top-center",
+                withCloseButton: true,
+                icon: checkIcon,
                 message: `Password for ${formData.name} has been reset successfully.\nNew password: ${response.password}`,
                 color: 'green',
             });
@@ -68,6 +74,9 @@ const ResetUserPasswordPage = () => {
         catch (e) {
             showNotification({
                 title: 'Error',
+                position: "top-center",
+                withCloseButton: true,
+                icon: xIcon,
                 message: 'An error occurred while resetting password.   ',
                 color: 'red',
             });
