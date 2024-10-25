@@ -18,11 +18,9 @@ import {
     Center,
     Grid
 } from '@mantine/core'
-import { Icon3dCubeSphere } from '@tabler/icons-react';
 import { Simple } from '../../charts/BarChart/Simple/Simple';
 import { useDisclosure } from '@mantine/hooks';
 import { users } from '../../data/users';
-import { showNotification } from '@mantine/notifications';
 import SimplePieChart from '../../charts/PieChart/Tooltip/Tooltip';
 
 const ArchiveUsersPage = () => {

@@ -1,5 +1,5 @@
 import { Progress, Box, Text, Group, Paper, SimpleGrid, rem } from '@mantine/core';
-import { IconUsers, IconDeviceAnalytics } from '@tabler/icons-react';
+import { FaUsers, FaChartLine } from 'react-icons/fa'; // Import Font Awesome icons
 import classes from './StatsSegments.module.css';
 
 const data = [
@@ -38,11 +38,11 @@ export function StatsSegments() {
                         5,173
                     </Text>
                     <Text c="teal" className={classes.diff} fz="sm" fw={700}>
-                        <IconUsers size="1rem" style={{ marginBottom: rem(0) }} stroke={1.5} />
+                        <FaUsers size="1rem" style={{ marginBottom: rem(0) }} />
                         <span>USERS</span>
                     </Text>
                 </Group>
-                <IconDeviceAnalytics size="1.4rem" className={classes.icon} stroke={1.5} />
+                <FaChartLine size="1.4rem" className={classes.icon} />
             </Group>
 
             <Text c="dimmed" fz="sm">
