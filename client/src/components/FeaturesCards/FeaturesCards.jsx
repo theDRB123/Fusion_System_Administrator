@@ -15,16 +15,14 @@ import { FaUser, FaArchive, FaAward, FaCog, FaTrash, FaCommentDots } from 'react
 import { useNavigate } from 'react-router-dom';
 import classes from './FeaturesCards.module.css';
 
-// Mock data for features with menu items and routes
 const mockdata = [
     {
         title: 'Manage Users',
         description: 'Create a User, Delete a User & Reset the Password of a User.',
         icon: FaUser,
         menuItems: [
-          { label: 'Create a User', icon: IconSettings, color: 'green', route: '/UserManagement/CreateUser' },
-            // { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
-          { label: 'Reset Password', icon: IconMessageCircle, color: 'blue', route: '/UserManagement/ResetUserPassword' },
+          { label: 'Create a User', icon: FaCog, color: 'green', route: '/UserManagement/CreateUser' },
+          { label: 'Reset Password', icon: FaCommentDots, color: 'blue', route: '/UserManagement/ResetUserPassword' },
         ],
     },
     {
