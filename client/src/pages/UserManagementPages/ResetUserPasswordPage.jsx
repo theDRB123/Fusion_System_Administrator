@@ -18,10 +18,9 @@ import {
     Checkbox,
     Center
 } from '@mantine/core';
-
-import { FaCube } from 'react-icons/fa';
-import { showNotification } from '@mantine/notifications'; // Correctly import the notifications
+import { showNotification } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
+import { FaDiceD6 } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
@@ -140,7 +139,7 @@ const ResetUserPasswordPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <FaCube size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />

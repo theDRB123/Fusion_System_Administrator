@@ -25,6 +25,7 @@ class GlobalsModuleaccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalsModuleaccess
         fields = [
+            'designation',
             'program_and_curriculum',
             'course_registration',
             'course_management',

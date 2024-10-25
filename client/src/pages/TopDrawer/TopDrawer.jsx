@@ -70,10 +70,6 @@ export default function TopDrawer() {
                                     Create User
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/UserManagement/DeleteUser')} color='red' leftSection={<FaTrash style={{ width: rem(14), height: rem(14) }} />}>
-                                    Delete User
-                                </Menu.Item>
-                                <Menu.Divider />
                                 <Menu.Item onClick={() => navigate('/UserManagement/ResetUserPassword')} color='violet' leftSection={<FaExchangeAlt style={{ width: rem(14), height: rem(14) }} />}>
                                     Reset User's Password
                                 </Menu.Item>

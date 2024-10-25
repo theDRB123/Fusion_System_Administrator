@@ -22,9 +22,9 @@ const mockdata = [
         description: 'Create a User, Delete a User & Reset the Password of a User.',
         icon: FaUser,
         menuItems: [
-            { label: 'Create a User', icon: FaCog, color: 'green', route: '/UserManagement/CreateUser' },
-            { label: 'Delete a User', icon: FaTrash, color: 'red', route: '/UserManagement/DeleteUser' },
-            { label: 'Reset Password', icon: FaCommentDots, color: 'blue', route: '/UserManagement/ResetUserPassword' },
+          { label: 'Create a User', icon: IconSettings, color: 'green', route: '/UserManagement/CreateUser' },
+            // { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
+          { label: 'Reset Password', icon: IconMessageCircle, color: 'blue', route: '/UserManagement/ResetUserPassword' },
         ],
     },
     {

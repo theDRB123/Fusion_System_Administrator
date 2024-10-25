@@ -112,7 +112,6 @@ const SystemAdminDashboard = () => {
                 spacing={{ base: 10, sm: 'xl' }}
                 verticalSpacing={{ base: 'md', sm: 'xl' }}
             >
-                {/* bar graph */}
                 <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} />
                 <StatsControls />
             </SimpleGrid>
