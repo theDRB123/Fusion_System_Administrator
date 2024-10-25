@@ -79,13 +79,10 @@ const CreateUserPage = () => {
                 response = await bulkUploadUsers(formData);
             }
             else response = await createUser(formData);
-            console.log('User added successfully!');
             close();
 
             if (response.skipped_users_count > 0) {
-                console.log('in')
                 const csvUrl = URL.createObjectURL(new Blob([response.skipped_users_csv], { type: 'text/csv' }));
-                console.log('out', csvUrl)
                 downloadCSV(csvUrl, 'skipped_users.csv');
             }
 

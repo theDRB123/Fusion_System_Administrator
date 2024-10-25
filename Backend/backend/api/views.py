@@ -40,6 +40,7 @@ def get_user_role_by_email(request):
         user_id = user.id
         
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user_id)
+        print(holds_designation_entries)
         
         designation_ids = [entry.designation_id for entry in holds_designation_entries]
         
@@ -212,16 +213,18 @@ def add_user(request):
         'is_superuser': request.data.get('is_superuser') or False,
         'username': request.data.get('rollNo').upper(),
         'first_name': request.data.get('name').split(' ')[0].capitalize(),
-        'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '',
+        'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '-',
         'email': f'{request.data.get('rollNo').upper()}@iiitdmj.ac.in',
-        'is_staff': request.data.get('role')=='Student',
+        'is_staff': request.data.get('role')!='Student',
         'is_active': True,
         'date_joined': datetime.datetime.now().isoformat(),
     }
     serializer = AuthUserSerializer(data=data)
     if serializer.is_valid():
         serializer.save()
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        created_users = []
+        created_users.append(serializer.data)
+        return Response({'created_users':created_users}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
@@ -304,7 +307,7 @@ def modify_moduleaccess(request):
     try:
         designation = GlobalsModuleaccess.objects.get(designation=role_name)
     except GlobalsModuleaccess.DoesNotExist:
-        return Response({"error": f"Designation with name '{designation}' not found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response({"error": f"Designation with name '{role_name}' not found."}, status=status.HTTP_404_NOT_FOUND)
 
     serializer = GlobalsModuleaccessSerializer(designation, data=request.data, partial=True)
     
@@ -344,7 +347,7 @@ def bulk_import_users(request):
                 'password': create_password(data),
                 'username': row[0].upper(),
                 'first_name': row[1].split(' ')[0].capitalize(),
-                'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '',
+                'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '-',
                 'email': f'{row[0].upper()}@iiitdmj.ac.in',
                 'is_staff': row[2] == 'Staff',
                 'is_superuser': row[3] or False,

@@ -12,6 +12,7 @@ import {
   TextInput,
   Progress,
   rem,
+  Select,
 } from "@mantine/core";
 import { FaCheck, FaTimes } from 'react-icons/fa';
 import { notifications } from '@mantine/notifications';
@@ -220,19 +221,16 @@ const CreateCustomRolePage = () => {
               })}
             />
 
-            <TextInput
+            <Select
               label="Type"
               name="type"
-              placeholder="Enter type of the role"
+              placeholder="Select type of the role"
               value={roleDetails.type}
-              onChange={handleChange}
-              required
-              radius="md"
-              styles={(theme) => ({
-                input: {
-                  border: `2px solid ${theme.colors.gray[4]}`,
-                },
-              })}
+              onChange={(value) => setRoleDetails({ ...roleDetails, type: value })}
+              data={[
+                { value: 'academic', label: 'Academic Designation' },
+                { value: 'administrative', label: 'Administrative Designation' },
+              ]}
             />
 
             <Button
