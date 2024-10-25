@@ -2,19 +2,18 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { UnstyledButton, Text, Paper, Group, rem } from '@mantine/core';
 import {
-    IconArchive,
-    IconUserBolt,
-    IconUserCheck,
-    IconChevronDown,
-    IconChevronUp,
-    IconSettings,
-} from '@tabler/icons-react';
+    FaUserCheck,   // Replace with Font Awesome icon
+    FaArchive,     // Replace with Font Awesome icon
+    FaCog,         // Replace with Font Awesome icon
+    FaChevronUp,   // Replace with Font Awesome icon
+    FaChevronDown   // Replace with Font Awesome icon
+} from 'react-icons/fa'; // Import from react-icons
 import classes from './StatsControls.module.css';
 
 const data = [
-    { icon: IconUserCheck, label: 'Users Created' },
-    { icon: IconArchive, label: 'Users Archived' },
-    { icon: IconSettings, label: 'Roles Created' },
+    { icon: FaUserCheck, label: 'Users Created' }, // Replace with Font Awesome icon
+    { icon: FaArchive, label: 'Users Archived' },   // Replace with Font Awesome icon
+    { icon: FaCog, label: 'Roles Created' },         // Replace with Font Awesome icon
 ];
 
 export function StatsControls() {
@@ -25,7 +24,6 @@ export function StatsControls() {
             <stat.icon
                 style={{ width: rem(32), height: rem(32) }}
                 className={classes.icon}
-                stroke={1.5}
             />
             <div>
                 <Text fz="sm" className={classes.label}>{stat.label}</Text>
@@ -43,10 +41,9 @@ export function StatsControls() {
                     className={classes.control}
                     onClick={() => setDate((current) => dayjs(current).add(1, 'day').toDate())}
                 >
-                    <IconChevronUp
+                    <FaChevronUp
                         style={{ width: rem(16), height: rem(16) }}
                         className={classes.controlIcon}
-                        stroke={1.5}
                     />
                 </UnstyledButton>
 
@@ -59,10 +56,9 @@ export function StatsControls() {
                     className={classes.control}
                     onClick={() => setDate((current) => dayjs(current).subtract(1, 'day').toDate())}
                 >
-                    <IconChevronDown
+                    <FaChevronDown
                         style={{ width: rem(16), height: rem(16) }}
                         className={classes.controlIcon}
-                        stroke={1.5}
                     />
                 </UnstyledButton>
             </div>

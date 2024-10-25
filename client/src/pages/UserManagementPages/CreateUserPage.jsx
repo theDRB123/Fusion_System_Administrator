@@ -11,6 +11,7 @@ import {
     Modal,
     Group,
     Container,
+    rem,
     Title,
     Flex,
     TextInput,
@@ -25,7 +26,7 @@ import {
 
 
 import { useDisclosure } from '@mantine/hooks';
-import { FaDiceD6 } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaDiceD6 } from 'react-icons/fa';
 import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
 
@@ -50,6 +51,9 @@ const CreateUserPage = () => {
         role: 'Student',
     });
 
+    const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+    const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
+
     const [opened, { open, close }] = useDisclosure(false);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
@@ -73,7 +77,7 @@ const CreateUserPage = () => {
         try {
             let response;
             setLoading(true);
-            if(file){
+            if (file) {
                 const formData = new FormData();
                 formData.append('file', file);
                 response = await bulkUploadUsers(formData);
@@ -88,7 +92,10 @@ const CreateUserPage = () => {
 
             showNotification({
                 title: 'User Created',
-                message: `${response.created_users.length} User has been created successfully.\n${response.skipped_users_count ? `${response.skipped_users_count} User skipped.` : '' }`,
+                icon: checkIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: `${response.created_users.length} User has been created successfully.\n${response.skipped_users_count ? `${response.skipped_users_count} User skipped.` : ''}`,
                 color: 'teal',
             });
             setFormData({
@@ -100,6 +107,9 @@ const CreateUserPage = () => {
         } catch (error) {
             showNotification({
                 title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
                 message: 'An error occurred while creating user.',
                 color: 'red',
             });
@@ -286,7 +296,7 @@ const CreateUserPage = () => {
                         placeholder="Attach a CSV"
                         w={'50%'}
                     />
-                    <Button 
+                    <Button
                         onClick={handleSubmit}
                         w={'50%'}
                         mt={'10px'}
