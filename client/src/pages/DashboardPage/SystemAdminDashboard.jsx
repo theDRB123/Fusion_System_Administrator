@@ -5,7 +5,7 @@ import { StatsControls } from '../../components/StatsControls/StatsControls';
 import { FeaturesCards } from '../../components/FeaturesCards/FeaturesCards';
 import { Container, Title, Space, SimpleGrid, Divider, Button, Flex } from '@mantine/core';
 import { Simple } from '../../charts/BarChart/Simple/Simple';
-import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { FaDiceD6 } from 'react-icons/fa';
 
 
 
@@ -82,7 +82,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />
@@ -99,7 +99,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />
@@ -108,11 +108,14 @@ const SystemAdminDashboard = () => {
             <Space h="xl" />
 
             <SimpleGrid
-                cols={{ base: 1, md: 2 }}
+                cols={{ base: 1 }}
+                mx={'auto'}
+                w={{ base: '95%', xl: '65%'}}
+                maw={'1200px'}
                 spacing={{ base: 10, sm: 'xl' }}
                 verticalSpacing={{ base: 'md', sm: 'xl' }}
             >
-                <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} />
+                {/* <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} /> */}
                 <StatsControls />
             </SimpleGrid>
 
@@ -125,7 +128,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaDiceD6 size={12} />
                     </>
                 }
             />

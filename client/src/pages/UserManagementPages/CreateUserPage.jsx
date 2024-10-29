@@ -65,7 +65,6 @@ const CreateUserPage = () => {
 
     const handleFileSubmit = (file) => {
         setFile(file);
-        console.log(file);
         setErrorMessage('');
     }
 
@@ -73,13 +72,14 @@ const CreateUserPage = () => {
         try {
             let response;
             setLoading(true);
+            close();
             if(file){
                 const formData = new FormData();
                 formData.append('file', file);
                 response = await bulkUploadUsers(formData);
+                setFile(null);
             }
             else response = await createUser(formData);
-            close();
 
             if (response.skipped_users_count > 0) {
                 const csvUrl = URL.createObjectURL(new Blob([response.skipped_users_csv], { type: 'text/csv' }));
@@ -253,7 +253,7 @@ const CreateUserPage = () => {
                                         { value: 'Staff', label: 'Staff' },
                                     ]}
                                 />
-                                <Button onClick={openConfirmationDialog}>Create User</Button>
+                                <Button onClick={openConfirmationDialog} disabled={loading}>Create User</Button>
                             </Stack>
                         </form>
                     </Box>
@@ -280,6 +280,7 @@ const CreateUserPage = () => {
                         Through CSV
                     </Title>
                     <FileInput
+                        value={file}
                         onChange={handleFileSubmit}
                         size="md"
                         radius="xs"
@@ -288,6 +289,7 @@ const CreateUserPage = () => {
                     />
                     <Button 
                         onClick={handleSubmit}
+                        disabled={loading}
                         w={'50%'}
                         mt={'10px'}
                     >
