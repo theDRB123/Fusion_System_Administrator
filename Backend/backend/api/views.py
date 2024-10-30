@@ -10,33 +10,7 @@ from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
 from io import StringIO
-import random
-import string
-from django.core.mail import send_mail
-from django.conf import settings
-
-def create_password(data):
-    first_name = data.get('name').split(' ')[0].capitalize()
-    roll_no_part = data.get('rollNo')[-3:].upper()
-    special_characters = string.punctuation
-    random_specials = ''.join(random.choice(special_characters) for _ in range(2))
-    return f'{first_name}{roll_no_part}{random_specials}'
-
-def send_email(subject, message, from_email=settings.EMAIL_HOST_USER, recipient_list=['agarwalsamaksh11@gmail.com',]):
-    if not from_email:
-        return Response({"error": "No sender email provided."}, status=status.HTTP_400_BAD_REQUEST)
-    send_mail(subject, message, from_email, recipient_list)
-    
-def mail_to_new_user(created_users):
-    try:
-        for user in created_users:
-            subject = 'Institute Mail ID Credentials'
-            message = f"Dear {user['first_name'].upper()} {user['last_name'].upper()}\n\nWelcome to PDPM IIITDMJ. You have been provided Institute mail id; details are as follows:\n\nEmail ID: {user['email']}\nPassword: {user['password']}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
-            # recipient_list = [f"{user['email']}"]
-            recipient_list = ['agarwalsamaksh11@gmail.com']
-            send_email(subject=subject, message=message, recipient_list=recipient_list)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+from .helpers import create_password, send_email, mail_to_new_user, check_csv
 
 # get list of all users
 @api_view(['GET'])
@@ -232,7 +206,7 @@ def add_user(request):
         'username': request.data.get('rollNo').upper(),
         'first_name': request.data.get('name').split(' ')[0].capitalize(),
         'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '-',
-        'email': f'{request.data.get('rollNo').lower()}@iiitdmj.ac.in',
+        'email': f"{request.data.get("rollNo").lower()}@iiitdmj.ac.in",
         'is_staff': request.data.get('role')!='Student',
         'is_active': True,
         'date_joined': datetime.datetime.now().isoformat(),
@@ -357,6 +331,9 @@ def bulk_import_users(request):
     csv_data = csv.reader(StringIO(file_data))
     
     headers = next(csv_data)
+    flag, message = check_csv(headers)
+    if not flag:
+        return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
     created_users = []
     failed_users = []
     
@@ -374,7 +351,7 @@ def bulk_import_users(request):
                 'username': row[0].upper(),
                 'first_name': row[1].split(' ')[0].capitalize(),
                 'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '-',
-                'email': f'{row[0].upper()}@iiitdmj.ac.in',
+                'email': f"{row[0].upper()}@iiitdmj.ac.in",
                 'is_staff': row[2] == 'Staff',
                 'is_superuser': row[3] or False,
                 'is_active': True,
@@ -406,7 +383,9 @@ def bulk_import_users(request):
         output.seek(0)
         response_data["skipped_users_csv"] = output.getvalue()
 
-    mail_to_new_user(created_users)
+    if len(created_users): 
+        mail_to_new_user(created_users)
+    
     return Response(response_data, status=status.HTTP_201_CREATED)
 
 #bulk export of users via csv file
