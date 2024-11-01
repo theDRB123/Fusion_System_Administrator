@@ -5,8 +5,7 @@ import { StatsControls } from '../../components/StatsControls/StatsControls';
 import { FeaturesCards } from '../../components/FeaturesCards/FeaturesCards';
 import { Container, Title, Space, SimpleGrid, Divider, Button, Flex } from '@mantine/core';
 import { Simple } from '../../charts/BarChart/Simple/Simple';
-import { FaDiceD6 } from 'react-icons/fa';
-
+import { FaCube } from 'react-icons/fa';
 
 
 const SystemAdminDashboard = () => {
@@ -82,7 +81,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <FaDiceD6 size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />
@@ -99,7 +98,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <FaDiceD6 size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />
@@ -128,7 +127,7 @@ const SystemAdminDashboard = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <FaDiceD6 size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />

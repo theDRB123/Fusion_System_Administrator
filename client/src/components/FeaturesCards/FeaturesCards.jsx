@@ -11,7 +11,7 @@ import {
     Menu,
     Button,
 } from '@mantine/core';
-import { IconUser, IconArchive, IconRosetteFilled, IconSettings, IconTrash, IconMessageCircle } from '@tabler/icons-react';
+import { FaUser, FaArchive, FaStar, FaCog, FaTrashAlt, FaComments } from 'react-icons/fa'; // Import Font Awesome icons
 import { useNavigate } from 'react-router-dom'; // Import navigation hook
 import classes from './FeaturesCards.module.css';
 
@@ -20,31 +20,31 @@ const mockdata = [
     {
         title: 'Manage Users',
         description: 'Create a User, Delete a User & Reset the Password of a User.',
-        icon: IconUser,
+        icon: FaUser, // Replace with Font Awesome icon
         menuItems: [
-            { label: 'Create a User', icon: IconSettings, color: 'green', route: '/UserManagement/CreateUser' },
-            // { label: 'Delete a User', icon: IconTrash, color: 'red', route: '/UserManagement/DeleteUser' },
-            { label: 'Reset Password', icon: IconMessageCircle, color: 'blue', route: '/UserManagement/ResetUserPassword' },
+            { label: 'Create a User', icon: FaUser, color: 'green', route: '/UserManagement/CreateUser' },
+            // { label: 'Delete a User', icon: FaTrashAlt, color: 'red', route: '/UserManagement/DeleteUser' },
+            { label: 'Reset Password', icon: FaComments, color: 'blue', route: '/UserManagement/ResetUserPassword' },
         ],
     },
     {
         title: 'Manage Roles',
         description: 'Create a Custom Role, Manage Role Access & Edit Role Access.',
-        icon: IconRosetteFilled,
+        icon: FaStar, // Replace with Font Awesome icon
         menuItems: [
-            { label: 'Create Custom Role', icon: IconSettings, color: 'green', route: '/RoleManagement/CreateCustomRole' },
-            { label: 'Manage Role Access', icon: IconSettings, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
-            { label: 'Edit Role Access', icon: IconSettings, color: 'blue', route: '/RoleManagement/EditUserRole' },
+            { label: 'Create Custom Role', icon: FaCog, color: 'green', route: '/RoleManagement/CreateCustomRole' },
+            { label: 'Manage Role Access', icon: FaCog, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
+            { label: 'Edit Role Access', icon: FaCog, color: 'blue', route: '/RoleManagement/EditUserRole' },
         ],
     },
     {
         title: 'Archive Management',
         description: 'Archive Users, Announcements & Notifications.',
-        icon: IconArchive,
+        icon: FaArchive, // Replace with Font Awesome icon
         menuItems: [
-            { label: 'Archive Users', icon: IconArchive, color: 'green', route: '/archive/users' },
-            { label: 'Archive Announcements', icon: IconArchive, color: 'orange', route: '/archive/announcements' },
-            { label: 'Archive Notifications', icon: IconArchive, color: 'blue', route: '/archive/notifications' },
+            { label: 'Archive Users', icon: FaArchive, color: 'green', route: '/archive/users' },
+            { label: 'Archive Announcements', icon: FaArchive, color: 'orange', route: '/archive/announcements' },
+            { label: 'Archive Notifications', icon: FaArchive, color: 'blue', route: '/archive/notifications' },
         ],
     },
 ];
@@ -56,7 +56,7 @@ export function FeaturesCards() {
     const features = mockdata.map((feature) => (
         <Card key={feature.title} shadow="md" radius="md" className={classes.card} padding="xl">
             {/* Card Content */}
-            <feature.icon style={{ width: rem(50), height: rem(50) }} stroke={2} color={theme.colors.blue[6]} />
+            <feature.icon style={{ width: rem(50), height: rem(50), color: theme.colors.blue[6] }} />
             <Text fz="lg" fw={500} className={classes.cardTitle} mt="md">
                 {feature.title}
             </Text>

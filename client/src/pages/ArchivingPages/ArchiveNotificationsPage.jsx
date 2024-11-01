@@ -17,11 +17,12 @@ import {
     Checkbox,
     Center
 } from '@mantine/core'
-import { Icon3dCubeSphere } from '@tabler/icons-react';
+import { FaCube } from 'react-icons/fa';
 import { Simple } from '../../charts/BarChart/Simple/Simple';
 import { useDisclosure } from '@mantine/hooks';
 import { notifications } from '../../data/notifications';
 import { showNotification } from '@mantine/notifications';
+
 const ArchiveNotificationsPage = () => {
     const stats = [
         { title: 'Total Notifications', icon: 'speakerPhone', value: '5,173', diff: 34, time: "In last year" },
@@ -165,7 +166,7 @@ const ArchiveNotificationsPage = () => {
                 labelPosition="center"
                 label={
                     <>
-                        <Icon3dCubeSphere size={12} />
+                        <FaCube size={12} />
                     </>
                 }
             />

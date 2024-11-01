@@ -1,14 +1,18 @@
 import { RingProgress, Title, Text, SimpleGrid, Paper, Center, Group, rem, Space } from '@mantine/core';
-import { IconArrowUpRight, IconArrowDownRight, IconUser, IconArchive, IconArchiveFilled, IconUserCancel, IconUserEdit } from '@tabler/icons-react';
-import classes from '../FeaturesCards/FeaturesCards.module.css'
+import {
+    FaUserAlt,            // Replace with Font Awesome icon for user
+    FaArchive,            // Replace with Font Awesome icon for archive
+    FaUserMinus,          // Replace with Font Awesome icon for user delete
+    FaUserPlus,           // Replace with Font Awesome icon for user created
+    FaUserCog             // Replace with Font Awesome icon for created role
+} from 'react-icons/fa'; // Import from react-icons
+import classes from '../FeaturesCards/FeaturesCards.module.css';
 
 const icons = {
-    user: IconUser,
-    arch: IconArchive,
-    del: IconUserCancel,
-    role: IconUserEdit,
-    up: IconArrowUpRight,
-    down: IconArrowDownRight,
+    user: FaUserAlt,      // Use Font Awesome icon for user
+    arch: FaArchive,      // Use Font Awesome icon for archive
+    del: FaUserMinus,     // Use Font Awesome icon for delete
+    role: FaUserCog,      // Use Font Awesome icon for created role
 };
 
 const data = [
@@ -45,7 +49,7 @@ export function StatsRing() {
                         sections={[{ value: stat.progress, color: stat.color }]}
                         label={
                             <Center>
-                                <Icon style={{ width: rem(20), height: rem(20) }} stroke={1.5} />
+                                <Icon style={{ width: rem(20), height: rem(20) }} />
                             </Center>
                         }
                     />
@@ -63,11 +67,13 @@ export function StatsRing() {
         );
     });
 
-    return <div>
-        <Title order={2} className={classes.title} ta="center" mt="sm">
-            Recent Actions
-            <Space h="xl" />
-        </Title>
-        <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>
-    </div>;
+    return (
+        <div>
+            <Title order={2} className={classes.title} ta="center" mt="sm">
+                Recent Actions
+                <Space h="xl" />
+            </Title>
+            <SimpleGrid cols={{ base: 1, sm: 3 }}>{stats}</SimpleGrid>
+        </div>
+    );
 }

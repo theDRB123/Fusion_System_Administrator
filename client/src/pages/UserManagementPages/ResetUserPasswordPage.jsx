@@ -6,6 +6,7 @@ import {
     Input,
     Text,
     Stack,
+    rem,
     Modal,
     TextInput,
     Group,
@@ -21,7 +22,7 @@ import {
 
 import { showNotification } from '@mantine/notifications';
 import '@mantine/notifications/styles.css';
-import { FaDiceD6 } from 'react-icons/fa';
+import { FaCheck, FaTimes, FaDiceD6 } from 'react-icons/fa';
 import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
@@ -32,6 +33,10 @@ const ResetUserPasswordPage = () => {
 
     const [errorMessage, setErrorMessage] = useState('');
     const [opened, setOpened] = useState(false);
+
+
+    const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
+    const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -51,13 +56,16 @@ const ResetUserPasswordPage = () => {
     };
 
     const handleSubmit = async () => {
-        try{
+        try {
             setOpened(false);
             const response = await resetPassword(formData);
             console.log('Reset Password for:', formData);
             close();
             showNotification({
                 title: 'Password Reset',
+                icon: checkIcon,
+                position: "top-center",
+                withCloseButton: true,
                 message: `Password for ${formData.name} has been reset successfully.\nNew password: ${response.password}`,
                 color: 'green',
             });
@@ -66,9 +74,12 @@ const ResetUserPasswordPage = () => {
                 rollNo: '',
             });
         }
-        catch(e){
+        catch (e) {
             showNotification({
                 title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
                 message: 'An error occurred while resetting password.   ',
                 color: 'red',
             });
