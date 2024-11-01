@@ -16,7 +16,7 @@ const icons = {
 };
 
 const data = [
-    { label: 'few minutes ago', stats: 'Notif Archived', progress: 100, color: 'blue', icon: 'arch' },
+    { label: 'few minutes ago', stats: 'Notifications Archived', progress: 100, color: 'blue', icon: 'arch' },
     {
         label: 'few minutes ago',
         stats: 'User Deleted',

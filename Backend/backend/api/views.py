@@ -10,15 +10,7 @@ from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
 from io import StringIO
-import random
-import string
-
-def create_password(data):
-    first_name = data.get('name').split(' ')[0].capitalize()
-    roll_no_part = data.get('rollNo')[-3:].upper()
-    special_characters = string.punctuation
-    random_specials = ''.join(random.choice(special_characters) for _ in range(2))
-    return f'{first_name}{roll_no_part}{random_specials}'
+from .helpers import create_password, send_email, mail_to_new_user, check_csv
 
 # get list of all users
 @api_view(['GET'])
@@ -37,12 +29,11 @@ def get_user_role_by_email(request):
     
     try:
         user = AuthUser.objects.get(email=email)
-        user_id = user.id
-        
-        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user_id)
+        # user_id = user.id
+        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
         print(holds_designation_entries)
         
-        designation_ids = [entry.designation_id for entry in holds_designation_entries]
+        designation_ids = [entry.designation.name for entry in holds_designation_entries]
         
         roles = GlobalsDesignation.objects.filter(id__in=designation_ids)
         roles_serializer = GlobalsDesignationSerializer(roles, many=True)
@@ -208,13 +199,14 @@ def add_extra_ino_to_user(request,user):
 
 @api_view(['POST'])
 def add_user(request):
+    password = create_password(request.data)
     data = {
-        'password': create_password(request.data),
+        'password': password,
         'is_superuser': request.data.get('is_superuser') or False,
         'username': request.data.get('rollNo').upper(),
         'first_name': request.data.get('name').split(' ')[0].capitalize(),
         'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '-',
-        'email': f'{request.data.get('rollNo').upper()}@iiitdmj.ac.in',
+        'email': f"{request.data.get("rollNo").lower()}@iiitdmj.ac.in",
         'is_staff': request.data.get('role')!='Student',
         'is_active': True,
         'date_joined': datetime.datetime.now().isoformat(),
@@ -224,6 +216,7 @@ def add_user(request):
         serializer.save()
         created_users = []
         created_users.append(serializer.data)
+        mail_to_new_user(created_users)
         return Response({'created_users':created_users}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -274,13 +267,20 @@ def reset_password(request):
         
         user.password = new_password
         user.save()
+        
+        subject = 'Your Password has been reset!!'
+        message = f"This Mail is to notify you that your password has been reset by the System Administrator.\n\nPlease check out the new password below:  {new_password}\n\nRegards,\nSystem Administrator,\nIIITDM Jabalpur."
+        recipient_list = ['agarwalsamaksh11@gmail.com']
+        # recipient_list = [f"{user.email}"]
+        send_email(subject=subject, message=message, recipient_list=recipient_list)
+        
         return Response({"password": new_password,"message": "Password reset successfully."}, status=status.HTTP_200_OK)
     except AuthUser.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# get module access for a specific role
+# get module access for a specific role 
 @api_view(['GET'])
 def get_module_access(request):
     role_name = request.query_params.get('designation')
@@ -331,6 +331,9 @@ def bulk_import_users(request):
     csv_data = csv.reader(StringIO(file_data))
     
     headers = next(csv_data)
+    flag, message = check_csv(headers)
+    if not flag:
+        return Response({"error": message}, status=status.HTTP_400_BAD_REQUEST)
     created_users = []
     failed_users = []
     
@@ -348,7 +351,7 @@ def bulk_import_users(request):
                 'username': row[0].upper(),
                 'first_name': row[1].split(' ')[0].capitalize(),
                 'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else '-',
-                'email': f'{row[0].upper()}@iiitdmj.ac.in',
+                'email': f"{row[0].upper()}@iiitdmj.ac.in",
                 'is_staff': row[2] == 'Staff',
                 'is_superuser': row[3] or False,
                 'is_active': True,
@@ -380,6 +383,9 @@ def bulk_import_users(request):
         output.seek(0)
         response_data["skipped_users_csv"] = output.getvalue()
 
+    if len(created_users): 
+        mail_to_new_user(created_users)
+    
     return Response(response_data, status=status.HTTP_201_CREATED)
 
 #bulk export of users via csv file

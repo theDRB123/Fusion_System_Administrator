@@ -107,11 +107,14 @@ const SystemAdminDashboard = () => {
             <Space h="xl" />
 
             <SimpleGrid
-                cols={{ base: 1, md: 2 }}
+                cols={{ base: 1 }}
+                mx={'auto'}
+                w={{ base: '95%', xl: '65%'}}
+                maw={'1200px'}
                 spacing={{ base: 10, sm: 'xl' }}
                 verticalSpacing={{ base: 'md', sm: 'xl' }}
             >
-                <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} />
+                {/* <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} /> */}
                 <StatsControls />
             </SimpleGrid>
 
