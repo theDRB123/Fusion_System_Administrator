@@ -31,6 +31,8 @@ def get_user_role_by_email(request):
         user = AuthUser.objects.get(email=email)
         # user_id = user.id
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
+        # user_id = user.id
+        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
         print(holds_designation_entries)
         
         designation_ids = [entry.designation.id for entry in holds_designation_entries]
@@ -203,6 +205,7 @@ def add_user(request):
     student_role = GlobalsDesignation.objects.get(name='Student')
     student_role_id = student_role.id
     data = {
+        'password': password,
         'password': password,
         'is_superuser': request.data.get('is_superuser') or False,
         'username': request.data.get('rollNo').upper(),
