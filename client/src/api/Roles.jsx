@@ -11,3 +11,14 @@ export const createCustomRole = async (roleData) => {
         throw error;
     }
 };
+
+
+export const getAllRoles = async () => {
+    try {
+        const response = await axios.get(API_URL+'/view-roles/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching roles:', error.response?.data || error.message);
+        throw error;
+    }
+}

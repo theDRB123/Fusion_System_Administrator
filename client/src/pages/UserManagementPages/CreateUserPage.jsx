@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     Box,
     Button,
@@ -29,8 +29,8 @@ import { useDisclosure } from '@mantine/hooks';
 import { FaCheck, FaTimes, FaDiceD6 } from 'react-icons/fa';
 import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
-
 import { bulkUploadUsers, createUser } from '../../api/Users';
+import { getAllRoles } from '../../api/Roles';
 import { showNotification } from '@mantine/notifications';
 
 const CreateUserPage = () => {
@@ -45,16 +45,14 @@ const CreateUserPage = () => {
     const [formData, setFormData] = useState({
         name: '',
         rollNo: '',
-        batch: '',
-        branch: '',
-        password: '',
-        role: 'Student',
+        role: 0,
     });
 
     const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
     const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
     const [opened, { open, close }] = useDisclosure(false);
+    const [roles, setRoles] = useState([]);
     const [loading, setLoading] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -101,8 +99,7 @@ const CreateUserPage = () => {
             setFormData({
                 name: '',
                 rollNo: '',
-                password: '',
-                role: 'Student',
+                role: formData.role,
             });
         } catch (error) {
             showNotification({
@@ -127,6 +124,9 @@ const CreateUserPage = () => {
         }
         else if (formData.rollNo.trim() === '') {
             setErrorMessage('Roll number cannot be empty.');
+        }
+        else if (formData.role === 0) {
+            setErrorMessage('Role cannot be empty.');
         }
         else open();
     };
@@ -155,19 +155,6 @@ const CreateUserPage = () => {
 
     const yearData = getUsersByYear();
 
-    const getUsersByRole = () => {
-        const roleCount = { Student: 0, Faculty: 0 };
-        users.forEach((user) => {
-            roleCount[user.role] = (roleCount[user.role] || 0) + 1;
-        });
-        return [
-            { name: 'Student', value: roleCount.Student },
-            { name: 'Faculty', value: roleCount.Faculty },
-            { name: 'Staff', value: roleCount.Staff },
-        ];
-    };
-
-    const roleData = getUsersByRole();
     const COLORS = ['#4A90E2', '#005B96'];
     const chartHeight = 300;
 
@@ -177,6 +164,34 @@ const CreateUserPage = () => {
         const createdYear = new Date(user.createdAt).getFullYear();
         return createdYear === currentYear;
     }).length;
+
+    const fetchRoles = async () => {
+        try {
+          let all_roles = [];
+          const response = await getAllRoles();
+          for(let i=0; i<response.length; i++){
+              all_roles[i] = {value: `${response[i].id}`, label: response[i].name}
+              if(response[i].name === 'Student'){
+                  setFormData({...formData, role: response[i].id});
+              }
+          }
+          setRoles(all_roles);
+        } catch (error) {
+            showNotification({
+                title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: 'An error occurred while fetching roles.',
+                color: 'red',
+            });
+        }
+      };
+
+
+    useEffect(() => {
+        fetchRoles();
+    },[])
 
     return (
         <Box sx={{ background: theme.colors.gray[0], minHeight: '100vh', padding: '2rem' }} mt={'20px'}>
@@ -255,13 +270,13 @@ const CreateUserPage = () => {
                                 <Select
                                     label="Role"
                                     name="role"
-                                    value={formData.role}
-                                    onChange={(value) => setFormData({ ...formData, role: value })}
-                                    data={[
-                                        { value: 'Student', label: 'Student' },
-                                        { value: 'Faculty', label: 'Faculty' },
-                                        { value: 'Staff', label: 'Staff' },
-                                    ]}
+                                    value={`${formData.role}`}
+                                    onChange={
+                                        (value) => {
+                                            setFormData({ ...formData, role: Number(value) })
+                                        }
+                                    }
+                                    data={roles}
                                 />
                                 <Button onClick={openConfirmationDialog} disabled={loading}>Create User</Button>
                             </Stack>
