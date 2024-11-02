@@ -62,10 +62,10 @@ class GlobalsExtrainfo(models.Model):
 
 
 class GlobalsHoldsdesignation(models.Model):
-    held_at = models.DateTimeField()
-    designation = models.ForeignKey(GlobalsDesignation, models.DO_NOTHING)
-    user = models.ForeignKey(AuthUser, models.DO_NOTHING)
-    working = models.ForeignKey(AuthUser, models.DO_NOTHING, related_name='globalsholdsdesignation_working_set')
+    held_at = models.DateTimeField(auto_now=True)
+    designation = models.ForeignKey(GlobalsDesignation, related_name='designees', on_delete=models.CASCADE)
+    user = models.ForeignKey(AuthUser, related_name='holds_designations', on_delete=models.CASCADE)
+    working = models.ForeignKey(AuthUser, related_name='current_designation', on_delete=models.CASCADE)
 
     class Meta:
         managed = False

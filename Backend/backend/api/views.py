@@ -8,7 +8,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_new_user, check_csv
 
@@ -31,9 +31,11 @@ def get_user_role_by_email(request):
         user = AuthUser.objects.get(email=email)
         # user_id = user.id
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
+        # user_id = user.id
+        holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
         print(holds_designation_entries)
         
-        designation_ids = [entry.designation.name for entry in holds_designation_entries]
+        designation_ids = [entry.designation.id for entry in holds_designation_entries]
         
         roles = GlobalsDesignation.objects.filter(id__in=designation_ids)
         roles_serializer = GlobalsDesignationSerializer(roles, many=True)
@@ -200,14 +202,17 @@ def add_extra_ino_to_user(request,user):
 @api_view(['POST'])
 def add_user(request):
     password = create_password(request.data)
+    student_role = GlobalsDesignation.objects.get(name='Student')
+    student_role_id = student_role.id
     data = {
+        'password': password,
         'password': password,
         'is_superuser': request.data.get('is_superuser') or False,
         'username': request.data.get('rollNo').upper(),
         'first_name': request.data.get('name').split(' ')[0].capitalize(),
         'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '-',
         'email': f"{request.data.get("rollNo").lower()}@iiitdmj.ac.in",
-        'is_staff': request.data.get('role')!='Student',
+        'is_staff': request.data.get('role')!=student_role_id,
         'is_active': True,
         'date_joined': datetime.datetime.now().isoformat(),
     }
@@ -216,6 +221,15 @@ def add_user(request):
         serializer.save()
         created_users = []
         created_users.append(serializer.data)
+        role_data = {
+            'held_at': datetime.datetime.now().isoformat(),
+            'designation': request.data.get('role'),
+            'user': serializer.data.get('id'),
+            'working': serializer.data.get('id')
+        }
+        role_serializer = GlobalsHoldsDesignationSerializer(data=role_data)
+        if role_serializer.is_valid():
+            role_serializer.save()
         mail_to_new_user(created_users)
         return Response({'created_users':created_users}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
