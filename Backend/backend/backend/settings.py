@@ -15,7 +15,7 @@ from os import getenv
 import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 env = environ.Env()
 env_file = BASE_DIR / ".env"
 environ.Env.read_env(env_file)
@@ -75,6 +75,8 @@ MIDDLEWARE = [
 CORS_ALLOWED_ORIGINS = [
     'http://localhost:5173',
     'http://127:0.0.1:5173',
+    'http://localhost:5174',
+    'http://127:0.0.1:5174',
 ]
 
 ROOT_URLCONF = 'backend.urls'

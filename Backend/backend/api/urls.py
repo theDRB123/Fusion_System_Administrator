@@ -18,4 +18,5 @@ urlpatterns = [
     path('users/reset_password/', views.reset_password, name='reset-password'),
     path('users/import/', views.bulk_import_users, name='bulk-import-users'),
     path('users/export/', views.bulk_export_users, name='bulk-export-users'),
+    path('users/mail-batch/', views.mail_to_whole_batch, name='mail-to-whole-batch'),
 ]

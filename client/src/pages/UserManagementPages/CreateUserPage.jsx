@@ -31,6 +31,7 @@ import { users } from '../../data/users';
 import { announcements } from '../../data/announcements';
 import { bulkUploadUsers, createUser } from '../../api/Users';
 import { getAllRoles } from '../../api/Roles';
+import { mailBatch } from '../../api/Mail';
 import { showNotification } from '@mantine/notifications';
 
 const CreateUserPage = () => {
@@ -188,6 +189,30 @@ const CreateUserPage = () => {
         }
       };
 
+    const sendMail = async (year) => {
+        try {
+            const response = await mailBatch(year);
+            showNotification({
+                title: 'Mail Sent',
+                icon: checkIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: `Mail sent to ${year} batch successfully.`,
+                color: 'teal',
+            });
+        } catch (error) {
+            showNotification({
+                title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: 'An error occurred while sending mail.',
+                color: 'red',
+            });
+        }
+    };
+
+
 
     useEffect(() => {
         fetchRoles();
@@ -319,6 +344,23 @@ const CreateUserPage = () => {
                         mt={'10px'}
                     >
                         Create Users
+                    </Button>
+                    <Divider
+                        mt="20px"
+                        labelPosition="center"
+                        label={
+                            <>
+                                <FaDiceD6 size={12} />
+                            </>
+                        }
+                    />
+                    <Button
+                        onClick={() => sendMail(2024)}
+                        disabled={loading}
+                        w={'50%'}
+                        mt={'10px'}
+                    >
+                        Mail 2024 Batch
                     </Button>
                 </Stack>
             </Stack>
