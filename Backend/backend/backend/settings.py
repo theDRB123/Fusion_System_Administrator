@@ -120,6 +120,9 @@ EMAIL_PORT = env.int("EMAIL_PORT", default=587)
 EMAIL_USE_TLS = env.bool("EMAIL_USE_TLS", default=True)
 EMAIL_HOST_USER = env("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
+EMAIL_TEST_USER = env("EMAIL_TEST_USER")
+EMAIL_TEST_MODE = env("EMAIL_TEST_MODE")
+EMAIL_TEST_COUNT = env("EMAIL_TEST_COUNT")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

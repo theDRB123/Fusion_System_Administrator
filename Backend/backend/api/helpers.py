@@ -2,11 +2,13 @@ from rest_framework.response import Response
 from rest_framework import status
 import random
 import string
+import hashlib
+from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime
 from .models import GlobalsDepartmentinfo, AuthUser, Student
-
+import os
 
 def create_password(data):
     first_name = data.get('name').split(' ')[0].lower().capitalize()
@@ -15,10 +17,87 @@ def create_password(data):
     random_specials = ''.join(random.choice(special_characters) for _ in range(2))
     return f"{first_name}{roll_no_part}{random_specials}"
 
-def send_email(subject, message, from_email=settings.EMAIL_HOST_USER, recipient_list=['agarwalsamaksh11@gmail.com',]):
+
+def create_password_from_authuser(student):
+    special_characters = string.punctuation
+    random_specials = "".join(random.choice(special_characters) for _ in range(2))
+    roll_no = student.email[5:-14].upper()
+    password = f"{student.first_name.lower().capitalize()}{roll_no}{random_specials}"
+    print("password  ", password)
+    hashed_password = make_password(password)
+    return password, hashed_password
+
+
+def save_password(student, hashed_password):
+    student.password = hashed_password
+    student.save()
+
+
+def send_email(
+    subject,
+    message,
+    from_email=settings.EMAIL_HOST_USER,
+    recipient_list=[
+        settings.EMAIL_TEST_USER,
+    ],
+):
     if not from_email:
-        return Response({"error": "No sender email provided."}, status=status.HTTP_400_BAD_REQUEST)
-    send_mail(subject, message, from_email, recipient_list)
+        return Response(
+            {"error": "No sender email provided."}, status=status.HTTP_400_BAD_REQUEST
+        )
+    try:
+        send_mail(subject, message, from_email, recipient_list)
+    except Exception as e:
+        print(e)
+        raise e
+
+def configure_password_mail(students):
+    print("configuring passwords and mailing")
+    count = len(students)
+    if int(settings.EMAIL_TEST_MODE) == 1 :
+        print("hello", settings.EMAIL_TEST_COUNT)
+        count = int(settings.EMAIL_TEST_COUNT)
+    
+    print(count)
+    try:
+        for student in students[:count]:
+            plain_password, hashed_password = create_password_from_authuser(student)
+            save_password(student, hashed_password)
+            try:
+                mail_to_user_single(student, plain_password)
+            except Exception as e:
+                log_failed_email(student, plain_password, hashed_password, str(e))
+                
+        return Response(
+            {"message": "Email sent successfully."}, status=status.HTTP_200_OK
+        )
+    except Exception as e:
+        print(e)
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+def log_failed_email(student, plain_password, hashed_password, error):
+    log_dir = "failed_emails"
+    os.makedirs(log_dir, exist_ok=True)
+    log_file = os.path.join(log_dir, "failed_emails.txt")
+    with open(log_file, "a") as f:
+        f.write(f"Failed to send email to: {student.email}\n")
+        f.write(f"Username: {student.username}\n")
+        f.write(f"Plain Password: {plain_password}\n")
+        f.write(f"Hashed Password: {hashed_password}\n")
+        f.write(f"Error: {error}\n")
+        f.write("\n")
+
+def mail_to_user_single(student, password):
+    user = {"username": student.username, "password": password, "email": student.email}
+    subject = "Fusion Portal Credentials"
+    message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {password}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
+    recipient_list = [f"{user['email']}"]
+    # recipient_list = []
+    if(int(settings.EMAIL_TEST_MODE) == 1):
+        recipient_list = [settings.EMAIL_TEST_USER]
+    send_email(
+        subject=subject, message=message, recipient_list=recipient_list
+    )   
     
 def mail_to_user(created_users):
     try:

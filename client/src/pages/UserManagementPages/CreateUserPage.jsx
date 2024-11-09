@@ -355,6 +355,22 @@ const CreateUserPage = () => {
                         }
                     />
                     <Button
+                        onClick={() => sendMail(2022)}
+                        disabled={loading}
+                        w={'50%'}
+                        mt={'10px'}
+                    >
+                        Mail 2022 Batch
+                    </Button>
+                    <Button
+                        onClick={() => sendMail(2023)}
+                        disabled={loading}
+                        w={'50%'}
+                        mt={'10px'}
+                    >
+                        Mail 2023 Batch
+                    </Button>
+                    <Button
                         onClick={() => sendMail(2024)}
                         disabled={loading}
                         w={'50%'}

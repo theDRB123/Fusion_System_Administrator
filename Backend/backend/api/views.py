@@ -10,7 +10,7 @@ from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer
 from io import StringIO
-from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department
+from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 
 # get list of all users
 @api_view(['GET'])
@@ -421,42 +421,42 @@ def bulk_import_users(request):
         if len(row) < 4:
             failed_users.append(row)
             continue
-        try:
-            data = {
-                'rollNo': row[0],
-                'name': row[1],
-            }
-            user_data = {
-                'password': create_password(data),
-                'username': row[0].upper(),
-                'first_name': row[1].split(' ')[0].lower().capitalize(),
-                'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else 'NA',
-                'email': f"{row[0].lower()}@iiitdmj.ac.in",
-                'is_staff': False,
-                'is_superuser': False,
-                'is_active': True,
-                'date_joined': datetime.datetime.now().strftime("%Y-%m-%d"),
-            }
-            serializer = AuthUserSerializer(data=user_data)
-            user = None
-            if serializer.is_valid():
-                user = serializer.save()
-            print("Error in user",serializer.errors)
-            extra_info_serializer = add_user_extra_info(row, user)
-            extra_serializer = None
-            if extra_info_serializer:
-                extra_serializer = extra_info_serializer.save()
-            role_serializer = add_user_designation_info(user.id)
-            if role_serializer:
-                role_serializer.save()
-            student_serializer = add_student_info(row, extra_serializer)
-            if student_serializer:
-                student_serializer.save()
-            if user and extra_info_serializer and role_serializer and student_serializer:
-                created_users.append(serializer.data)
-        except Exception as e:
-            print("error",e)
-            failed_users.append(row)
+        # try:
+        data = {
+            'rollNo': row[0],
+            'name': row[1],
+        }
+        user_data = {
+            'password': create_password(data),
+            'username': row[0].upper(),
+            'first_name': row[1].split(' ')[0].lower().capitalize(),
+            'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else 'NA',
+            'email': f"{row[0].lower()}@iiitdmj.ac.in",
+            'is_staff': False,
+            'is_superuser': False,
+            'is_active': True,
+            'date_joined': datetime.datetime.now().strftime("%Y-%m-%d"),
+        }
+        serializer = AuthUserSerializer(data=user_data)
+        user = None
+        if serializer.is_valid():
+            user = serializer.save()
+        print("Error in user",serializer.errors)
+        extra_info_serializer = add_user_extra_info(row, user)
+        extra_serializer = None
+        if extra_info_serializer:
+            extra_serializer = extra_info_serializer.save()
+        role_serializer = add_user_designation_info(user.id)
+        if role_serializer:
+            role_serializer.save()
+        student_serializer = add_student_info(row, extra_serializer)
+        if student_serializer:
+            student_serializer.save()
+        if user and extra_info_serializer and role_serializer and student_serializer:
+            created_users.append(serializer.data)
+        # except Exception as e:
+            # print("error",e)
+            # failed_users.append(row)
         
     response_data = {
         "message": f"{len(created_users)} users created successfully.",
@@ -499,9 +499,9 @@ def bulk_export_users(request):
 def mail_to_whole_batch(request):
     print("request.data",request.data)
     students = Student.objects.filter(batch=request.data.get('batch'))
-    students_data = [{'username': student.id.user.username, 'password': student.id.user.password, 'email': student.id.user.email} for student in students]
+    students_data = [student.id.user for student in students]
     try:
-        mail_to_user(students_data)
+        configure_password_mail(students_data)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"message": "Mail sent to whole batch successfully."}, status=status.HTTP_200_OK)
