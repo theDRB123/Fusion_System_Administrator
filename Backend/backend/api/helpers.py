@@ -92,7 +92,7 @@ def mail_to_user_single(student, password):
     subject = "Fusion Portal Credentials"
     message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {password}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
     recipient_list = [f"{user['email']}"]
-    # recipient_list = []
+    recipient_list = []
     if(int(settings.EMAIL_TEST_MODE) == 1):
         recipient_list = [settings.EMAIL_TEST_USER]
     send_email(
@@ -105,7 +105,8 @@ def mail_to_user(created_users):
             subject = 'Fusion Portal Credentials'
             message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {user['password']}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
             recipient_list = [f"{user['email']}"]
-            send_email(subject=subject, message=message, recipient_list=recipient_list)
+            recipient_list = []
+            # send_email(subject=subject, message=message, recipient_list=recipient_list)
         return Response({"message": "Email sent successfully."}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

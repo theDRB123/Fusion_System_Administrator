@@ -427,7 +427,7 @@ def bulk_import_users(request):
             'name': row[1],
         }
         user_data = {
-            'password': create_password(data),
+            'password': "tempPassword",
             'username': row[0].upper(),
             'first_name': row[1].split(' ')[0].lower().capitalize(),
             'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else 'NA',
@@ -475,9 +475,6 @@ def bulk_import_users(request):
         output.seek(0)
         response_data["skipped_users_csv"] = output.getvalue()
 
-    if len(created_users): 
-        mail_to_user(created_users)
-    
     return Response(response_data, status=status.HTTP_201_CREATED)
 
 #bulk export of users via csv file
