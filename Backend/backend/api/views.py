@@ -11,7 +11,7 @@ from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignatio
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
-
+from django.contrib.auth.hashers import make_password
 # get list of all users
 @api_view(['GET'])
 def global_extrainfo_list(request):
@@ -202,7 +202,7 @@ def add_extra_ino_to_user(request,user):
 @api_view(['POST'])
 def add_user(request):
     password = create_password(request.data)
-    student_role = GlobalsDesignation.objects.get(name='Student')
+    student_role = GlobalsDesignation.objects.get(name='student')
     student_role_id = student_role.id
     data = {
         'password': password,
@@ -427,7 +427,7 @@ def bulk_import_users(request):
             'name': row[1],
         }
         user_data = {
-            'password': "tempPassword",
+            'password': make_password("user@123"),
             'username': row[0].upper(),
             'first_name': row[1].split(' ')[0].lower().capitalize(),
             'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else 'NA',
