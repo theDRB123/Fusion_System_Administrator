@@ -13,6 +13,8 @@ EMAIL_HOST_PASSWORD=''
 EMAIL_TEST_USER='{An email to which the test emails will be sent}'
 EMAIL_TEST_MODE=1 # 0 for production, 1 for testing
 EMAIL_TEST_COUNT=1 # Number of test emails to be sent
+EMAIL_TEST_ARRAY="['{Email1}', '{Email2}', '{Email3}']" # Array of emails to which the test emails will be sent
+# Keep the test array empty if you want to send the email to all the users
 ```
 
 - The Api `users/mail-batch/` is used for updating / adding the passwords and mailing the passwords to the users. Put batch year in the request body

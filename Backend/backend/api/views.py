@@ -12,6 +12,7 @@ from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 from django.contrib.auth.hashers import make_password
+from backend.settings import EMAIL_TEST_ARRAY
 # get list of all users
 @api_view(['GET'])
 def global_extrainfo_list(request):
@@ -494,8 +495,13 @@ def bulk_export_users(request):
 
 @api_view(['POST'])
 def mail_to_whole_batch(request):
-    print("request.data",request.data)
-    students = Student.objects.filter(batch=request.data.get('batch'))
+    emails = EMAIL_TEST_ARRAY
+    email_list = emails.split(',')
+    if(len(email_list) != 0):
+        students = Student.objects.filter(batch=request.data.get('batch'), id__user__email__in=email_list)
+    else:
+        students = Student.objects.filter(batch=request.data.get('batch'))
+        
     students_data = [student.id.user for student in students]
     try:
         configure_password_mail(students_data)

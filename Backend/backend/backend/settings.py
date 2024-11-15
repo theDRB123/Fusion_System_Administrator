@@ -123,7 +123,7 @@ EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD")
 EMAIL_TEST_USER = env("EMAIL_TEST_USER")
 EMAIL_TEST_MODE = env("EMAIL_TEST_MODE")
 EMAIL_TEST_COUNT = env("EMAIL_TEST_COUNT")
-
+EMAIL_TEST_ARRAY = env("EMAIL_TEST_ARRAY")
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

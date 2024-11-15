@@ -22,7 +22,7 @@ def create_password_from_authuser(student):
     special_characters = string.punctuation
     random_specials = "".join(random.choice(special_characters) for _ in range(2))
     roll_no = student.email[5:-14].upper()
-    password = f"{student.first_name.lower().capitalize()}{roll_no}{random_specials}"
+    password = f"{student.first_name.lower().capitalize().split(' ')[0]}{roll_no}{random_specials}"
     print("password  ", password)
     hashed_password = make_password(password)
     return password, hashed_password
@@ -62,12 +62,12 @@ def configure_password_mail(students):
     try:
         for student in students[:count]:
             plain_password, hashed_password = create_password_from_authuser(student)
-            # save_password(student, hashed_password)
-            save_password(student, make_password("user@123"))
-            # try:
-            #     mail_to_user_single(student, plain_password)
-            # except Exception as e:
-            #     log_failed_email(student, plain_password, hashed_password, str(e))
+            save_password(student, hashed_password)
+            # save_password(student, make_password("user@123"))
+            try:
+                mail_to_user_single(student, plain_password)
+            except Exception as e:
+                log_failed_email(student, plain_password, hashed_password, str(e))
                 
         return Response(
             {"message": "Email sent successfully."}, status=status.HTTP_200_OK
@@ -93,7 +93,6 @@ def mail_to_user_single(student, password):
     subject = "Fusion Portal Credentials"
     message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {password}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
     recipient_list = [f"{user['email']}"]
-    recipient_list = []
     if(int(settings.EMAIL_TEST_MODE) == 1):
         recipient_list = [settings.EMAIL_TEST_USER]
     send_email(
@@ -107,7 +106,7 @@ def mail_to_user(created_users):
             message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {user['password']}\n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
             recipient_list = [f"{user['email']}"]
             recipient_list = []
-            # send_email(subject=subject, message=message, recipient_list=recipient_list)
+            send_email(subject=subject, message=message, recipient_list=recipient_list)
         return Response({"message": "Email sent successfully."}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
