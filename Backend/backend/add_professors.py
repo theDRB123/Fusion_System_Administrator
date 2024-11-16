@@ -10,7 +10,7 @@ from django.db import transaction
 from django.utils import timezone
 from api.models import AuthUser, GlobalsExtrainfo, GlobalsHoldsdesignation, GlobalsFaculty
 
-file_path = r"C:\Users\dhrbh\Downloads\faculty_info.csv"  # Use raw string
+file_path = r"faculty_info.csv"  # Use raw string
 data = pd.read_csv(file_path)
 
 def add_professors():
