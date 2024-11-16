@@ -181,3 +181,12 @@ class Student(models.Model):
     def __str__(self):
         username = str(self.id.user.username)
         return username
+    
+    
+class GlobalsFaculty(models.Model):
+    
+    id_id=models.CharField(primary_key=True,max_length=20)
+    
+    class Meta:
+        managed = False
+        db_table = 'globals_faculty' 
