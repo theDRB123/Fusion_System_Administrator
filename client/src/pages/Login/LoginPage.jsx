@@ -2,6 +2,7 @@ import React , {useState} from "react";
 import { TextInput, Button, Paper, Container, Title } from "@mantine/core";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 const LoginPage = ()=>{
     const[username, setUsername]=useState("");
@@ -11,12 +12,19 @@ const LoginPage = ()=>{
 
     const handleLogin = (e)=>{
         e.preventDefault();
-        if(username==="admin" && password==="user123"){
-            login();
-            navigate("/");            
+        try{
+          const response = await axios.post("http://127.0.0.1:8000/api/login/", {
+            username, 
+            password,
+          });
+
+          const token = response.data.token;
+          login(token);
+          navigate("/");
         }
-        else{
-            alert("Invalid credentials");
+        catch(error){
+          console.error("Login error: ", error.response?.data || error.message);
+          alert("Invalid credentials or login failed. Please try again");
         }
     };
 
