@@ -13,6 +13,11 @@ from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 from django.contrib.auth.hashers import make_password
 from backend.settings import EMAIL_TEST_ARRAY
+from django.contrib.auth import authenticate
+from rest_framework.authtoken.models import Token
+
+
+
 # get list of all users
 @api_view(['GET'])
 def global_extrainfo_list(request):
@@ -508,3 +513,16 @@ def mail_to_whole_batch(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"message": "Mail sent to whole batch successfully."}, status=status.HTTP_200_OK)
+
+@api_view(['POST'])
+def login_view(self, request):
+    username = request.data.get('username')
+    password = request.data.get('password')
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({'token': token.key}, status=status.HTTP_200_OK)
+    else:
+        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    
+    
