@@ -2,10 +2,10 @@ import { useAuth } from "../../context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const RequireAuth = ({children})=>{
-    const {isAuthenticated} = useAuth();
+    const {isAuthenticated, authToken } = useAuth();
 
-    if(!isAuthenticated){
-        return <Navigate to="/login/" />
+    if(!isAuthenticated || !authToken){
+        return <Navigate to="/login/" replace />
     }
     return children;
 };
