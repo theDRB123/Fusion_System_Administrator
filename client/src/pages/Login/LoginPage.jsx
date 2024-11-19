@@ -1,18 +1,22 @@
 import React , {useState} from "react";
 import { TextInput, Button, Paper, Container, Title } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { handleLogin } from "../services/authService"; 
+import { handleLogin } from "../../services/authServices.jsx";
+import { useAuth } from "../../context/AuthContext"; 
 
 const LoginPage = ()=>{
     const [email, setEmail] = useState("");
     const[password, setPassword]=useState("");
     const navigate = useNavigate();
+    const { login } = useAuth(); 
+
 
     const onLogin = async(e)=>{
         e.preventDefault();
         try {
           const user = await handleLogin(email, password);
           console.log("Logged in user:", user);
+          login();
           navigate("/"); 
         } 
         catch(error){
@@ -25,7 +29,7 @@ const LoginPage = ()=>{
         <Container size={420} my={40}>
         <Title align="center">Welcome back!</Title>
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={onLogin}>
             <TextInput
               label="Email"
               placeholder="Your Email"

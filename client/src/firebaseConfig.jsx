@@ -2,9 +2,12 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import { getFirestore } from "firebase/firestore";
 
+const apiKey = import.meta.env.VITE_API_KEY;
+const authDomain = import.meta.env.VITE_AUTH_DOMAIN;
+
 const firebaseConfig = {
-    apiKey: process.env.REACT_APP_API_KEY,
-    authDomain: process.env.REACT_APP_AUTH_DOMAIN,
+    apiKey: apiKey,
+    authDomain: authDomain,
     projectId: "fusion-system-admin",
     storageBucket: "fusion-system-admin.firebasestorage.app",
     messagingSenderId: "315737830873",
