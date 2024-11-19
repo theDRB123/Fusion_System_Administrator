@@ -1,29 +1,22 @@
 import React , {useState} from "react";
 import { TextInput, Button, Paper, Container, Title } from "@mantine/core";
-import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { handleLogin } from "../services/authService"; 
 
 const LoginPage = ()=>{
-    const[username, setUsername]=useState("");
+    const [email, setEmail] = useState("");
     const[password, setPassword]=useState("");
-    const {login}= useAuth();
     const navigate = useNavigate();
 
-    const handleLogin = async(e)=>{
+    const onLogin = async(e)=>{
         e.preventDefault();
-        try{
-          const response = await axios.post("http://127.0.0.1:8000/api/login/", {
-            username, 
-            password,
-          });
-
-          const token = response.data.token;
-          login(token);
-          navigate("/");
-        }
+        try {
+          const user = await handleLogin(email, password);
+          console.log("Logged in user:", user);
+          navigate("/"); 
+        } 
         catch(error){
-          console.error("Login error: ", error.response?.data || error.message);
+          console.error("Login error: ", error.message);
           alert("Invalid credentials or login failed. Please try again");
         }
     };
@@ -34,10 +27,10 @@ const LoginPage = ()=>{
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
           <form onSubmit={handleLogin}>
             <TextInput
-              label="Username"
-              placeholder="Your username"
-              value={username}
-              onChange={(event) => setUsername(event.currentTarget.value)}
+              label="Email"
+              placeholder="Your Email"
+              value={email}
+              onChange={(event) => setEmail(event.currentTarget.value)}
               required
             />
             <TextInput
