@@ -129,11 +129,7 @@ def mail_to_user(created_users):
     try:
         for user in created_users:
             subject = 'Fusion Portal Credentials'
-<<<<<<< HEAD
             message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {user['password']}\n Kindly mention any issues with your credentials in this form:\n https://forms.gle/aHvzGoS9XAAoHyix6 \n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
-=======
-            message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {user['password']}\n Kindly mention any issues in the credentials received in this form:\n https://forms.gle/aHvzGoS9XAAoHyix6\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
->>>>>>> c6f8b41204283dbee2eb9fccc4d019ef5d1f3074
             recipient_list = [f"{user['email']}"]
             recipient_list = []
             send_email(subject=subject, message=message, recipient_list=recipient_list)
