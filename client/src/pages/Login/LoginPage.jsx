@@ -1,22 +1,27 @@
 import React , {useState} from "react";
 import { TextInput, Button, Paper, Container, Title } from "@mantine/core";
-import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { handleLogin } from "../../services/authServices.jsx";
+import { useAuth } from "../../context/AuthContext"; 
 
 const LoginPage = ()=>{
-    const[username, setUsername]=useState("");
+    const [email, setEmail] = useState("");
     const[password, setPassword]=useState("");
-    const {login}= useAuth();
     const navigate = useNavigate();
+    const { login } = useAuth(); 
 
-    const handleLogin = (e)=>{
+
+    const onLogin = async(e)=>{
         e.preventDefault();
-        if(username==="admin" && password==="user123"){
-            login();
-            navigate("/");            
-        }
-        else{
-            alert("Invalid credentials");
+        try {
+          const user = await handleLogin(email, password);
+          console.log("Logged in user:", user);
+          login();
+          navigate("/"); 
+        } 
+        catch(error){
+          console.error("Login error: ", error.message);
+          alert("Invalid credentials or login failed. Please try again");
         }
     };
 
@@ -24,12 +29,12 @@ const LoginPage = ()=>{
         <Container size={420} my={40}>
         <Title align="center">Welcome back!</Title>
         <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-          <form onSubmit={handleLogin}>
+          <form onSubmit={onLogin}>
             <TextInput
-              label="Username"
-              placeholder="Your username"
-              value={username}
-              onChange={(event) => setUsername(event.currentTarget.value)}
+              label="Email"
+              placeholder="Your Email"
+              value={email}
+              onChange={(event) => setEmail(event.currentTarget.value)}
               required
             />
             <TextInput
