@@ -13,6 +13,13 @@ from api.models import AuthUser, GlobalsExtrainfo, GlobalsHoldsdesignation, Glob
 file_path = r"faculty_info.csv"  # Use raw string
 data = pd.read_csv(file_path)
 
+def change_passwords():
+    with transaction.atomic():
+        professors = AuthUser.objects.filter(password="user@123")
+        for professor in professors:
+            professor.password = 'pbkdf2_sha256$600000$2pIest9Ou4GT5jM5S9aLRi$FEkwFQx9zN/lzP76ZB32YsqbkqjSlMDwXMmbIWX6wYU='
+            professor.save()
+
 def add_professors():
     # try:
         with transaction.atomic():  
@@ -61,4 +68,5 @@ def add_professors():
     #     print(f"Error: {e}")
 
 if __name__ == "__main__":
-    add_professors()
+    # add_professors()
+    change_passwords()
