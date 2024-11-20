@@ -502,7 +502,7 @@ def bulk_export_users(request):
 def mail_to_whole_batch(request):
     emails = EMAIL_TEST_ARRAY
     email_list = emails.split(',')
-    if(len(email_list) != 0):
+    if(len(email_list) != 1):
         students = Student.objects.filter(batch=request.data.get('batch'), id__user__email__in=email_list)
     else:
         students = Student.objects.filter(batch=request.data.get('batch'))
