@@ -129,7 +129,32 @@ def mail_to_user(created_users):
     try:
         for user in created_users:
             subject = 'Fusion Portal Credentials'
-            message = f"Dear {user['username'].upper()}\n\nHere are your credentials for accessing your profile on the Fusion Portal. Please don't share these credentials with anyone as it is sensitive information; credentials are as follows:\nUsername: {user['username']}\nPassword: {user['password']}\n Kindly mention any issues with your credentials in this form:\n https://forms.gle/aHvzGoS9XAAoHyix6 \n\nCC Services\nComputer Centre\nPDPM IIITDM\nJabalpur."
+            message = (
+        f"Dear Student,\n\n"
+        "We are excited to introduce Fusion, our new ERP software, being developed by our own students, "
+        "which is now live for the Pre-Registration Process. "
+        "This platform will streamline your academic journey and provide a seamless experience for course registrations "
+        "and other academic-related activities.\n\n"
+        "Please find your login credentials below:\n\n"
+        "Portal Link: http://fusion.iiitdmj.ac.in:8000/\n"
+        f"Username: {user['username'].upper()}\n"
+        f"Password: {password}\n\n"
+        "Important Instructions:\n"
+        "1. Initial Login: Use the credentials provided above to log in to the portal.\n"
+        "2. Change Password: Upon first login, change your password with the following steps:\n"
+        "   - Sign Out\n"
+        "   - Change Password\n"
+        "   - Create a new password.\n\n"
+        "Please choose a strong password and keep it confidential.\n\n"
+        "Help & Support:\n"
+        "If you encounter any issues, feel free to reach out to the support team at fusion@iiitdmj.ac.in, "
+        "or fill out the Google form at: https://forms.gle/aHvzGoS9XAAoHyix6\n\n"
+        "We look forward to your smooth experience with Fusion!\n\n"
+        "Best regards,\n"
+        "Fusion Development Team,\n"
+        "PDPM IIITDM Jabalpur"
+    )
+
             recipient_list = [f"{user['email']}"]
             recipient_list = []
             send_email(subject=subject, message=message, recipient_list=recipient_list)
