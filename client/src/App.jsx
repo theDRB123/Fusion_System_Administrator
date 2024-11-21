@@ -39,36 +39,63 @@ function App() {
           <Route path="/login" element={<LoginPage/>}/>
           <Route
             path="/UserManagement/CreateUser"
-            element={<CreateUserPage />}
+            element={
+              <RequireAuth>
+                <CreateUserPage />
+              </RequireAuth>}
           />
           <Route
             path="/UserManagement/DeleteUser"
-            element={<DeleteUserPage />}
+            element={
+            <RequireAuth>
+              <DeleteUserPage />
+            </RequireAuth>}
           />
           <Route
             path="/UserManagement/ResetUserPassword"
-            element={<ResetUserPasswordPage />}
+            element={
+            <RequireAuth>
+              <ResetUserPasswordPage />
+            </RequireAuth>}
           />
           <Route
             path="/RoleManagement/CreateCustomRole"
-            element={<CreateCustomRolePage />}
+            element={
+            <RequireAuth>
+              <CreateCustomRolePage />
+            </RequireAuth>}
           />
           <Route
             path="/RoleManagement/EditUserRole"
-            element={<EditUserRolePage />}
+            element={
+            <RequireAuth>
+              <EditUserRolePage />
+            </RequireAuth>}
           />
           <Route
             path="/RoleManagement/ManageRoleAccess"
-            element={<ManageRoleAccessPage />}
+            element={
+            <RequireAuth>
+              <ManageRoleAccessPage />
+            </RequireAuth>}
           />
-          <Route path="/archive/users" element={<ArchiveUsersPage />} />
+          <Route path="/archive/users" element={
+            <RequireAuth>
+              <ArchiveUsersPage />
+            </RequireAuth>} />
           <Route
             path="/archive/notifications"
-            element={<ArchiveNotificationsPage />}
+            element={
+            <RequireAuth>
+              <ArchiveNotificationsPage />
+            </RequireAuth>}
           />
           <Route
             path="/archive/announcements"
-            element={<ArchiveAnnouncementsPage />}
+            element={
+            <RequireAuth>
+              <ArchiveAnnouncementsPage />
+            </RequireAuth>}
           />
         </Routes>
       </Router>
