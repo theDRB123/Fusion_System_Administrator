@@ -1,6 +1,7 @@
 import csv
 import datetime
 from django.http import HttpResponse
+from django.db.models import Max
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.response import Response
@@ -117,7 +118,10 @@ def add_designation(request):
     serializer = GlobalsDesignationSerializer(data=request.data)
     if serializer.is_valid():
         role = serializer.save()
+        max_id = GlobalsModuleaccess.objects.aggregate(Max('id'))['id__max']
+        new_id = (max_id or 0) + 1  # Assign next available ID
         data = {
+            'id': new_id,
             'designation' : role.name,
             'program_and_curriculum' : False,
             'course_registration' : False,
