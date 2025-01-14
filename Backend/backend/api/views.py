@@ -410,6 +410,123 @@ def add_student_info(row, extrainfo):
     print("error in student",serializer.errors)
     return None
 
+@api_view(['POST'])
+def add_individual_student(request):
+    required_fields = ["roll_no", "first_name", "last_name", "sex", "category"]
+    data = request.data
+    missing_fields = [field for field in required_fields if field not in data or not data[field]]
+    if missing_fields:
+        return Response({
+            "error": "Missing required fields.",
+            "missing_fields": missing_fields
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        batch = 2000 + int(data['roll_no'][:2])
+    except (ValueError, IndexError):
+        return Response({
+            "error": "Invalid roll number format. Unable to calculate batch."
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    auth_user_data = {
+        "password": make_password("user@123"),
+        "username": data['roll_no'].upper(),
+        "first_name": data['first_name'],
+        "last_name": data.get('last_name', ""),
+        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "is_staff": False,
+        "is_superuser": False,
+        "is_active": True,
+        "date_joined": datetime.datetime.now().strftime("%Y-%m-%d"),
+    }
+    auth_serializer = AuthUserSerializer(data=auth_user_data)
+    user = None
+    if auth_serializer.is_valid():
+        user = auth_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to auth user table",
+            "data": auth_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    extra_info_data = {
+        'id': data['roll_no'].upper(),
+        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'sex': data['sex'][0].upper(),
+        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'user_status': "PRESENT",
+        'address': data.get("address", "NA"),
+        'phone_no': data.get("phone_number", 9999999999),
+        'about_me': "NA",
+        'user_type': 'student',
+        'profile_picture': None,
+        'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
+        'department': get_department(data['roll_no'].upper()).id,
+        'user': user.id,
+    }
+    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
+    extra_info = None
+    if extra_info_serializer.is_valid():
+        extra_info = extra_info_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals extra info table",
+            "data": extra_info_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    # max_id = GlobalsHoldsdesignation.objects.aggregate(Max('id'))['id__max']
+    # new_id = (max_id or 0) + 1  # Assign next available ID
+    designation_id = GlobalsDesignation.objects.get(name='student').id
+    holds_designation_data = {
+        # 'id': new_id,
+        'designation' : designation_id,
+        'user' : user.id,
+        'working' : user.id,
+    }
+    holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
+    if holds_designation_serializer.is_valid():
+        print(f"Valid data: {holds_designation_data}")
+        holds_designation_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals holds designation table",
+            "data": holds_designation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    programme = 'B.Des' if data['roll_no'][3].upper()=='D' else 'B.Tech'
+    disp = get_department(data['roll_no'].upper()).name
+    anc = disp
+    batch_id = Batch.objects.all().filter(name = programme, discipline__acronym = anc, year = batch).first()
+    student_data = {
+        'id' : extra_info.id,
+        'programme' : programme,
+        'batch' : batch,
+        'batch_id' : batch_id.id,
+        'cpi': 0.0,
+        'category' : 'GEN' if data['category'][0].upper() == 'G' else 'OBC' if data['category'][0].upper() == 'O' else 'SC' if data['category'][1].upper() == 'C' else 'ST',
+        'father_name' : data.get('father_name', ""),
+        'mother_name' : data.get('mother_name', ""),
+        'hall_no': data.get('hall_no', 0),
+        'room_no': 0,
+        'specialization': None,
+        'curr_semester_no' : 2*(datetime.datetime.now().year - batch) + datetime.datetime.now().month // 7,
+    }
+    student_data_serializer = StudentSerializer(data=student_data)
+    if student_data_serializer.is_valid():
+        student_data_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to academic information student table",
+            "data": student_data_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        "message": "Student added successfully",
+        "auth_user_data": auth_user_data,
+        "extra_info_user_data": extra_info_data,
+        "holds_designation_user_data": holds_designation_data,
+        "academic_information_student_data": student_data,
+    }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def bulk_import_users(request):
