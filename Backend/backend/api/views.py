@@ -412,7 +412,7 @@ def add_student_info(row, extrainfo):
 
 @api_view(['POST'])
 def add_individual_student(request):
-    required_fields = ["roll_no", "first_name", "last_name", "sex", "category"]
+    required_fields = ["roll_no", "first_name", "last_name", "sex", "category", "father_name", "mother_name"]
     data = request.data
     missing_fields = [field for field in required_fields if field not in data or not data[field]]
     if missing_fields:
@@ -504,10 +504,10 @@ def add_individual_student(request):
         'batch_id' : batch_id.id,
         'cpi': 0.0,
         'category' : 'GEN' if data['category'][0].upper() == 'G' else 'OBC' if data['category'][0].upper() == 'O' else 'SC' if data['category'][1].upper() == 'C' else 'ST',
-        'father_name' : data.get('father_name', ""),
-        'mother_name' : data.get('mother_name', ""),
-        'hall_no': data.get('hall_no', 0),
-        'room_no': 0,
+        'father_name' : data.get('father_name', "NA"),
+        'mother_name' : data.get('mother_name', "NA"),
+        'hall_no': data.get('hall_no', 3),
+        'room_no': 1,
         'specialization': None,
         'curr_semester_no' : 2*(datetime.datetime.now().year - batch) + datetime.datetime.now().month // 7,
     }
