@@ -270,7 +270,7 @@ const EditUserRolePage = () => {
                         e.currentTarget.style.backgroundColor = "transparent";
                       }}
                     >
-                      <Text>{role.name}</Text>
+                      <Text>{role.name}{role.basic?"(Base)":""}</Text>
                       <Button
                         variant="outline"
                         color="red"
@@ -289,7 +289,7 @@ const EditUserRolePage = () => {
                 placeholder="Select roles"
                 data={roles.map((role) => ({
                   value: role.name,
-                  label: role.name,
+                  label: `${role.name}${role.basic?"(Base)":""}`,
                 }))}
                 value={newRoles}
                 onChange={setNewRoles}
