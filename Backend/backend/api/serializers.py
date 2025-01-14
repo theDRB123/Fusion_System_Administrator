@@ -24,28 +24,12 @@ class AuthUserSerializer(serializers.ModelSerializer):
 class GlobalsModuleaccessSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalsModuleaccess
-        fields = [
-            'designation',
-            'program_and_curriculum',
-            'course_registration',
-            'course_management',
-            'other_academics',
-            'spacs',
-            'department',
-            'examinations',
-            'hr',
-            'iwd',
-            'complaint_management',
-            'fts',
-            'purchase_and_store',
-            'rspc',
-            'hostel_management',
-            'mess_management',
-            'gymkhana',
-            'placement_cell',
-            'visitor_hostel',
-            'phc'
-        ]
+        fields = '__all__'
+
+    def validate_id(self, value):
+        if GlobalsModuleaccess.objects.filter(id=value).exists():
+            raise serializers.ValidationError("The ID must be unique.")
+        return value
 
 class StudentSerializer(serializers.ModelSerializer):
     class Meta:

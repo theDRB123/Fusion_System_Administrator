@@ -32,6 +32,7 @@ const CreateCustomRolePage = () => {
     name: "",
     full_name: "",
     type: "",
+    basic: false,
   });
 
   const progress = getProgress([roleDetails.name, roleDetails.full_name, roleDetails.type]);
@@ -45,7 +46,7 @@ const CreateCustomRolePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!roleDetails.name || !roleDetails.full_name || !roleDetails.type) {
+    if (!roleDetails.name || !roleDetails.full_name || !roleDetails.type || !roleDetails.basic) {
       setValidationModalOpen(true);
       return;
     }
@@ -76,6 +77,7 @@ const CreateCustomRolePage = () => {
         name: "",
         full_name: "",
         type: "",
+        basic: false,
       });
 
       setIsOpen(false);
@@ -230,6 +232,18 @@ const CreateCustomRolePage = () => {
               data={[
                 { value: 'academic', label: 'Academic Designation' },
                 { value: 'administrative', label: 'Administrative Designation' },
+              ]}
+            />
+
+            <Select
+              label="Basic"
+              name="basic"
+              placeholder="Select whether the role is basic"
+              value={roleDetails.basic ? "true" : "false"}
+              onChange={(value) => setRoleDetails({ ...roleDetails, basic: value=="true"? true: false })}
+              data={[
+                { value: "false", label: 'False' },
+                { value: "true", label: 'True' },
               ]}
             />
 
