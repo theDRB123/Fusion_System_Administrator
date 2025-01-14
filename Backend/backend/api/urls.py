@@ -11,6 +11,7 @@ urlpatterns = [
     path('modify-role/', views.update_designation ,name='update_designation'),
     path('get-module-access/', views.get_module_access, name='get_module_access'),
     path('modify-roleaccess/', views.modify_moduleaccess ,name='modify_moduleaccess'),
+    path('users/add-student', views.add_individual_student, name='add_individual_student'),
     path('users/add/', views.add_user, name='add-user'),
     path('users/<int:pk>/', views.user_detail, name='user-detail'),
     path('users/<int:pk>/update/', views.update_user, name='update-user'),
