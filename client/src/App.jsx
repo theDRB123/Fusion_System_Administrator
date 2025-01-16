@@ -14,6 +14,9 @@ import ArchiveAnnouncementsPage from "./pages/ArchivingPages/ArchiveAnnouncement
 import CreateUserPage from "./pages/UserManagementPages/CreateUserPage.jsx";
 import DeleteUserPage from "./pages/UserManagementPages/DeleteUserPage.jsx";
 import ResetUserPasswordPage from "./pages/UserManagementPages/ResetUserPasswordPage.jsx";
+import StudentCreationPage from "./pages/UserManagementPages/StudentCreationPage.jsx";
+import FacultyCreationPage from "./pages/UserManagementPages/FacultyCreationPage.jsx";
+import StaffCreationPage from "./pages/UserManagementPages/StaffCreationPage.jsx";
 
 import CreateCustomRolePage from "./pages/RoleManagementPages/CreateCustomRolePage.jsx";
 import EditUserRolePage from "./pages/RoleManagementPages/EditUserRolePage.jsx";
@@ -29,76 +32,97 @@ function App() {
     <MantineProvider withGlobalStyles withNormalizeCSS>
       <Notifications />
       <AuthProvider>
-      <Router>
-        <TopDrawer />
-        <Routes>
-          <Route path="/" element={
-            <RequireAuth>
-              <SystemAdminDashboard />
-            </RequireAuth>} />
-          <Route path="/login" element={<LoginPage/>}/>
-          <Route
-            path="/UserManagement/CreateUser"
-            element={
+        <Router>
+          <TopDrawer />
+          <Routes>
+            <Route path="/" element={
               <RequireAuth>
-                <CreateUserPage />
-              </RequireAuth>}
-          />
-          <Route
-            path="/UserManagement/DeleteUser"
-            element={
-            <RequireAuth>
-              <DeleteUserPage />
-            </RequireAuth>}
-          />
-          <Route
-            path="/UserManagement/ResetUserPassword"
-            element={
-            <RequireAuth>
-              <ResetUserPasswordPage />
-            </RequireAuth>}
-          />
-          <Route
-            path="/RoleManagement/CreateCustomRole"
-            element={
-            <RequireAuth>
-              <CreateCustomRolePage />
-            </RequireAuth>}
-          />
-          <Route
-            path="/RoleManagement/EditUserRole"
-            element={
-            <RequireAuth>
-              <EditUserRolePage />
-            </RequireAuth>}
-          />
-          <Route
-            path="/RoleManagement/ManageRoleAccess"
-            element={
-            <RequireAuth>
-              <ManageRoleAccessPage />
-            </RequireAuth>}
-          />
-          <Route path="/archive/users" element={
-            <RequireAuth>
-              <ArchiveUsersPage />
-            </RequireAuth>} />
-          <Route
-            path="/archive/notifications"
-            element={
-            <RequireAuth>
-              <ArchiveNotificationsPage />
-            </RequireAuth>}
-          />
-          <Route
-            path="/archive/announcements"
-            element={
-            <RequireAuth>
-              <ArchiveAnnouncementsPage />
-            </RequireAuth>}
-          />
-        </Routes>
-      </Router>
+                <SystemAdminDashboard />
+              </RequireAuth>} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/UserManagement/CreateUser"
+              element={
+                <RequireAuth>
+                  <CreateUserPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/UserManagement/CreateStudent"
+              element={
+                <RequireAuth>
+                  <StudentCreationPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/UserManagement/CreateFaculty"
+              element={
+                <RequireAuth>
+                  <FacultyCreationPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/UserManagement/CreateStaff"
+              element={
+                <RequireAuth>
+                  <StaffCreationPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/UserManagement/DeleteUser"
+              element={
+                <RequireAuth>
+                  <DeleteUserPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/UserManagement/ResetUserPassword"
+              element={
+                <RequireAuth>
+                  <ResetUserPasswordPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/RoleManagement/CreateCustomRole"
+              element={
+                <RequireAuth>
+                  <CreateCustomRolePage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/RoleManagement/EditUserRole"
+              element={
+                <RequireAuth>
+                  <EditUserRolePage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/RoleManagement/ManageRoleAccess"
+              element={
+                <RequireAuth>
+                  <ManageRoleAccessPage />
+                </RequireAuth>}
+            />
+            <Route path="/archive/users" element={
+              <RequireAuth>
+                <ArchiveUsersPage />
+              </RequireAuth>} />
+            <Route
+              path="/archive/notifications"
+              element={
+                <RequireAuth>
+                  <ArchiveNotificationsPage />
+                </RequireAuth>}
+            />
+            <Route
+              path="/archive/announcements"
+              element={
+                <RequireAuth>
+                  <ArchiveAnnouncementsPage />
+                </RequireAuth>}
+            />
+          </Routes>
+        </Router>
       </AuthProvider>
     </MantineProvider>
   );
