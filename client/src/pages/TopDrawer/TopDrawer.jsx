@@ -13,22 +13,41 @@ import {
     FaArchive as FaArchiveFilled,
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function TopDrawer() {
     const [opened, { open, close, toggle }] = useDisclosure(false);
     const isSmallerScreen = useMediaQuery('(max-width: 768px)');
     const handleNavigate = useNavigate();
+    const [userMenuOpened, setUserMenuOpened] = useState(false);
+    const [roleMenuOpened, setRoleMenuOpened] = useState(false);
+    const [archiveMenuOpened, setArchiveMenuOpened] = useState(false);
+
     const navigate = (redirect) => {
         handleNavigate(redirect);
         close();
     };
 
-    // Alt + M to toggle drawer open/close
+    // Keydown handling for toggling drawer and menus
     useEffect(() => {
         const handleKeyDown = (event) => {
-            if (event.altKey && event.key === 'm') {
-                toggle(); // Toggles between open and close
+            if (event.altKey) {
+                switch (event.key.toLowerCase()) {
+                    case 'm':
+                        toggle(); // Toggle the drawer
+                        break;
+                    case 'u':
+                        setUserMenuOpened((prev) => !prev); // Toggle User Management menu
+                        break;
+                    case 'r':
+                        setRoleMenuOpened((prev) => !prev); // Toggle Role Management menu
+                        break;
+                    case 'a':
+                        setArchiveMenuOpened((prev) => !prev); // Toggle Archive Management menu
+                        break;
+                    default:
+                        break;
+                }
             }
         };
 
@@ -54,78 +73,173 @@ export default function TopDrawer() {
                     direction={{ base: 'column' }}
                     gap={{ base: 'sm', sm: 'lg' }}
                     justify={{ sm: 'center' }}
-                    align={{
-                        sm: 'center'
-                    }}
+                    align={{ sm: 'center' }}
                 >
-                    <Button onClick={() => navigate('/')} leftSection={<FaCube size={18} />} fullWidth variant='light' color='orange' justify='center' size='lg'>Dashboard</Button>
+                    <Button
+                        onClick={() => navigate('/')}
+                        leftSection={<FaCube size={18} />}
+                        fullWidth
+                        variant="light"
+                        color="orange"
+                        justify="center"
+                        size="lg"
+                    >
+                        Dashboard
+                    </Button>
                     <Flex
                         direction={{ base: 'column', md: 'row' }}
                         gap={{ base: 'sm', md: 'lg' }}
                         justify={{ sm: 'center' }}
-                        align={{
-                            sm: 'center'
-                        }}
+                        align={{ sm: 'center' }}
                         w="100%"
                     >
-                        <Menu openDelay={100} closeDelay={50}>
+                        <Menu
+                            openDelay={100}
+                            closeDelay={50}
+                            opened={userMenuOpened}
+                            onClose={() => setUserMenuOpened(false)}
+                        >
                             <Menu.Target>
-                                <Button leftSection={<FaUserAlt size={18} />} fullWidth variant='light' color='cyan' justify='center' size='lg' sx={{
-                                    flexGrow: 1,
-                                    flexBasis: '33%',
-                                }}>User Management</Button>
+                                <Button
+                                    leftSection={<FaUserAlt size={18} />}
+                                    fullWidth
+                                    variant="light"
+                                    color="cyan"
+                                    justify="center"
+                                    size="lg"
+                                >
+                                    User Management
+                                </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Label>Manage Users</Menu.Label>
-                                <Menu.Item onClick={() => navigate('/UserManagement/CreateUser')} color='green' leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/UserManagement/CreateUser')}
+                                    color="green"
+                                    leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Create User
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/UserManagement/ResetUserPassword')} color='violet' leftSection={<FaExchangeAlt style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/UserManagement/CreateStudent')}
+                                    color="pink"
+                                    leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}
+                                >
+                                    Add Student
+                                </Menu.Item>
+                                <Menu.Divider />
+                                <Menu.Item
+                                    onClick={() => navigate('/UserManagement/CreateFaculty')}
+                                    color="grape"
+                                    leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}
+                                >
+                                    Add Faculty
+                                </Menu.Item>
+                                <Menu.Divider />
+                                <Menu.Item
+                                    onClick={() => navigate('/UserManagement/CreateStaff')}
+                                    color="teal"
+                                    leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}
+                                >
+                                    Add Staff
+                                </Menu.Item>
+                                <Menu.Divider />
+                                <Menu.Item
+                                    onClick={() => navigate('/UserManagement/ResetUserPassword')}
+                                    color="violet"
+                                    leftSection={<FaExchangeAlt style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Reset User's Password
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
-                        <Menu openDelay={100} closeDelay={50}>
+                        <Menu
+                            openDelay={100}
+                            closeDelay={50}
+                            opened={roleMenuOpened}
+                            onClose={() => setRoleMenuOpened(false)}
+                        >
                             <Menu.Target>
-                                <Button leftSection={<FaCloneFilled size={18} />} fullWidth variant='light' color='lime' justify='center' size='lg' sx={{
-                                    flexGrow: 1,
-                                    flexBasis: '33%',
-                                }}>Role Management</Button>
+                                <Button
+                                    leftSection={<FaCloneFilled size={18} />}
+                                    fullWidth
+                                    variant="light"
+                                    color="lime"
+                                    justify="center"
+                                    size="lg"
+                                >
+                                    Role Management
+                                </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Label>Manage Roles</Menu.Label>
-                                <Menu.Item onClick={() => navigate('/RoleManagement/CreateCustomRole')} color='green' leftSection={<FaCube style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/RoleManagement/CreateCustomRole')}
+                                    color="green"
+                                    leftSection={<FaCube style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Create Custom Role
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/RoleManagement/ManageRoleAccess')} color='indigo' leftSection={<FaCircle style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/RoleManagement/ManageRoleAccess')}
+                                    color="indigo"
+                                    leftSection={<FaCircle style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Manage Role Access
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/RoleManagement/EditUserRole')} color='orange' leftSection={<FaClone style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/RoleManagement/EditUserRole')}
+                                    color="orange"
+                                    leftSection={<FaClone style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Edit Role Access
                                 </Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
-                        <Menu openDelay={100} closeDelay={50}>
+                        <Menu
+                            openDelay={100}
+                            closeDelay={50}
+                            opened={archiveMenuOpened}
+                            onClose={() => setArchiveMenuOpened(false)}
+                        >
                             <Menu.Target>
-                                <Button leftSection={<FaArchiveFilled size={18} />} fullWidth variant='light' color='indigo' justify='center' size='lg' sx={{
-                                    flexGrow: 1,
-                                    flexBasis: '33%',
-                                }}>Archive Management</Button>
+                                <Button
+                                    leftSection={<FaArchiveFilled size={18} />}
+                                    fullWidth
+                                    variant="light"
+                                    color="indigo"
+                                    justify="center"
+                                    size="lg"
+                                >
+                                    Archive Management
+                                </Button>
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Label>Archive Management</Menu.Label>
-                                <Menu.Item onClick={() => navigate('/archive/users')} color='green' leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/archive/users')}
+                                    color="green"
+                                    leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Archive User
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/archive/announcements')} color='orange' leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/archive/announcements')}
+                                    color="orange"
+                                    leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Archive Announcements
                                 </Menu.Item>
                                 <Menu.Divider />
-                                <Menu.Item onClick={() => navigate('/archive/notifications')} color='indigo' leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}>
+                                <Menu.Item
+                                    onClick={() => navigate('/archive/notifications')}
+                                    color="indigo"
+                                    leftSection={<FaArchive style={{ width: rem(14), height: rem(14) }} />}
+                                >
                                     Archive Notifications
                                 </Menu.Item>
                             </Menu.Dropdown>
