@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, AuthUser, GlobalsModuleaccess, Student, Batch, Curriculum, Discipline, Programme
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, AuthUser, GlobalsModuleaccess, Student, Batch, Curriculum, Discipline, Programme, Staff, GlobalsFaculty
 
 class GlobalExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -36,6 +36,11 @@ class StudentSerializer(serializers.ModelSerializer):
         model = Student
         fields = '__all__'
 
+class StaffSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Staff
+        fields = '__all__'
+
 class BatchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Batch
@@ -55,4 +60,9 @@ class DisciplineSerializer(serializers.ModelSerializer):
 class ProgrammeSerializer(serializers.ModelSerializer):
     class Meta:
         model = Programme
+        fields = '__all__'
+
+class GlobalsFacultySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = GlobalsFaculty
         fields = '__all__'

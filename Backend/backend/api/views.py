@@ -8,8 +8,8 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 from django.contrib.auth.hashers import make_password
@@ -526,6 +526,206 @@ def add_individual_student(request):
         "extra_info_user_data": extra_info_data,
         "holds_designation_user_data": holds_designation_data,
         "academic_information_student_data": student_data,
+    }, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def add_individual_staff(request):
+    required_fields = ["roll_no", "first_name", "last_name", "sex","role"]
+    data = request.data
+    missing_fields = [field for field in required_fields if field not in data or not data[field]]
+    if missing_fields:
+        return Response({
+            "error": "Missing required fields.",
+            "missing_fields": missing_fields
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    auth_user_data = {
+        "password": make_password("user@123"),
+        "username": data['roll_no'].upper(),
+        "first_name": data['first_name'],
+        "last_name": data.get('last_name', ""),
+        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "is_staff": True,
+        "is_superuser": False,
+        "is_active": True,
+        "date_joined": datetime.datetime.now().strftime("%Y-%m-%d"),
+    }
+    auth_serializer = AuthUserSerializer(data=auth_user_data)
+    user = None
+    if auth_serializer.is_valid():
+        user = auth_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to auth user table",
+            "data": auth_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    extra_info_data = {
+        'id': data['roll_no'].upper(),
+        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'sex': data['sex'][0].upper(),
+        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'user_status': "PRESENT",
+        'address': data.get("address", "NA"),
+        'phone_no': data.get("phone_number", 9999999999),
+        'about_me': "NA",
+        'user_type': 'staff',
+        'profile_picture': None,
+        'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
+        'department': GlobalsDepartmentinfo.objects.get(name=data.get("dep", "CSE")).id,
+        'user': user.id,
+    }
+    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
+    extra_info = None
+    if extra_info_serializer.is_valid():
+        extra_info = extra_info_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals extra info table",
+            "data": extra_info_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    designation_id = GlobalsDesignation.objects.get(name=data.get('role'))
+    if not designation_id:
+        return Response({
+            "error": "Role not found."
+        }, status=status.HTTP_404_NOT_FOUND)
+    designation_id = designation_id.id
+    holds_designation_data = {
+        'designation' : designation_id,
+        'user' : user.id,
+        'working' : user.id,
+    }
+    holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
+    if holds_designation_serializer.is_valid():
+        print(f"Valid data: {holds_designation_data}")
+        holds_designation_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals holds designation table",
+            "data": holds_designation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    staff_id = extra_info.id
+    staff_data = {
+        'id' : staff_id,
+    }
+
+    staff_serializer = GlobalsFacultySerializer(data=staff_data)
+    if staff_serializer.is_valid():
+        staff_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals staff table",
+            "data": staff_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        "message": "Student added successfully",
+        "auth_user_data": auth_user_data,
+        "extra_info_user_data": extra_info_data,
+        "holds_designation_user_data": holds_designation_data,
+        "academic_information_student_data": staff_data,
+    }, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+def add_individual_faculty(request):
+    required_fields = ["roll_no", "first_name", "last_name", "sex","role"]
+    data = request.data
+    missing_fields = [field for field in required_fields if field not in data or not data[field]]
+    if missing_fields:
+        return Response({
+            "error": "Missing required fields.",
+            "missing_fields": missing_fields
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    auth_user_data = {
+        "password": make_password("user@123"),
+        "username": data['roll_no'].upper(),
+        "first_name": data['first_name'],
+        "last_name": data.get('last_name', ""),
+        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "is_staff": False,
+        "is_superuser": False,
+        "is_active": True,
+        "date_joined": datetime.datetime.now().strftime("%Y-%m-%d"),
+    }
+    auth_serializer = AuthUserSerializer(data=auth_user_data)
+    user = None
+    if auth_serializer.is_valid():
+        user = auth_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to auth user table",
+            "data": auth_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    extra_info_data = {
+        'id': data['roll_no'].upper(),
+        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'sex': data['sex'][0].upper(),
+        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'user_status': "PRESENT",
+        'address': data.get("address", "NA"),
+        'phone_no': data.get("phone_number", 9999999999),
+        'about_me': "NA",
+        'user_type': 'faculty',
+        'profile_picture': None,
+        'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
+        'department': GlobalsDepartmentinfo.objects.get(name=data.get("dep", "CSE")).id,
+        'user': user.id,
+    }
+    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
+    extra_info = None
+    if extra_info_serializer.is_valid():
+        extra_info = extra_info_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals extra info table",
+            "data": extra_info_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    designation_id = GlobalsDesignation.objects.get(name=data.get('role'))
+    if not designation_id:
+        return Response({
+            "error": "Role not found."
+        }, status=status.HTTP_404_NOT_FOUND)
+    designation_id = designation_id.id
+    holds_designation_data = {
+        'designation' : designation_id,
+        'user' : user.id,
+        'working' : user.id,
+    }
+    holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
+    if holds_designation_serializer.is_valid():
+        print(f"Valid data: {holds_designation_data}")
+        holds_designation_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals holds designation table",
+            "data": holds_designation_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    faculty_id = extra_info.id
+    faculty_data = {
+        'id' : faculty_id,
+    }
+
+    faculty_serializer = GlobalsFacultySerializer(data=faculty_data)
+    if faculty_serializer.is_valid():
+        faculty_serializer.save()
+    else:
+        return Response({
+            "message": "Error in adding user to globals faculty table",
+            "data": faculty_serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        "message": "Student added successfully",
+        "auth_user_data": auth_user_data,
+        "extra_info_user_data": extra_info_data,
+        "holds_designation_user_data": holds_designation_data,
+        "academic_information_student_data": faculty_data,
     }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
