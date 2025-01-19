@@ -274,6 +274,7 @@ const EditUserRolePage = () => {
                       <Button
                         variant="outline"
                         color="red"
+                        disabled={role.basic}
                         onClick={() => handleRemoveRole(role)}
                       >
                         Remove

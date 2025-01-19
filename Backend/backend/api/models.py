@@ -121,6 +121,16 @@ class GlobalsExtrainfo(models.Model):
         managed = False
         db_table = 'globals_extrainfo'
 
+class Staff(models.Model):
+    id = models.OneToOneField(GlobalsExtrainfo, on_delete=models.CASCADE, primary_key=True)
+
+    def __str__(self):
+        return str(self.id)
+    
+    class Meta:
+        managed = False
+        db_table = 'globals_staff'
+
 
 class GlobalsHoldsdesignation(models.Model):
     held_at = models.DateTimeField(auto_now=True)
@@ -185,9 +195,12 @@ class Student(models.Model):
     
     
 class GlobalsFaculty(models.Model):
-    
-    id_id=models.CharField(primary_key=True,max_length=20)
+
+    id = models.OneToOneField(GlobalsExtrainfo, on_delete=models.CASCADE, primary_key=True)
+
+    def __str__(self):
+        return str(self.id)
     
     class Meta:
         managed = False
-        db_table = 'globals_faculty' 
+        db_table = 'globals_faculty'
