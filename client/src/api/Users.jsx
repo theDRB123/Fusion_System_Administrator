@@ -12,6 +12,26 @@ export const createUser = async (userData) => {
     }
 };
 
+export const createFaculty = async (categoryData) => {
+    try {
+        const response = await axios.post(API_URL+'/users/add-faculty/', categoryData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating faculty:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
+export const createStaff = async (categoryData) => {
+    try {
+        const response = await axios.post(API_URL+'/users/add-staff/', categoryData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating staff:', error.response?.data || error.message);
+        throw error;
+    }
+};
+
 export const resetPassword = async (userData) => {
     try {
         const response = await axios.post(API_URL+'/users/reset_password/', userData);

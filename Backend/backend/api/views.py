@@ -110,7 +110,15 @@ def update_user_roles(request):
 def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
     serializer = GlobalsDesignationSerializer(records, many=True)
-    return Response(serializer.data) 
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def get_category_designations(request):
+    category = request.data.get('category', 'student')
+    basic = request.data.get('basic', True)
+    records = GlobalsDesignation.objects.all().filter(category=category, basic=basic)
+    serializer = GlobalsDesignationSerializer(records, many=True)
+    return Response(serializer.data)
 
 # add a new role
 @api_view(['POST'])
