@@ -19,23 +19,31 @@ import { FaCheck, FaTimes } from 'react-icons/fa';
 import { notifications, showNotification } from '@mantine/notifications';
 import { DateInput } from '@mantine/dates';
 import { useMediaQuery } from "@mantine/hooks";
+import { getAllDesignations, getAllDepartments } from '../../api/Roles';
+import { createFaculty } from '../../api/Users';
 
 const FacultyCreationPage = () => {
     const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
     const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
     const [formValues, setFormValues] = useState({
-        firstName: '',
-        lastName: '',
+        username: '',
+        first_name: '',
+        last_name: '',
         department: '',
         title: '',
         designation: '',
-        gender: '',
+        sex: '',
         dob: null,
         phone: '',
+        address: '',
     });
 
     const [progress, setProgress] = useState(0);
+    const [roles, setRoles] = useState([]);
+    const [departments, setDepartments] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
 
     useEffect(() => {
         const totalFields = Object.keys(formValues).length;
@@ -45,29 +53,100 @@ const FacultyCreationPage = () => {
 
     const handleChange = (field, value) => {
         setFormValues((prev) => ({ ...prev, [field]: value }));
+        setErrorMessage('');
     };
 
-    const handleSubmit = () => {
-        console.log('Form Submitted', formValues);
-        showNotification({
-            icon: checkIcon,
-            title: "Success",
-            position: "top-center",
-            withCloseButton: true,
-            autoClose: 5000,
-            message: "Faculty Member Created Successfully.",
-            color: "green",
-        });
+    const fetchFacultyDesignations = async () => {
+        try {
+            let all_designations = [];
+            const designationData = {
+                category: 'faculty',
+                basic: true,
+            }
+            const response = await getAllDesignations(designationData);
+            console.log(response)
+            for(let i=0; i<response.length; i++){
+                all_designations[i] = {value: `${response[i].id}`, label: response[i].name}
+            }
+            setRoles(all_designations);
+        } catch (error) {
+            showNotification({
+                title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: 'An error occurred while fetching designations.',
+                color: 'red',
+            });
+        }
+    }
 
-        showNotification({
-            title: 'Error',
-            icon: xIcon,
-            position: "top-center",
-            withCloseButton: true,
-            message: 'An error occurred.',
-            color: 'red',
-        });
+    const fetchDepartments = async () => {
+        try {
+            let all_departments = [];
+            const response = await getAllDepartments();
+            console.log(response)
+            for(let i=0; i<response.length; i++){
+                all_departments[i] = {value: `${response[i].id}`, label: response[i].name}
+            }
+            setDepartments(all_departments);
+        } catch (error) {
+            showNotification({
+                title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: 'An error occurred while fetching departments.',
+                color: 'red',
+            });
+        }
+    }
+
+    const handleSubmit = async () => {
+        console.log(formValues)
+        try{
+            setLoading(true)
+            const response = await createFaculty(formValues);
+            showNotification({
+                icon: checkIcon,
+                title: "Success",
+                position: "top-center",
+                withCloseButton: true,
+                autoClose: 5000,
+                message: "Faculty Created Successfully.",
+                color: "green",
+            });
+            console.log('Form Submitted', formValues);
+            setFormValues({
+                username: '',
+                first_name: '',
+                last_name: '',
+                department: '',
+                title: '',
+                designation: '',
+                sex: '',
+                dob: null,
+                phone: '',
+                address: '',
+            });
+        } catch(error){
+            showNotification({
+                title: 'Error',
+                icon: xIcon,
+                position: "top-center",
+                withCloseButton: true,
+                message: 'An error occurred while creating faculty.',
+                color: 'red',
+            });
+        } finally {
+            setLoading(false);
+        }
     };
+
+    useEffect(()=>{
+        fetchFacultyDesignations();
+        fetchDepartments();
+    },[])
 
     useEffect(() => {
         const handleKeyDown = (event) => {
@@ -128,13 +207,22 @@ const FacultyCreationPage = () => {
                 <Progress value={progress} color="blue" mb="md" />
 
                 <Grid gutter="md">
+                    <Grid.Col span={12}>
+                        <TextInput
+                            label="Username"
+                            placeholder="Enter username(20 letters)"
+                            value={formValues.username}
+                            onChange={(e) => handleChange('username', e.target.value)}
+                            required
+                        />
+                    </Grid.Col>
                     {/* First Name */}
                     <Grid.Col span={6}>
                         <TextInput
                             label="First Name"
                             placeholder="Enter first name"
-                            value={formValues.firstName}
-                            onChange={(e) => handleChange('firstName', e.target.value)}
+                            value={formValues.first_name}
+                            onChange={(e) => handleChange('first_name', e.target.value)}
                             required
                         />
                     </Grid.Col>
@@ -144,8 +232,8 @@ const FacultyCreationPage = () => {
                         <TextInput
                             label="Last Name"
                             placeholder="Enter last name"
-                            value={formValues.lastName}
-                            onChange={(e) => handleChange('lastName', e.target.value)}
+                            value={formValues.last_name}
+                            onChange={(e) => handleChange('last_name', e.target.value)}
                             required
                         />
                     </Grid.Col>
@@ -155,10 +243,9 @@ const FacultyCreationPage = () => {
                         <Select
                             label="Department"
                             placeholder="Enter department"
-                            data={['CSE', 'ECE', 'ME', 'SM']}
-                            value={formValues.department}
-                            onChange={(value) => handleChange('department', value)}
-                            required
+                            data={departments}
+                            value={`${formValues.department}`}
+                            onChange={(value) => handleChange('department', Number(value))}
                         />
                     </Grid.Col>
 
@@ -170,7 +257,6 @@ const FacultyCreationPage = () => {
                             data={['Dr.', 'Mr.', 'Mrs.', 'Ms.']}
                             value={formValues.title}
                             onChange={(value) => handleChange('title', value)}
-                            required
                         />
                     </Grid.Col>
 
@@ -179,9 +265,9 @@ const FacultyCreationPage = () => {
                         <Select
                             label="Designation"
                             placeholder="Select designation"
-                            data={['Professor', 'Assistant Professor', 'Associate Professor']}
-                            value={formValues.designation}
-                            onChange={(value) => handleChange('designation', value)}
+                            data={roles}
+                            value={`${formValues.designation}`}
+                            onChange={(value) => handleChange('designation', Number(value))}
                             required
                         />
                     </Grid.Col>
@@ -190,8 +276,8 @@ const FacultyCreationPage = () => {
                     <Grid.Col span={12}>
                         <Radio.Group
                             label="Gender"
-                            value={formValues.gender}
-                            onChange={(value) => handleChange('gender', value)}
+                            value={formValues.sex}
+                            onChange={(value) => handleChange('sex', value)}
                             required
                             styles={{
                                 label: { marginRight: '1rem' },
@@ -200,7 +286,7 @@ const FacultyCreationPage = () => {
                             <Group spacing="sm" position="apart" mt="xs">
                                 <Radio value="male" label="Male" />
                                 <Radio value="female" label="Female" />
-                                <Radio value="other" label="Other" />
+                                {/* <Radio value="other" label="Other" /> */}
                             </Group>
                         </Radio.Group>
                     </Grid.Col>
@@ -212,7 +298,6 @@ const FacultyCreationPage = () => {
                             onChange={(value) => handleChange('dob', value)}
                             label="Date of Birth"
                             placeholder="Pick a date"
-                            required
                         />
                     </Grid.Col>
 
@@ -224,7 +309,15 @@ const FacultyCreationPage = () => {
                             value={formValues.phone}
                             onChange={(value) => handleChange('phone', value)}
                             hideControls
-                            required
+                        />
+                    </Grid.Col>
+
+                    <Grid.Col span={12}>
+                        <TextInput
+                            label="Address"
+                            placeholder="Enter address"
+                            value={formValues.address}
+                            onChange={(e) => handleChange('address', e.target.value)}
                         />
                     </Grid.Col>
                 </Grid>

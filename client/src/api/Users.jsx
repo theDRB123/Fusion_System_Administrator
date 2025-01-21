@@ -12,9 +12,9 @@ export const createUser = async (userData) => {
     }
 };
 
-export const createFaculty = async (categoryData) => {
+export const createFaculty = async (userData) => {
     try {
-        const response = await axios.post(API_URL+'/users/add-faculty/', categoryData);
+        const response = await axios.post(API_URL+'/users/add-faculty/', userData);
         return response.data;
     } catch (error) {
         console.error('Error creating faculty:', error.response?.data || error.message);
@@ -22,9 +22,9 @@ export const createFaculty = async (categoryData) => {
     }
 };
 
-export const createStaff = async (categoryData) => {
+export const createStaff = async (userData) => {
     try {
-        const response = await axios.post(API_URL+'/users/add-staff/', categoryData);
+        const response = await axios.post(API_URL+'/users/add-staff/', userData);
         return response.data;
     } catch (error) {
         console.error('Error creating staff:', error.response?.data || error.message);
