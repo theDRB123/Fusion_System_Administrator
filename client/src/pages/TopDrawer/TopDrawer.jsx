@@ -107,6 +107,7 @@ export default function TopDrawer() {
                                     color="cyan"
                                     justify="center"
                                     size="lg"
+                                    onClick={() => setUserMenuOpened((prev) => !prev)}
                                 >
                                     User Management
                                 </Button>
@@ -168,6 +169,7 @@ export default function TopDrawer() {
                                     color="lime"
                                     justify="center"
                                     size="lg"
+                                    onClick={() => setRoleMenuOpened((prev) => !prev)}
                                 >
                                     Role Management
                                 </Button>
@@ -213,6 +215,7 @@ export default function TopDrawer() {
                                     color="indigo"
                                     justify="center"
                                     size="lg"
+                                    onClick={() => setArchiveMenuOpened((prev) => !prev)}
                                 >
                                     Archive Management
                                 </Button>

@@ -12,6 +12,16 @@ export const createUser = async (userData) => {
     }
 };
 
+export const createStudent = async (userData) => {
+    try {
+        const response = await axios.post(API_URL + '/users/add-student/', userData);
+        return response.data;
+    } catch (error){
+        console.error(`Error creating student: ${error.response?.data || error.message}`);
+        throw error;
+    }
+}
+
 export const createFaculty = async (userData) => {
     try {
         const response = await axios.post(API_URL+'/users/add-faculty/', userData);
