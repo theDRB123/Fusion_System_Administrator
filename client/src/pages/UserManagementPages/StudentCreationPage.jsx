@@ -19,6 +19,7 @@ import { FaCheck, FaTimes } from "react-icons/fa";
 import { notifications, showNotification } from "@mantine/notifications";
 import { DateInput, YearPickerInput } from "@mantine/dates";
 import { useMediaQuery } from "@mantine/hooks";
+import { getAllDepartments, getAllBatches } from '../../api/Roles';
 import { createStudent } from "../../api/Users";
 
 const StudentCreationPage = () => {
@@ -26,16 +27,26 @@ const StudentCreationPage = () => {
   const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
   const [formValues, setFormValues] = useState({
-    roll_no: "",
+    username: "",
     first_name: "",
     last_name: "",
     sex: "",
     category: "",
     father_name: "",
     mother_name: "",
+    programme: "",
+    batch: "",
+    department: '',
+    title: '',
+    designation: '',
+    dob: null,
+    phone: '',
+    address: '',
   });
 
   const [progress, setProgress] = useState(0);
+  const [departments, setDepartments] = useState([]);
+  const [batches, setBatches] = useState([]);
 
   useEffect(() => {
     const totalFields = Object.keys(formValues).length;
@@ -52,12 +63,54 @@ const StudentCreationPage = () => {
     }));
   };
 
+  const fetchDepartments = async () => {
+      try {
+          let all_departments = [];
+          const response = await getAllDepartments();
+          console.log(response)
+          for(let i=0; i<response.length; i++){
+              all_departments[i] = {value: `${response[i].id}`, label: response[i].name}
+          }
+          setDepartments(all_departments);
+      } catch (error) {
+          showNotification({
+              title: 'Error',
+              icon: xIcon,
+              position: "top-center",
+              withCloseButton: true,
+              message: 'An error occurred while fetching departments.',
+              color: 'red',
+          });
+      }
+  }
+
+  const fetchBatches = async () => {
+    try {
+        let all_batches = [];
+        const response = await getAllBatches();
+        console.log(response)
+        for(let i=0; i<response.length; i++){
+            all_batches[i] = `${response[i].year}`
+        }
+        setBatches(all_batches);
+    } catch (error) {
+        showNotification({
+            title: 'Error',
+            icon: xIcon,
+            position: "top-center",
+            withCloseButton: true,
+            message: 'An error occurred while fetching batches.',
+            color: 'red',
+        });
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form Submitted", formValues);
 
     try {
-      await createStudent(formValues);
+      const response = await createStudent(formValues);
       showNotification({
         icon: checkIcon,
         title: "Success",
@@ -68,13 +121,21 @@ const StudentCreationPage = () => {
         color: "green",
       });
       setFormValues({
-        roll_no: "",
+        username: "",
         first_name: "",
         last_name: "",
         sex: "",
         category: "",
         father_name: "",
         mother_name: "",
+        programme: "",
+        batch: "",
+        department: '',
+        title: '',
+        designation: '',
+        dob: null,
+        phone: '',
+        address: '',
       });
     } catch (err) {
       const errorMessage = err.response
@@ -93,6 +154,11 @@ const StudentCreationPage = () => {
       });
     }
   };
+
+  useEffect(() => {
+    fetchDepartments();
+    fetchBatches();
+  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -155,10 +221,10 @@ const StudentCreationPage = () => {
           {/* Roll No */}
           <Grid.Col span={6}>
             <TextInput
-              label="Roll No"
+              label="Roll Number"
               placeholder="Enter roll number"
               value={formValues.roll_no}
-              onChange={(e) => handleChange("roll_no", e.target.value)}
+              onChange={(e) => handleChange("username", e.target.value)}
               required
             />
           </Grid.Col>
@@ -185,6 +251,28 @@ const StudentCreationPage = () => {
             />
           </Grid.Col>
 
+          {/* Title */}
+          <Grid.Col span={6}>
+            <Select
+              label="Title"
+              placeholder="Select title"
+              data={['Dr.', 'Mr.', 'Mrs.', 'Ms.']}
+              value={formValues.title}
+              onChange={(value) => handleChange('title', value)}
+              />
+          </Grid.Col>         
+
+          {/* Department */}
+          <Grid.Col span={12}>
+            <Select
+              label="Department"
+              placeholder="Enter department"
+              data={departments}
+              value={`${formValues.department}`}
+              onChange={(value) => handleChange('department', Number(value))}
+              />
+          </Grid.Col>  
+
           {/* Gender */}
           <Grid.Col span={12}>
             <Radio.Group
@@ -196,7 +284,7 @@ const StudentCreationPage = () => {
               <Group spacing="sm" position="apart" mt="xs">
                 <Radio value="male" label="Male" />
                 <Radio value="female" label="Female" />
-                <Radio value="other" label="Other" />
+                {/* <Radio value="other" label="Other" /> */}
               </Group>
             </Radio.Group>
           </Grid.Col>
@@ -206,7 +294,7 @@ const StudentCreationPage = () => {
             <Select
               label="Category"
               placeholder="Select category"
-              data={["General", "OBC", "SC", "ST"]}
+              data={["GEN", "OBC", "SC", "ST"]}
               value={formValues.category}
               onChange={(value) => handleChange("category", value)}
               required
@@ -231,6 +319,28 @@ const StudentCreationPage = () => {
               placeholder="Enter mother's name"
               value={formValues.mother_name}
               onChange={(e) => handleChange("mother_name", e.target.value)}
+              required
+            />
+          </Grid.Col>
+
+          <Grid.Col span={6}>
+            <Select
+              label="Programme"
+              placeholder="Select programme"
+              data={["B.Tech", "B.Des"]}
+              value={formValues.programme}
+              onChange={(value) => handleChange("programme", value)}
+              required
+            />
+          </Grid.Col>
+
+          <Grid.Col span={6}>
+            <Select
+              label="Batch"
+              placeholder="Select batch"
+              data={batches}
+              value={`${formValues.batch}`}
+              onChange={(value) => handleChange("batch", Number(value))}
               required
             />
           </Grid.Col>

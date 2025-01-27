@@ -42,3 +42,13 @@ export const getAllDepartments = async () => {
         throw error;
     }
 }
+
+export const getAllBatches = async () => {
+    try {
+        const response = await axios.get(API_URL+'/batches/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching batches:', error.response?.data || error.message);
+        throw error;
+    }
+}
