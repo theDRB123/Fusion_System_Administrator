@@ -434,9 +434,9 @@ def add_individual_student(request):
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+
     try:
-        batch = 2000 + int(data['roll_no'][:2])
+        batch = data.get('batch', 2000 + int(data['roll_no'][:2]))
     except (ValueError, IndexError):
         return Response({
             "error": "Invalid roll number format. Unable to calculate batch."
