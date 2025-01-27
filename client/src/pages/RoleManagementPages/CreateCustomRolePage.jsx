@@ -46,7 +46,7 @@ const CreateCustomRolePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!roleDetails.name || !roleDetails.full_name || !roleDetails.type || !roleDetails.basic) {
+    if (!roleDetails.name || !roleDetails.full_name || !roleDetails.type) {
       setValidationModalOpen(true);
       return;
     }
