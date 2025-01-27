@@ -22,3 +22,23 @@ export const getAllRoles = async () => {
         throw error;
     }
 }
+
+export const getAllDesignations = async (designationType) => {
+    try {
+        const response = await axios.post(API_URL+'/view-designations/', designationType);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching designations:', error.response?.data || error.message);
+        throw error;
+    }
+}
+
+export const getAllDepartments = async () => {
+    try {
+        const response = await axios.get(API_URL+'/departments/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching departments:', error.response?.data || error.message);
+        throw error;
+    }
+}

@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 from django.contrib.auth.hashers import make_password
@@ -24,6 +24,12 @@ from rest_framework.authtoken.models import Token
 def global_extrainfo_list(request):
     records = GlobalsExtrainfo.objects.all()
     serializer = GlobalExtraInfoSerializer(records, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_all_departments(request):
+    records = GlobalsDepartmentinfo.objects.all()
+    serializer = GlobalsDepartmentinfoSerializer(records, many=True)
     return Response(serializer.data)
 
 # get user by email and then fetch the role details 
@@ -110,7 +116,15 @@ def update_user_roles(request):
 def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
     serializer = GlobalsDesignationSerializer(records, many=True)
-    return Response(serializer.data) 
+    return Response(serializer.data)
+
+@api_view(['POST'])
+def get_category_designations(request):
+    category = request.data.get('category', 'student')
+    basic = request.data.get('basic', True)
+    records = GlobalsDesignation.objects.all().filter(category=category, basic=basic)
+    serializer = GlobalsDesignationSerializer(records, many=True)
+    return Response(serializer.data)
 
 # add a new role
 @api_view(['POST'])
@@ -530,7 +544,7 @@ def add_individual_student(request):
 
 @api_view(['POST'])
 def add_individual_staff(request):
-    required_fields = ["roll_no", "first_name", "last_name", "sex","role"]
+    required_fields = ["username", "first_name", "last_name", "sex","role"]
     data = request.data
     missing_fields = [field for field in required_fields if field not in data or not data[field]]
     if missing_fields:
@@ -541,10 +555,10 @@ def add_individual_staff(request):
     
     auth_user_data = {
         "password": make_password("user@123"),
-        "username": data['roll_no'].upper(),
+        "username": data['username'].upper(),
         "first_name": data['first_name'],
         "last_name": data.get('last_name', ""),
-        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "email": f"{data['username'].lower()}@iiitdmj.ac.in",
         "is_staff": True,
         "is_superuser": False,
         "is_active": True,
@@ -561,7 +575,7 @@ def add_individual_staff(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     extra_info_data = {
-        'id': data['roll_no'].upper(),
+        'id': data['username'].upper(),
         'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
         'sex': data['sex'][0].upper(),
         'date_of_birth': data.get("date_of_birth", "2025-01-01"),
@@ -630,7 +644,7 @@ def add_individual_staff(request):
 
 @api_view(['POST'])
 def add_individual_faculty(request):
-    required_fields = ["roll_no", "first_name", "last_name", "sex","role"]
+    required_fields = ["username", "first_name", "last_name", "sex", "designation"]
     data = request.data
     missing_fields = [field for field in required_fields if field not in data or not data[field]]
     if missing_fields:
@@ -641,10 +655,10 @@ def add_individual_faculty(request):
     
     auth_user_data = {
         "password": make_password("user@123"),
-        "username": data['roll_no'].upper(),
-        "first_name": data['first_name'],
-        "last_name": data.get('last_name', ""),
-        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "username": data['username'].lower(),
+        "first_name": data['first_name'].lower().capitalize(),
+        "last_name": data.get('last_name').lower().capitalize(),
+        "email": f"{data['username'].lower()}@iiitdmj.ac.in",
         "is_staff": False,
         "is_superuser": False,
         "is_active": True,
@@ -660,21 +674,23 @@ def add_individual_faculty(request):
             "data": auth_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+    default_department = GlobalsDepartmentinfo.objects.get(name='CSE').id
     extra_info_data = {
-        'id': data['roll_no'].upper(),
-        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'id': data['username'].lower(),
+        'title': data.get('title') if data.get('title') else 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
         'sex': data['sex'][0].upper(),
-        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'date_of_birth': data.get("dob") if data.get("dob") else "2025-01-01",
         'user_status': "PRESENT",
-        'address': data.get("address", "NA"),
-        'phone_no': data.get("phone_number", 9999999999),
+        'address': data.get("address") if data.get("address") else "NA",
+        'phone_no': data.get("phone") if data.get("phone") else 9999999999,
         'about_me': "NA",
         'user_type': 'faculty',
         'profile_picture': None,
         'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
-        'department': GlobalsDepartmentinfo.objects.get(name=data.get("dep", "CSE")).id,
+        'department': data.get("department") if data.get("department") else default_department,
         'user': user.id,
     }
+    print(extra_info_data)
     extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
     extra_info = None
     if extra_info_serializer.is_valid():
@@ -685,14 +701,8 @@ def add_individual_faculty(request):
             "data": extra_info_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    designation_id = GlobalsDesignation.objects.get(name=data.get('role'))
-    if not designation_id:
-        return Response({
-            "error": "Role not found."
-        }, status=status.HTTP_404_NOT_FOUND)
-    designation_id = designation_id.id
     holds_designation_data = {
-        'designation' : designation_id,
+        'designation' : data.get('designation'),
         'user' : user.id,
         'working' : user.id,
     }
