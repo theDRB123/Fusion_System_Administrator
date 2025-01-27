@@ -10,11 +10,6 @@ class GlobalsDesignationSerializer(serializers.ModelSerializer):
     class Meta:
         model = GlobalsDesignation
         fields = '__all__'
-
-class GlobalsDepartmentinfoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = GlobalsDepartmentinfo
-        fields = '__all__'
         
 class GlobalsHoldsDesignationSerializer(serializers.ModelSerializer):
     class Meta:
