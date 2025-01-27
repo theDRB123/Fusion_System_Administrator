@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer, BatchSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
 from django.contrib.auth.hashers import make_password
@@ -30,6 +30,12 @@ def global_extrainfo_list(request):
 def get_all_departments(request):
     records = GlobalsDepartmentinfo.objects.all()
     serializer = GlobalsDepartmentinfoSerializer(records, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_all_batches(request):
+    records = Batch.objects.distinct('year')
+    serializer = BatchSerializer(records, many=True)
     return Response(serializer.data)
 
 # get user by email and then fetch the role details 
@@ -426,7 +432,7 @@ def add_student_info(row, extrainfo):
 
 @api_view(['POST'])
 def add_individual_student(request):
-    required_fields = ["roll_no", "first_name", "last_name", "sex", "category", "father_name", "mother_name"]
+    required_fields = ["username", "first_name", "last_name", "sex", "category", "father_name", "mother_name", "batch", "programme"]
     data = request.data
     missing_fields = [field for field in required_fields if field not in data or not data[field]]
     if missing_fields:
@@ -434,20 +440,13 @@ def add_individual_student(request):
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }, status=status.HTTP_400_BAD_REQUEST)
-
-    try:
-        batch = data.get('batch', 2000 + int(data['roll_no'][:2]))
-    except (ValueError, IndexError):
-        return Response({
-            "error": "Invalid roll number format. Unable to calculate batch."
-        }, status=status.HTTP_400_BAD_REQUEST)
     
     auth_user_data = {
         "password": make_password("user@123"),
-        "username": data['roll_no'].upper(),
+        "username": data['username'].upper(),
         "first_name": data['first_name'],
         "last_name": data.get('last_name', ""),
-        "email": f"{data['roll_no'].lower()}@iiitdmj.ac.in",
+        "email": f"{data['username'].lower()}@iiitdmj.ac.in",
         "is_staff": False,
         "is_superuser": False,
         "is_active": True,
@@ -463,19 +462,20 @@ def add_individual_student(request):
             "data": auth_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+    default_department = GlobalsDepartmentinfo.objects.get(name='CSE').id
     extra_info_data = {
-        'id': data['roll_no'].upper(),
-        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'id': data['username'].upper(),
+        'title': data.get('title') if data.get('title') else 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
         'sex': data['sex'][0].upper(),
-        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'date_of_birth': data.get("dob") if data.get("dob") else "2025-01-01",
         'user_status': "PRESENT",
-        'address': data.get("address", "NA"),
-        'phone_no': data.get("phone_number", 9999999999),
+        'address': data.get("address") if data.get("address") else "NA",
+        'phone_no': data.get("phone") if data.get("phone") else 9999999999,
         'about_me': "NA",
         'user_type': 'student',
         'profile_picture': None,
         'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
-        'department': get_department(data['roll_no'].upper()).id,
+        'department': data.get("department") if data.get("department") else default_department,
         'user': user.id,
     }
     extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
@@ -488,11 +488,8 @@ def add_individual_student(request):
             "data": extra_info_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    # max_id = GlobalsHoldsdesignation.objects.aggregate(Max('id'))['id__max']
-    # new_id = (max_id or 0) + 1  # Assign next available ID
     designation_id = GlobalsDesignation.objects.get(name='student').id
     holds_designation_data = {
-        # 'id': new_id,
         'designation' : designation_id,
         'user' : user.id,
         'working' : user.id,
@@ -507,23 +504,20 @@ def add_individual_student(request):
             "data": holds_designation_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    programme = 'B.Des' if data['roll_no'][3].upper()=='D' else 'B.Tech'
-    disp = get_department(data['roll_no'].upper()).name
-    anc = disp
-    batch_id = Batch.objects.all().filter(name = programme, discipline__acronym = anc, year = batch).first()
+    batch = Batch.objects.filter(name = data.get('programme'), discipline__acronym = extra_info.department.name, year = data.get('batch')).first()
     student_data = {
         'id' : extra_info.id,
-        'programme' : programme,
-        'batch' : batch,
-        'batch_id' : batch_id.id,
+        'programme' : data.get('programme'),
+        'batch' : data.get('batch'),
+        'batch_id' : batch.id,
         'cpi': 0.0,
         'category' : 'GEN' if data['category'][0].upper() == 'G' else 'OBC' if data['category'][0].upper() == 'O' else 'SC' if data['category'][1].upper() == 'C' else 'ST',
-        'father_name' : data.get('father_name', "NA"),
-        'mother_name' : data.get('mother_name', "NA"),
-        'hall_no': data.get('hall_no', 3),
+        'father_name' : data.get('father_name') if data.get('father_name') else "NA",
+        'mother_name' : data.get('mother_name') if data.get('mother_name') else "NA",
+        'hall_no': data.get('hall_no') if data.get('hall_no') else 3,
         'room_no': 1,
         'specialization': None,
-        'curr_semester_no' : 2*(datetime.datetime.now().year - batch) + datetime.datetime.now().month // 7,
+        'curr_semester_no' : 2*(datetime.datetime.now().year - data.get('batch')) + datetime.datetime.now().month // 7,
     }
     student_data_serializer = StudentSerializer(data=student_data)
     if student_data_serializer.is_valid():
@@ -544,7 +538,7 @@ def add_individual_student(request):
 
 @api_view(['POST'])
 def add_individual_staff(request):
-    required_fields = ["username", "first_name", "last_name", "sex","role"]
+    required_fields = ["username", "first_name", "last_name", "sex", "designation"]
     data = request.data
     missing_fields = [field for field in required_fields if field not in data or not data[field]]
     if missing_fields:
@@ -555,9 +549,9 @@ def add_individual_staff(request):
     
     auth_user_data = {
         "password": make_password("user@123"),
-        "username": data['username'].upper(),
-        "first_name": data['first_name'],
-        "last_name": data.get('last_name', ""),
+        "username": data['username'].lower(),
+        "first_name": data['first_name'].lower().capitalize(),
+        "last_name": data.get('last_name').lower().capitalize(),
         "email": f"{data['username'].lower()}@iiitdmj.ac.in",
         "is_staff": True,
         "is_superuser": False,
@@ -574,19 +568,20 @@ def add_individual_staff(request):
             "data": auth_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
+    default_department = GlobalsDepartmentinfo.objects.get(name='CSE').id
     extra_info_data = {
-        'id': data['username'].upper(),
-        'title': 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
+        'id': data['username'].lower(),
+        'title': data.get('title') if data.get('title') else 'Mr.' if data['sex'][0].upper() == 'M' else 'Ms.',
         'sex': data['sex'][0].upper(),
-        'date_of_birth': data.get("date_of_birth", "2025-01-01"),
+        'date_of_birth': data.get("dob") if data.get("dob") else "2025-01-01",
         'user_status': "PRESENT",
-        'address': data.get("address", "NA"),
-        'phone_no': data.get("phone_number", 9999999999),
+        'address': data.get("address") if data.get("address") else "NA",
+        'phone_no': data.get("phone") if data.get("phone") else 9999999999,
         'about_me': "NA",
         'user_type': 'staff',
         'profile_picture': None,
         'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
-        'department': GlobalsDepartmentinfo.objects.get(name=data.get("dep", "CSE")).id,
+        'department': data.get("department") if data.get("department") else default_department,
         'user': user.id,
     }
     extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
@@ -599,14 +594,8 @@ def add_individual_staff(request):
             "data": extra_info_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
 
-    designation_id = GlobalsDesignation.objects.get(name=data.get('role'))
-    if not designation_id:
-        return Response({
-            "error": "Role not found."
-        }, status=status.HTTP_404_NOT_FOUND)
-    designation_id = designation_id.id
     holds_designation_data = {
-        'designation' : designation_id,
+        'designation' : data.get('designation'),
         'user' : user.id,
         'working' : user.id,
     }
@@ -635,11 +624,11 @@ def add_individual_staff(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({
-        "message": "Student added successfully",
+        "message": "Staff added successfully",
         "auth_user_data": auth_user_data,
         "extra_info_user_data": extra_info_data,
         "holds_designation_user_data": holds_designation_data,
-        "academic_information_student_data": staff_data,
+        "globals_staff_data": staff_data,
     }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
@@ -731,11 +720,11 @@ def add_individual_faculty(request):
         }, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({
-        "message": "Student added successfully",
+        "message": "Faculty added successfully",
         "auth_user_data": auth_user_data,
         "extra_info_user_data": extra_info_data,
         "holds_designation_user_data": holds_designation_data,
-        "academic_information_student_data": faculty_data,
+        "globals_faculty_data": faculty_data,
     }, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
