@@ -269,7 +269,7 @@ const ManageRoleAccessPage = () => {
               </Text>
 
               <Grid>
-                {Object.keys(moduleAccess).filter((module) => module !== "designation").map((module) => (
+                {Object.keys(moduleAccess).filter((module) => module !== "designation" && module !== "id").map((module) => (
                   <Grid.Col
                     key={module}
                     span={{ base: 12, sm: 6, md: 4 }}
