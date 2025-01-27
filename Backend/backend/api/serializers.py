@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, AuthUser, GlobalsModuleaccess, Student, Batch, Curriculum, Discipline, Programme, Staff, GlobalsFaculty
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, AuthUser, GlobalsModuleaccess, Student, Batch, Curriculum, Discipline, Programme, Staff, GlobalsFaculty, GlobalsDepartmentinfo
 
 class GlobalExtraInfoSerializer(serializers.ModelSerializer):
     class Meta:
