@@ -2,12 +2,12 @@ from rest_framework.response import Response
 from rest_framework import status
 import random
 import string
-import hashlib
 from django.contrib.auth.hashers import make_password
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import datetime
-from .models import GlobalsDepartmentinfo, AuthUser, Student
+from .models import GlobalsDepartmentinfo, Batch, GlobalsDesignation
+from .serializers import GlobalExtraInfoSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer
 import os
 
 def create_password(data):
@@ -211,3 +211,68 @@ def get_department(rollno):
     dep_name = GlobalsDepartmentinfo.objects.get(name=dep)
     print("dep_name",dep_name)
     return dep_name
+
+
+def add_user_extra_info(row,user):
+    department_name = row[13] if row[13] else 'CSE'
+    department = GlobalsDepartmentinfo.objects.get(name=department_name).id
+    extra_info_data = {
+        'id': row[0].upper(),
+        'title': row[9] if row[9] else 'Mr.' if row[3] and row[3][0].upper() == 'M' else 'Ms.',
+        'sex': row[3][0].upper(),
+        'date_of_birth': convert_to_iso(row[10]),
+        'user_status': "PRESENT",
+        'address': row[11].lower().capitalize() if row[11] else 'NA',
+        'phone_no': row[12] if row[12] else 9999999999,
+        'user_type': 'student',
+        'profile_picture': None,
+        'about_me': 'NA',
+        'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
+        'department': department,
+        'user': user.id,
+    }
+    print("extra_info_data",extra_info_data)
+    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
+    if extra_info_serializer.is_valid():
+        return extra_info_serializer
+    print("eror in extrainfo",extra_info_serializer.errors)
+    return None
+
+def add_user_designation_info(user_id, designation='student'):
+    designation_id = GlobalsDesignation.objects.get(name=designation).id
+    data = {
+        'designation' : designation_id,
+        'user' : user_id,
+        'working' : user_id,
+    }
+    print("data",data)
+    serializer = GlobalsHoldsDesignationSerializer(data=data)
+    if serializer.is_valid():
+        return serializer
+    print("error in role",serializer.errors)
+    return None
+
+def add_student_info(row, extrainfo):
+    programme = 'B.Tech' if len(row[8]) == 6 else 'B.Des'
+    batch = int(row[7])
+    batch_id = Batch.objects.all().filter(name = programme, discipline__acronym = extrainfo.department.name, year = batch).first()
+    data = {
+        'id' : extrainfo.id,
+        'programme' : programme,
+        'batch' : batch,
+        'batch_id' : batch_id.id,
+        'cpi': 0.0,
+        'category' : row[4].upper() if row[4].upper() else 'GEN',
+        'father_name' : row[5].lower().capitalize(),
+        'mother_name' : row[6].lower().capitalize(),
+        'hall_no': row[14] if row[14] else 3,
+        'room_no': 1,
+        'specialization': None,
+        'curr_semester_no' : 2*(datetime.datetime.now().year - batch) + datetime.datetime.now().month // 7,
+    }
+    print("add_student_info",data)
+    serializer = StudentSerializer(data=data)
+    if serializer.is_valid():
+        return serializer
+    print("error in student",serializer.errors)
+    return None
