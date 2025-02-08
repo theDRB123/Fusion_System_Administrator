@@ -344,7 +344,7 @@ def add_individual_student(request):
         'batch' : data.get('batch'),
         'batch_id' : batch.id,
         'cpi': 0.0,
-        'category' : 'GEN' if data['category'][0].upper() == 'G' else 'OBC' if data['category'][0].upper() == 'O' else 'SC' if data['category'][1].upper() == 'C' else 'ST',
+        'category' : data['category'].upper() if data['category'].upper() else 'GEN',
         'father_name' : data.get('father_name') if data.get('father_name') else "NA",
         'mother_name' : data.get('mother_name') if data.get('mother_name') else "NA",
         'hall_no': data.get('hall_no') if data.get('hall_no') else 3,
@@ -562,6 +562,22 @@ def add_individual_faculty(request):
 
 @api_view(['POST'])
 def bulk_import_users(request):
+    # CSV file headers:
+    # 1 username
+    # 2 first_name
+    # 3 last_name
+    # 4 sex
+    # 5 category
+    # 6 father_name
+    # 7 mother_name
+    # 8 batch
+    # 9 programme
+    # 10 title
+    # 11 dob
+    # 12 address
+    # 13 phone_no
+    # 14 department
+    # 15 hall_no
     if 'file' not in request.FILES:
         return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -580,42 +596,38 @@ def bulk_import_users(request):
         if len(row) < 4:
             failed_users.append(row)
             continue
-        # try:
-        data = {
-            'rollNo': row[0],
-            'name': row[1],
-        }
-        user_data = {
-            'password': make_password("user@123"),
-            'username': row[0].upper(),
-            'first_name': row[1].split(' ')[0].lower().capitalize(),
-            'last_name': ' '.join(row[1].split(' ')[1:]).capitalize() if len(row[1].split(' ')) > 1 else 'NA',
-            'email': f"{row[0].lower()}@iiitdmj.ac.in",
-            'is_staff': False,
-            'is_superuser': False,
-            'is_active': True,
-            'date_joined': datetime.datetime.now().strftime("%Y-%m-%d"),
-        }
-        serializer = AuthUserSerializer(data=user_data)
-        user = None
-        if serializer.is_valid():
-            user = serializer.save()
-        print("Error in user",serializer.errors)
-        extra_info_serializer = add_user_extra_info(row, user)
-        extra_serializer = None
-        if extra_info_serializer:
-            extra_serializer = extra_info_serializer.save()
-        role_serializer = add_user_designation_info(user.id)
-        if role_serializer:
-            role_serializer.save()
-        student_serializer = add_student_info(row, extra_serializer)
-        if student_serializer:
-            student_serializer.save()
-        if user and extra_info_serializer and role_serializer and student_serializer:
-            created_users.append(serializer.data)
-        # except Exception as e:
-            # print("error",e)
-            # failed_users.append(row)
+        try:
+            user_data = {
+                'password': make_password("user@123"),
+                'username': row[0].upper(),
+                'first_name': row[1].lower().capitalize(),
+                'last_name': row[2].lower().capitalize(),
+                'email': f"{row[0].lower()}@iiitdmj.ac.in",
+                'is_staff': False,
+                'is_superuser': False,
+                'is_active': True,
+                'date_joined': datetime.datetime.now().strftime("%Y-%m-%d"),
+            }
+            serializer = AuthUserSerializer(data=user_data)
+            user = None
+            if serializer.is_valid():
+                user = serializer.save()
+            print("Error in user",serializer.errors)
+            extra_info_serializer = add_user_extra_info(row, user)
+            extra_serializer = None
+            if extra_info_serializer:
+                extra_serializer = extra_info_serializer.save()
+            role_serializer = add_user_designation_info(user.id)
+            if role_serializer:
+                role_serializer.save()
+            student_serializer = add_student_info(row, extra_serializer)
+            if student_serializer:
+                student_serializer.save()
+            if user and extra_info_serializer and role_serializer and student_serializer:
+                created_users.append(serializer.data)
+        except Exception as e:
+            print("error",e)
+            failed_users.append(row)
         
     response_data = {
         "message": f"{len(created_users)} users created successfully.",
