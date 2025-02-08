@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework import status
+import concurrent.futures
 import random
 import string
 from django.contrib.auth.hashers import make_password
@@ -9,6 +10,7 @@ from datetime import datetime
 from .models import GlobalsDepartmentinfo, Batch, GlobalsDesignation
 from .serializers import GlobalExtraInfoSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer
 import os
+import threading
 
 def create_password(data):
     first_name = data.get('name').split(' ')[0].lower().capitalize()
@@ -127,37 +129,26 @@ def mail_to_user_single(student, password):
     
 def mail_to_user(created_users):
     try:
-        for user in created_users:
-            subject = 'Fusion Portal Credentials'
-            message = (
-        f"Dear Student,\n\n"
-        "We are excited to introduce Fusion, our new ERP software, being developed by our own students, "
-        "which is now live for the Pre-Registration Process. "
-        "This platform will streamline your academic journey and provide a seamless experience for course registrations "
-        "and other academic-related activities.\n\n"
-        "Please find your login credentials below:\n\n"
-        "Portal Link: http://fusion.iiitdmj.ac.in:8000/\n"
-        f"Username: {user['username'].upper()}\n"
-        f"Password: {password}\n\n"
-        "Important Instructions:\n"
-        "1. Initial Login: Use the credentials provided above to log in to the portal.\n"
-        "2. Change Password: Upon first login, change your password with the following steps:\n"
-        "   - Sign Out\n"
-        "   - Change Password\n"
-        "   - Create a new password.\n\n"
-        "Please choose a strong password and keep it confidential.\n\n"
-        "Help & Support:\n"
-        "If you encounter any issues, feel free to reach out to the support team at fusion@iiitdmj.ac.in, "
-        "or fill out the Google form at: https://forms.gle/aHvzGoS9XAAoHyix6\n\n"
-        "We look forward to your smooth experience with Fusion!\n\n"
-        "Best regards,\n"
-        "Fusion Development Team,\n"
-        "PDPM IIITDM Jabalpur"
-    )
+        max_threads = min(10, len(created_users))
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_threads) as executor:
+            future_to_user = [
+                executor.submit(mail_to_user_single, user, "user@123") for user in created_users
+            ]
 
-            recipient_list = [f"{user['email']}"]
-            recipient_list = []
-            send_email(subject=subject, message=message, recipient_list=recipient_list)
+            for future, user in zip(future_to_user, created_users):
+                try:
+                    future.result()
+                except Exception as e:
+                    log_failed_email(user, "user@123", make_password("user@123"), str(e))
+        # mail_threads = []
+        # for user in created_users:
+        #     thread = threading.Thread(target=mail_to_user_single, args=(user,"user@123"))
+        #     thread.start()
+        #     mail_threads.append(thread)
+
+        # for thread in mail_threads:
+        #     thread.join()
+        
         return Response({"message": "Email sent successfully."}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

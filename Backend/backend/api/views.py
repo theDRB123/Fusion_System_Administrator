@@ -593,7 +593,7 @@ def bulk_import_users(request):
     failed_users = []
     
     for row in csv_data:
-        if len(row) < 4:
+        if len(row) < 9:
             failed_users.append(row)
             continue
         try:
@@ -628,6 +628,9 @@ def bulk_import_users(request):
         except Exception as e:
             print("error",e)
             failed_users.append(row)
+
+    if(len(created_users) > 0):
+        mail_to_user(created_users)
         
     response_data = {
         "message": f"{len(created_users)} users created successfully.",
