@@ -7,24 +7,15 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from rest_framework.parsers import FileUploadParser
 from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff
 from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer, BatchSerializer
 from io import StringIO
-from .helpers import create_password, send_email, mail_to_user, check_csv, convert_to_iso, format_phone_no, get_department, configure_password_mail
+from .helpers import create_password, send_email, mail_to_user, configure_password_mail, add_user_extra_info, add_user_designation_info, add_student_info
 from django.contrib.auth.hashers import make_password
 from backend.settings import EMAIL_TEST_ARRAY
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
 
-
-
-# get list of all users
-@api_view(['GET'])
-def global_extrainfo_list(request):
-    records = GlobalsExtrainfo.objects.all()
-    serializer = GlobalExtraInfoSerializer(records, many=True)
-    return Response(serializer.data)
 
 @api_view(['GET'])
 def get_all_departments(request):
@@ -38,7 +29,6 @@ def get_all_batches(request):
     serializer = BatchSerializer(records, many=True)
     return Response(serializer.data)
 
-# get user by email and then fetch the role details 
 @api_view(['GET'])
 def get_user_role_by_email(request):
     email = request.query_params.get('email')
@@ -48,9 +38,7 @@ def get_user_role_by_email(request):
     
     try:
         user = AuthUser.objects.get(email=email)
-        # user_id = user.id
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
-        # user_id = user.id
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
         print(holds_designation_entries)
         
@@ -70,7 +58,6 @@ def get_user_role_by_email(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# update user's roles
 @api_view(['PUT'])
 def update_user_roles(request):
     email = request.data.get('email')
@@ -81,30 +68,24 @@ def update_user_roles(request):
 
     user = get_object_or_404(AuthUser, email=email)
 
-    # Get existing roles' names as a set of strings
     existing_roles = GlobalsHoldsdesignation.objects.filter(user=user)
     existing_role_names = set(existing_roles.values_list('designation__name', flat=True))
 
-    # Normalize roles_to_add: Extract names from dicts and keep strings
     processed_roles_to_add = set()
 
     for role in roles_to_add:
         if isinstance(role, dict):
-            # Check if 'name' key exists in the dictionary
             if 'name' in role:
-                processed_roles_to_add.add(role['name'])  # Extract name from dict
+                processed_roles_to_add.add(role['name'])
         elif isinstance(role, str):
-            processed_roles_to_add.add(role)  # Keep string as is
+            processed_roles_to_add.add(role)
 
-    print("Processed roles_to_add:", processed_roles_to_add)  # Log processed roles_to_add
+    print("Processed roles_to_add:", processed_roles_to_add)
 
-    # Find roles to remove
     roles_to_remove = existing_role_names - processed_roles_to_add
 
-    # Remove roles that are not in the new list
     GlobalsHoldsdesignation.objects.filter(user=user, designation__name__in=roles_to_remove).delete()
 
-    # Add new roles
     for role_name in processed_roles_to_add:
         if role_name not in existing_role_names:
             designation = get_object_or_404(GlobalsDesignation, name=role_name)
@@ -117,7 +98,6 @@ def update_user_roles(request):
 
     return Response({"message": "User roles updated successfully."}, status=status.HTTP_200_OK)
         
-# get list of all roles
 @api_view(['GET'])
 def global_designation_list(request):
     records = GlobalsDesignation.objects.all()
@@ -132,14 +112,13 @@ def get_category_designations(request):
     serializer = GlobalsDesignationSerializer(records, many=True)
     return Response(serializer.data)
 
-# add a new role
 @api_view(['POST'])
 def add_designation(request):
     serializer = GlobalsDesignationSerializer(data=request.data)
     if serializer.is_valid():
         role = serializer.save()
         max_id = GlobalsModuleaccess.objects.aggregate(Max('id'))['id__max']
-        new_id = (max_id or 0) + 1  # Assign next available ID
+        new_id = (max_id or 0) + 1
         data = {
             'id': new_id,
             'designation' : role.name,
@@ -170,24 +149,6 @@ def add_designation(request):
     else :
         return Response(serializer.errors, status.HTTP_400_BAD_REQUEST)
     
-# delete a role
-@api_view(['DELETE'])
-def delete_designation(request):
-    name = request.data.get('name')
-    
-    if not name:
-        return Response({"error": "No name provided."}, status=status.HTTP_400_BAD_REQUEST)
-    
-    try:
-        designation = GlobalsDesignation.objects.get(name=name)
-        designation.delete()
-        return Response({"message": f"Designation '{name}' deleted successfully."}, status=status.HTTP_200_OK)
-    except GlobalsDesignation.DoesNotExist:
-        return Response({"error": f"Designation with name '{name}' not found."}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-# modify a role
 @api_view(['PUT', 'PATCH'])
 def update_designation(request):
     name = request.data.get('name')
@@ -207,27 +168,6 @@ def update_designation(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-def add_extra_ino_to_user(request,user):
-    extra_info_data = {
-        'title': request.data.get('title'),
-        'sex': request.data.get('sex'),
-        'date_of_birth': request.data.get('date_of_birth'),
-        'user_status': request.data.get('user_status'),
-        'address': request.data.get('address'),
-        'phone_no': request.data.get('phone_no'),
-        'user_type': request.data.get('user_type'),
-        'profile_picture': request.data.get('profile_picture', None),
-        'about_me': request.data.get('about_me'),
-        'date_modified': datetime.datetime.now().isoformat(),
-        'department': request.data.get('department'),
-        'user': user
-    }
-    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
-    if extra_info_serializer.is_valid():
-        extra_info_serializer.save()
-        return Response(extra_info_serializer.data, status=status.HTTP_201_CREATED)
-    return Response(extra_info_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 def add_user(request):
@@ -264,42 +204,6 @@ def add_user(request):
         return Response({'created_users':created_users}, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-@api_view(['GET'])
-def user_detail(request, pk):
-    try:
-        user = AuthUser.objects.get(pk=pk)
-    except AuthUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    serializer = AuthUserSerializer(user)
-    return Response(serializer.data)
-
-@api_view(['PUT', 'PATCH'])
-def update_user(request, pk):
-    try:
-        user = AuthUser.objects.get(pk=pk)
-    except AuthUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-    
-    partial = request.method == 'PATCH'
-    serializer = AuthUserSerializer(user, data=request.data, partial=partial)
-    
-    if serializer.is_valid():
-        serializer.save()
-        return Response(serializer.data)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['DELETE'])
-def delete_user(request, pk):
-    try:
-        user = AuthUser.objects.get(pk=pk)
-        user.delete()
-        return Response({"message": "User deleted successfully"}, status=status.HTTP_200_OK)
-    except AuthUser.DoesNotExist:
-        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
-    except Exception as e:
-        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
 @api_view(['POST'])
 def reset_password(request):
     roll_no = request.data.get('rollNo')
@@ -324,7 +228,6 @@ def reset_password(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-# get module access for a specific role 
 @api_view(['GET'])
 def get_module_access(request):
     role_name = request.query_params.get('designation')
@@ -340,7 +243,6 @@ def get_module_access(request):
     serializer = GlobalsModuleaccessSerializer(module_access)
     return Response(serializer.data, status=status.HTTP_200_OK)
     
-# modify role access
 @api_view(['PUT'])
 def modify_moduleaccess(request):
     role_name = request.data.get('designation')
@@ -360,75 +262,6 @@ def modify_moduleaccess(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-def add_user_extra_info(row,user):
-    print("row",row)
-    print("user",user)
-    extra_info_data = {
-        'id': row[0].upper(),
-        'title': 'Mr.' if row[4][0].upper() == 'M' else 'Ms.',
-        'sex': row[4][0].upper(),
-        'date_of_birth': convert_to_iso(row[5]),
-        'user_status': "PRESENT",
-        'address': row[10].lower().capitalize() if row[10] else 'NA',
-        'phone_no': format_phone_no(row[9]),
-        'user_type': 'student',
-        'profile_picture': None,
-        'about_me': 'NA',
-        'date_modified': datetime.datetime.now().strftime("%Y-%m-%d"),
-        'department': get_department(row[0].upper()).id,
-        'user': user.id,
-    }
-    print("extra_info_data",extra_info_data)
-    extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
-    if extra_info_serializer.is_valid():
-        return extra_info_serializer
-    print("eror in extrainfo",extra_info_serializer.errors)
-    return None
-
-def add_user_designation_info(user_id, designation='student'):
-    designation_id = GlobalsDesignation.objects.get(name=designation).id
-    data = {
-        'designation' : designation_id,
-        'user' : user_id,
-        'working' : user_id,
-    }
-    print("data",data)
-    serializer = GlobalsHoldsDesignationSerializer(data=data)
-    if serializer.is_valid():
-        return serializer
-    print("error in role",serializer.errors)
-    return None
-
-def add_student_info(row, extrainfo):
-    programme = 'B.Des' if row[0][3].upper()=='D' else 'B.Tech'
-    batch = int(2000+int(''.join(row[0][:2])))
-    disp = get_department(row[0].upper()).name
-    anc = disp
-    if disp == 'Design':
-        anc = 'Des.'
-    batch_id = Batch.objects.all().filter(name = programme, discipline__acronym = anc, year = batch).first()
-    print("Before", programme, anc, batch, batch_id)
-    data = {
-        'id' : extrainfo.id,
-        'programme' : 'B.Des' if row[0][3].upper()=='D' else 'B.Tech',
-        'batch' : batch,
-        'batch_id' : batch_id.id,
-        'cpi': 0.0,
-        'category' : 'GEN' if row[8][0].upper() == 'G' else 'OBC' if row[8][0].upper() == 'O' else 'SC' if row[8][1].upper() == 'C' else 'ST',
-        'father_name' : row[6].lower().capitalize(),
-        'mother_name' : row[7].lower().capitalize(),
-        'hall_no': row[13] if row[13] else 0,
-        'room_no': 0,
-        'specialization': None,
-        'curr_semester_no' : 2*(datetime.datetime.now().year - batch) + datetime.datetime.now().month // 7,
-    }
-    print("add_student_info",data)
-    serializer = StudentSerializer(data=data)
-    if serializer.is_valid():
-        return serializer
-    print("error in student",serializer.errors)
-    return None
 
 @api_view(['POST'])
 def add_individual_student(request):
@@ -803,7 +636,6 @@ def bulk_import_users(request):
 
     return Response(response_data, status=status.HTTP_201_CREATED)
 
-#bulk export of users via csv file
 @api_view(['GET'])
 def bulk_export_users(request):
     response = HttpResponse(content_type='text/csv')
@@ -833,16 +665,3 @@ def mail_to_whole_batch(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"message": "Mail sent to whole batch successfully."}, status=status.HTTP_200_OK)
-
-@api_view(['POST'])
-def login_view(self, request):
-    username = request.data.get('username')
-    password = request.data.get('password')
-    user = authenticate(username=username, password=password)
-    if user is not None:
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-    
-    
