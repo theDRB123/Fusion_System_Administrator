@@ -1,40 +1,23 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StatsGrid } from '../../components/StatsGrid/StatsGrid';
 import { StatsRing } from '../../components/StatsRing/StatsRing';
 import { StatsControls } from '../../components/StatsControls/StatsControls';
 import { FeaturesCards } from '../../components/FeaturesCards/FeaturesCards';
 import { Container, Title, Space, SimpleGrid, Divider, Button, Flex } from '@mantine/core';
-import { Simple } from '../../charts/BarChart/Simple/Simple';
 import { FaCube } from 'react-icons/fa';
-
+import { useForm } from '@mantine/form';
 
 const SystemAdminDashboard = () => {
-
-    const [dashboardStats, setDashboardStats] = useState([
-        { title: 'Total Users', icon: 'user', value: '5,173', diff: 34, time: "in last year" },
-        { title: 'Total Roles', icon: 'settings', value: '56', diff: -13, time: "in last year" },
-        { title: 'Archived Users', icon: 'arch', value: '573', diff: -30, time: "in last year" },
-        { title: 'Deleted Users', icon: 'del', value: '2,543', diff: 18, time: "in last year" },
-    ])
-
-    const [userRoleData, setUserRoleData] = useState(
-        [
-            { year: 2019, Students: 1200, Professors: 900, Others: 200 },
-            { year: 2020, Students: 1900, Professors: 1200, Others: 400 },
-            { year: 2021, Students: 400, Professors: 1000, Others: 200 },
-            { year: 2022, Students: 1000, Professors: 200, Others: 800 },
-            { year: 2023, Students: 800, Professors: 1400, Others: 1200 },
-            { year: 2024, Students: 750, Professors: 600, Others: 1000 },
-        ]
-    )
-
-    const [userRoleColors, setUserRoleColours] = useState(
-        [
-            { name: 'Students', color: 'violet.6' },
-            { name: 'Professors', color: 'blue.6' },
-            { name: 'Others', color: 'teal.6' },
-        ]
-    )
+    const form = useForm({
+        initialValues: {
+            dashboardStats: [
+                { title: 'Total Users', icon: 'user', value: '5,173', diff: 34, time: "in last year" },
+                { title: 'Total Roles', icon: 'settings', value: '56', diff: -13, time: "in last year" },
+                { title: 'Archived Users', icon: 'arch', value: '573', diff: -30, time: "in last year" },
+                { title: 'Deleted Users', icon: 'del', value: '2,543', diff: 18, time: "in last year" },
+            ]
+        }
+    });
 
     return (
         <Container fluid my="md">
@@ -71,13 +54,12 @@ const SystemAdminDashboard = () => {
             </Flex>
 
             {/* Stats */}
-            <StatsGrid data={dashboardStats} />
+            <StatsGrid data={form.values.dashboardStats} />
 
             <Space h="sm" />
 
             <Divider
                 my="xs"
-                // variant="dashed"
                 labelPosition="center"
                 label={
                     <>
@@ -94,7 +76,6 @@ const SystemAdminDashboard = () => {
 
             <Divider
                 my="xs"
-                // variant="dashed"
                 labelPosition="center"
                 label={
                     <>
@@ -109,12 +90,11 @@ const SystemAdminDashboard = () => {
             <SimpleGrid
                 cols={{ base: 1 }}
                 mx={'auto'}
-                w={{ base: '95%', xl: '65%'}}
+                w={{ base: '95%', xl: '65%' }}
                 maw={'1200px'}
                 spacing={{ base: 10, sm: 'xl' }}
                 verticalSpacing={{ base: 'md', sm: 'xl' }}
             >
-                {/* <Simple title={"User Role Distribution By Year"} data={userRoleData} colors={userRoleColors} /> */}
                 <StatsControls />
             </SimpleGrid>
 
@@ -123,7 +103,6 @@ const SystemAdminDashboard = () => {
 
             <Divider
                 my="xs"
-                // variant="dashed"
                 labelPosition="center"
                 label={
                     <>

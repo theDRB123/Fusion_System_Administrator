@@ -19,12 +19,10 @@ import { BarChart } from '@mantine/charts';
 function Simple({ title, data, colors, datakey }) {
     return (
         <div>
-            {/* Heading */}
             <Title order={2} align="center" mt="md" mb="lg">
                 {title}
             </Title>
 
-            {/* BarChart */}
             <BarChart
                 h={250}
                 data={data}
@@ -33,9 +31,9 @@ function Simple({ title, data, colors, datakey }) {
                 tickLine="y"
                 styles={{
                     bar: {
-                        transition: '0.3s', // Add smooth transition for hover
+                        transition: '0.3s',
                         '&:hover': {
-                            fillOpacity: 0.8, // Make it slightly transparent on hover
+                            fillOpacity: 0.8,
                         },
                     },
                 }}
@@ -53,13 +51,12 @@ const DeleteUserPage = () => {
     const [opened, { open, close }] = useDisclosure(false);
 
     useEffect(() => {
-        // Aggregating user batch data to show in the BarChart
         const aggregatedData = userList.reduce((acc, user) => {
             const batch = user.batch;
             if (!acc[batch]) {
                 acc[batch] = { batch, Deleted: 0 };
             }
-            acc[batch].Deleted += 100; // Static data for now
+            acc[batch].Deleted += 100;
             return acc;
         }, {});
         setUserBatchData(Object.values(aggregatedData));
@@ -214,7 +211,7 @@ const DeleteUserPage = () => {
                             gradient={{ from: 'lightyellow', to: 'red' }}
                             color="coral"
                             onClick={handleDelete}
-                            disabled={selectedUsers.length === 0} // Disable if no users are selected
+                            disabled={selectedUsers.length === 0}
                         >
                             Delete Selected
                         </Button>

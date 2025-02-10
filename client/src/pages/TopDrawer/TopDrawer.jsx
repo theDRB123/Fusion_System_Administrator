@@ -1,7 +1,6 @@
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { Drawer, Button, Flex, Menu, rem, ActionIcon } from '@mantine/core';
 import {
-    FaTrash,
     FaUser,
     FaExchangeAlt,
     FaCube,
@@ -16,9 +15,10 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 export default function TopDrawer() {
-    const [opened, { open, close, toggle }] = useDisclosure(false);
     const isSmallerScreen = useMediaQuery('(max-width: 768px)');
     const handleNavigate = useNavigate();
+    
+    const [opened, { open, close, toggle }] = useDisclosure(false);
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const [roleMenuOpened, setRoleMenuOpened] = useState(false);
     const [archiveMenuOpened, setArchiveMenuOpened] = useState(false);
@@ -28,22 +28,21 @@ export default function TopDrawer() {
         close();
     };
 
-    // Keydown handling for toggling drawer and menus
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.altKey) {
                 switch (event.key.toLowerCase()) {
                     case 'm':
-                        toggle(); // Toggle the drawer
+                        toggle();
                         break;
                     case 'u':
-                        setUserMenuOpened((prev) => !prev); // Toggle User Management menu
+                        setUserMenuOpened((prev) => !prev);
                         break;
                     case 'r':
-                        setRoleMenuOpened((prev) => !prev); // Toggle Role Management menu
+                        setRoleMenuOpened((prev) => !prev);
                         break;
                     case 'a':
-                        setArchiveMenuOpened((prev) => !prev); // Toggle Archive Management menu
+                        setArchiveMenuOpened((prev) => !prev);
                         break;
                     default:
                         break;
@@ -53,7 +52,6 @@ export default function TopDrawer() {
 
         document.addEventListener('keydown', handleKeyDown);
 
-        // Cleanup the event listener on unmount
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
