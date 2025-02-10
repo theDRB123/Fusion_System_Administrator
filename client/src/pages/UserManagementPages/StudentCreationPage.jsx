@@ -14,13 +14,15 @@ import {
   Progress,
   Flex,
   Paper,
+  Stack,
+  FileInput,
 } from "@mantine/core";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaCheck, FaDiceD6, FaTimes } from "react-icons/fa";
 import { notifications, showNotification } from "@mantine/notifications";
 import { DateInput, YearPickerInput } from "@mantine/dates";
 import { useMediaQuery } from "@mantine/hooks";
 import { getAllDepartments, getAllBatches } from '../../api/Roles';
-import { createStudent } from "../../api/Users";
+import { createStudent, bulkUploadUsers } from "../../api/Users";
 
 const StudentCreationPage = () => {
   const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
@@ -47,6 +49,7 @@ const StudentCreationPage = () => {
   const [progress, setProgress] = useState(0);
   const [departments, setDepartments] = useState([]);
   const [batches, setBatches] = useState([]);
+  const [file, setFile] = useState(null);
 
   useEffect(() => {
     const totalFields = Object.keys(formValues).length;
@@ -62,6 +65,11 @@ const StudentCreationPage = () => {
       [field]: field === "hall_no" ? parseInt(value, 10) || 0 : value,
     }));
   };
+
+  const handleFileSubmit = (file) => {
+    setFile(file);
+    setErrorMessage('');
+  }
 
   const fetchDepartments = async () => {
       try {
@@ -105,19 +113,41 @@ const StudentCreationPage = () => {
     }
   }
 
+  const downloadCSV = (url, filename) => {
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Form Submitted", formValues);
 
     try {
-      const response = await createStudent(formValues);
+      let response;
+      if(file){
+        const formData = new FormData();
+        formData.append('file', file);
+        response = await bulkUploadUsers(formData);
+        setFile(null);
+      }
+      else response = await createStudent(formValues);
+
+      if(response.skipped_users_count > 0){
+        const csvUrl = URL.createObjectURL(new Blob([response.skipped_users_csv], {type: 'text/csv'}));
+        downloadCSV(csvUrl, 'skipped_users.csv');
+      }
       showNotification({
         icon: checkIcon,
         title: "Success",
         position: "top-center",
         withCloseButton: true,
         autoClose: 5000,
-        message: "Student Created Successfully.",
+        message: `${response.created_users.length} Student has been Created Successfully.\n${response.skipped_users_count ? `${response.skipped_users_count} User skipped.` : ''}`,
         color: "green",
       });
       setFormValues({
@@ -357,6 +387,45 @@ const StudentCreationPage = () => {
             Add Student
           </Button>
         </Flex>
+
+          <Divider
+            mt={"20px"}
+            labelPosition="center"
+            label={
+              <>
+                <FaDiceD6 size={12} />
+              </>
+            }
+          />
+
+          <Stack justify="center" align="center" mt={'20px'}>
+            <Title
+              order={1}
+              sx={{
+                fontSize: { base: 'lg', sm: 'xl' },
+                lineHeight: 1.2,
+                wordBreak: 'break-word',
+              }}
+            >
+              Through CSV
+            </Title>
+            <FileInput
+              value={file}
+              onChange={handleFileSubmit}
+              size="md"
+              radius="xs"
+              placeholder="Upload CSV"
+              w={"50%"}
+            />
+            <Button
+              onClick={handleSubmit}
+              w={'50%'}
+              mt={'10px'} 
+              size="md" 
+            >
+              Create Students
+            </Button>
+          </Stack>
       </Paper>
     </Box>
   );
