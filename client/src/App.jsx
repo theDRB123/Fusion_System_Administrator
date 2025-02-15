@@ -2,7 +2,6 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
-// import { NotificationsProvider } from "@mantine/notifications";
 
 import { AuthProvider } from "./context/AuthContext.jsx";
 import RequireAuth from "./components/RequireAuth/RequireAuth.jsx";
@@ -11,7 +10,6 @@ import ArchiveUsersPage from "./pages/ArchivingPages/ArchiveUsersPage.jsx";
 import ArchiveNotificationsPage from "./pages/ArchivingPages/ArchiveNotificationsPage.jsx";
 import ArchiveAnnouncementsPage from "./pages/ArchivingPages/ArchiveAnnouncementsPage.jsx";
 
-// import CreateUserPage from "./pages/UserManagementPages/CreateUserPage.jsx";
 import DeleteUserPage from "./pages/UserManagementPages/DeleteUserPage.jsx";
 import ResetUserPasswordPage from "./pages/UserManagementPages/ResetUserPasswordPage.jsx";
 import StudentCreationPage from "./pages/UserManagementPages/StudentCreationPage.jsx";
