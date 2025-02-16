@@ -16,7 +16,10 @@ import {
   Paper,
   Stack,
   FileInput,
+  Stack,
+  FileInput,
 } from "@mantine/core";
+import { FaCheck, FaDiceD6, FaTimes } from "react-icons/fa";
 import { FaCheck, FaDiceD6, FaTimes } from "react-icons/fa";
 import { notifications, showNotification } from "@mantine/notifications";
 import { DateInput, YearPickerInput } from "@mantine/dates";
