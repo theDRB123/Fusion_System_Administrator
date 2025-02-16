@@ -7,8 +7,8 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer, BatchSerializer
+from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff, Programme
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer, BatchSerializer, ProgrammeSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, configure_password_mail, add_user_extra_info, add_user_designation_info, add_student_info
 from django.contrib.auth.hashers import make_password
@@ -27,6 +27,12 @@ def get_all_departments(request):
 def get_all_batches(request):
     records = Batch.objects.distinct('year')
     serializer = BatchSerializer(records, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def get_all_programmes(request):
+    records = Programme.objects.all()
+    serializer = ProgrammeSerializer(records, many=True)
     return Response(serializer.data)
 
 @api_view(['GET'])
@@ -337,10 +343,12 @@ def add_individual_student(request):
             "data": holds_designation_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    batch = Batch.objects.filter(name = data.get('programme'), discipline__acronym = extra_info.department.name, year = data.get('batch')).first()
+    programme = Programme.objects.filter(id=data.get('programme')).name
+    programme_name = 'B.Des' if programme[0]=='B' and programme[2]=='Design' else programme.split(" ")[0]
+    batch = Batch.objects.filter(name = programme_name, discipline__acronym = extra_info.department.name, year = data.get('batch')).first()
     student_data = {
         'id' : extra_info.id,
-        'programme' : data.get('programme'),
+        'programme' : programme,
         'batch' : data.get('batch'),
         'batch_id' : batch.id,
         'cpi': 0.0,

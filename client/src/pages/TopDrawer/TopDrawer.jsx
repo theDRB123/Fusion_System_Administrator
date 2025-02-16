@@ -115,14 +115,6 @@ export default function TopDrawer() {
                             <Menu.Dropdown>
                                 <Menu.Label>Manage Users</Menu.Label>
                                 <Menu.Item
-                                    onClick={() => navigate('/UserManagement/CreateUser')}
-                                    color="green"
-                                    leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}
-                                >
-                                    Create User
-                                </Menu.Item>
-                                <Menu.Divider />
-                                <Menu.Item
                                     onClick={() => navigate('/UserManagement/CreateStudent')}
                                     color="pink"
                                     leftSection={<FaUser style={{ width: rem(14), height: rem(14) }} />}

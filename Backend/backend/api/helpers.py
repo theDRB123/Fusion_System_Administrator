@@ -244,12 +244,11 @@ def add_user_designation_info(user_id, designation='student'):
     return None
 
 def add_student_info(row, extrainfo):
-    programme = 'B.Tech' if len(row[8]) == 6 else 'B.Des'
     batch = int(row[7])
-    batch_id = Batch.objects.all().filter(name = programme, discipline__acronym = extrainfo.department.name, year = batch).first()
+    batch_id = Batch.objects.all().filter(name = row[8], discipline__acronym = extrainfo.department.name, year = batch).first()
     data = {
         'id' : extrainfo.id,
-        'programme' : programme,
+        'programme' : row[8],
         'batch' : batch,
         'batch_id' : batch_id.id,
         'cpi': 0.0,

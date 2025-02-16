@@ -52,3 +52,13 @@ export const getAllBatches = async () => {
         throw error;
     }
 }
+
+export const getAllProgrammes = async () => {
+    try {
+        const response = await axios.get(API_URL+'/programmes/');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching programmes:', error.response?.data || error.message);
+        throw error;
+    }
+}
