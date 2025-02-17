@@ -5,12 +5,12 @@ const AuthContext = createContext();
 const SESSION_TIMEOUT = 30*60*100;
 
 export const AuthProvider = ({children}) =>{
-    const initialAuthState = Boolean(sessionStorage.getItem("isAuthenticated"));
+    const initialAuthState = Boolean(localStorage.getItem("isAuthenticated"));
     const [isAuthenticated, setIsAuthenticated] = useState(initialAuthState);
     
     useEffect(()=>{
       const checkSession = () =>{
-        const sessionStart = sessionStorage.getItem("sessionStart");
+        const sessionStart = localStorage.getItem("sessionStart");
         if(sessionStart){
           const sessionAge = Date.now() - parseInt(sessionStart);
           if(sessionAge > SESSION_TIMEOUT){
@@ -22,33 +22,42 @@ export const AuthProvider = ({children}) =>{
         }
       };
 
+      const handleStorageChange = (event) => {
+        if (event.key === "isAuthenticated" && event.newValue === null) {
+          setIsAuthenticated(false);
+        }
+      };
+    
+      window.addEventListener("storage", handleStorageChange);
+      
       const interval = setInterval(checkSession, 60000);
 
       const resetSession =()=>{
-        sessionStorage.setItem("sessionStart", Date.now().toString());
+        localStorage.setItem("sessionStart", Date.now().toString());
       };
 
       document.addEventListener("click", resetSession);
       document.addEventListener("mousemove", resetSession);
       document.addEventListener("keypress", resetSession);
-
+      
       return ()=> {
         clearInterval(interval);
         document.removeEventListener("click", resetSession);
         document.removeEventListener("mousemove", resetSession);
         document.removeEventListener("keypress", resetSession);
+        window.removeEventListener("storage", handleStorageChange);
       };
     }, []);
 
     const login = () => {
         setIsAuthenticated(true);
-        sessionStorage.setItem("isAuthenticated", "true");
-        sessionStorage.setItem("sessionStart", Date.now().toString());
+        localStorage.setItem("isAuthenticated", "true");
+        localStorage.setItem("sessionStart", Date.now().toString());
       };
 
       const logout = () => {
         setIsAuthenticated(false);
-        sessionStorage.clear();
+        localStorage.clear();
       };
 
     return (
