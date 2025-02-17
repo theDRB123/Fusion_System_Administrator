@@ -1,5 +1,5 @@
 import { Progress, Box, Text, Group, Paper, SimpleGrid, rem } from '@mantine/core';
-import { FaUsers, FaChartLine } from 'react-icons/fa'; // Import Font Awesome icons
+import { FaUsers, FaChartLine } from 'react-icons/fa';
 import classes from './StatsSegments.module.css';
 
 const data = [
