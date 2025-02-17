@@ -9,11 +9,14 @@ import {
     FaClone,
     FaArchive,
     FaUserAlt,
+    FaSignOutAlt,
     FaClone as FaCloneFilled,
     FaArchive as FaArchiveFilled,
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { Modal } from '@mantine/core';
 
 export default function TopDrawer() {
     const [opened, { open, close, toggle }] = useDisclosure(false);
@@ -22,11 +25,14 @@ export default function TopDrawer() {
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const [roleMenuOpened, setRoleMenuOpened] = useState(false);
     const [archiveMenuOpened, setArchiveMenuOpened] = useState(false);
-
+    const [logoutConfirm, setLogoutConfirm] = useState(false);
+    
     const navigate = (redirect) => {
         handleNavigate(redirect);
         close();
     };
+
+    const { logout } = useAuth();
 
     // Keydown handling for toggling drawer and menus
     useEffect(() => {
@@ -240,9 +246,45 @@ export default function TopDrawer() {
                             </Menu.Dropdown>
                         </Menu>
                     </Flex>
+                    <Button
+                        onClick={() => {
+                            setLogoutConfirm(true);
+                        }}//        logout(); navigate('/') }}
+                        leftSection={<FaSignOutAlt size={18} />}
+
+                        variant="light"
+                        color="red"
+                        justify="center"
+                        size="lg">
+                        Log Out
+                    </Button>
                 </Flex>
             </Drawer>
 
+            {logoutConfirm && (
+                <Modal opened={logoutConfirm} onClose={() => setLogoutConfirm(false)} title="Confirm Logout">
+                    <p>Are you sure you want to log out?</p>
+                    <Flex justify="flex-end" gap="sm" mt="md">
+                        <Button
+                            variant="outline"
+                            color="blue"
+                            onClick={() => setLogoutConfirm(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="filled"
+                            color="red"
+                            onClick={() => {
+                                logout();
+                                navigate('/');
+                            }}
+                        >
+                            Log Out
+                        </Button>
+                    </Flex>
+                </Modal>
+            )}
             <ActionIcon
                 onClick={open}
                 variant="filled"
