@@ -1,18 +1,18 @@
 import { RingProgress, Title, Text, SimpleGrid, Paper, Center, Group, rem, Space } from '@mantine/core';
 import {
-    FaUserAlt,            // Replace with Font Awesome icon for user
-    FaArchive,            // Replace with Font Awesome icon for archive
-    FaUserMinus,          // Replace with Font Awesome icon for user delete
-    FaUserPlus,           // Replace with Font Awesome icon for user created
-    FaUserCog             // Replace with Font Awesome icon for created role
-} from 'react-icons/fa'; // Import from react-icons
+    FaUserAlt,
+    FaArchive,            
+    FaUserMinus,
+    FaUserPlus,
+    FaUserCog
+} from 'react-icons/fa'; 
 import classes from '../FeaturesCards/FeaturesCards.module.css';
 
 const icons = {
-    user: FaUserAlt,      // Use Font Awesome icon for user
-    arch: FaArchive,      // Use Font Awesome icon for archive
-    del: FaUserMinus,     // Use Font Awesome icon for delete
-    role: FaUserCog,      // Use Font Awesome icon for created role
+    user: FaUserAlt,
+    arch: FaArchive,
+    del: FaUserMinus,
+    role: FaUserCog,
 };
 
 const data = [

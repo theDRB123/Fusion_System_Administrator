@@ -1,19 +1,20 @@
 import { useDisclosure, useMediaQuery } from '@mantine/hooks';
 import { Drawer, Button, Flex, Menu, rem, ActionIcon } from '@mantine/core';
 import {
-    FaTrash,
     FaUser,
     FaExchangeAlt,
     FaCube,
-    FaCircle,
-    FaClone,
     FaArchive,
     FaUserAlt,
+    FaSignOutAlt,
     FaClone as FaCloneFilled,
     FaArchive as FaArchiveFilled,
+    FaCog,
 } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { useAuth } from '../../context/AuthContext';
+import { Modal } from '@mantine/core';
 
 export default function TopDrawer() {
     const [opened, { open, close, toggle }] = useDisclosure(false);
@@ -22,28 +23,28 @@ export default function TopDrawer() {
     const [userMenuOpened, setUserMenuOpened] = useState(false);
     const [roleMenuOpened, setRoleMenuOpened] = useState(false);
     const [archiveMenuOpened, setArchiveMenuOpened] = useState(false);
-
+    const [logoutConfirm, setLogoutConfirm] = useState(false);
+    
     const navigate = (redirect) => {
         handleNavigate(redirect);
         close();
     };
 
-    // Keydown handling for toggling drawer and menus
     useEffect(() => {
         const handleKeyDown = (event) => {
             if (event.altKey) {
                 switch (event.key.toLowerCase()) {
                     case 'm':
-                        toggle(); // Toggle the drawer
+                        toggle();
                         break;
                     case 'u':
-                        setUserMenuOpened((prev) => !prev); // Toggle User Management menu
+                        setUserMenuOpened((prev) => !prev);
                         break;
                     case 'r':
-                        setRoleMenuOpened((prev) => !prev); // Toggle Role Management menu
+                        setRoleMenuOpened((prev) => !prev);
                         break;
                     case 'a':
-                        setArchiveMenuOpened((prev) => !prev); // Toggle Archive Management menu
+                        setArchiveMenuOpened((prev) => !prev);
                         break;
                     default:
                         break;
@@ -53,7 +54,6 @@ export default function TopDrawer() {
 
         document.addEventListener('keydown', handleKeyDown);
 
-        // Cleanup the event listener on unmount
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
@@ -171,7 +171,7 @@ export default function TopDrawer() {
                                 <Menu.Item
                                     onClick={() => navigate('/RoleManagement/CreateCustomRole')}
                                     color="green"
-                                    leftSection={<FaCube style={{ width: rem(14), height: rem(14) }} />}
+                                    leftSection={<FaCog style={{ width: rem(14), height: rem(14) }} />}
                                 >
                                     Create Custom Role
                                 </Menu.Item>
@@ -179,7 +179,7 @@ export default function TopDrawer() {
                                 <Menu.Item
                                     onClick={() => navigate('/RoleManagement/ManageRoleAccess')}
                                     color="indigo"
-                                    leftSection={<FaCircle style={{ width: rem(14), height: rem(14) }} />}
+                                    leftSection={<FaCog style={{ width: rem(14), height: rem(14) }} />}
                                 >
                                     Manage Role Access
                                 </Menu.Item>
@@ -187,7 +187,7 @@ export default function TopDrawer() {
                                 <Menu.Item
                                     onClick={() => navigate('/RoleManagement/EditUserRole')}
                                     color="orange"
-                                    leftSection={<FaClone style={{ width: rem(14), height: rem(14) }} />}
+                                    leftSection={<FaCog style={{ width: rem(14), height: rem(14) }} />}
                                 >
                                     Edit Role Access
                                 </Menu.Item>
@@ -240,9 +240,45 @@ export default function TopDrawer() {
                             </Menu.Dropdown>
                         </Menu>
                     </Flex>
+                    <Button
+                        onClick={() => {
+                            setLogoutConfirm(true);
+                        }}//        logout(); navigate('/') }}
+                        leftSection={<FaSignOutAlt size={18} />}
+
+                        variant="light"
+                        color="red"
+                        justify="center"
+                        size="lg">
+                        Log Out
+                    </Button>
                 </Flex>
             </Drawer>
 
+            {logoutConfirm && (
+                <Modal opened={logoutConfirm} onClose={() => setLogoutConfirm(false)} title="Confirm Logout">
+                    <p>Are you sure you want to log out?</p>
+                    <Flex justify="flex-end" gap="sm" mt="md">
+                        <Button
+                            variant="outline"
+                            color="blue"
+                            onClick={() => setLogoutConfirm(false)}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="filled"
+                            color="red"
+                            onClick={() => {
+                                logout();
+                                navigate('/');
+                            }}
+                        >
+                            Log Out
+                        </Button>
+                    </Flex>
+                </Modal>
+            )}
             <ActionIcon
                 onClick={open}
                 variant="filled"

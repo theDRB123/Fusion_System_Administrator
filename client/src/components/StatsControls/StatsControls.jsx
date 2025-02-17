@@ -2,18 +2,18 @@ import { useState } from 'react';
 import dayjs from 'dayjs';
 import { UnstyledButton, Text, Paper, Group, rem } from '@mantine/core';
 import {
-    FaUserCheck,   // Replace with Font Awesome icon
-    FaArchive,     // Replace with Font Awesome icon
-    FaCog,         // Replace with Font Awesome icon
-    FaChevronUp,   // Replace with Font Awesome icon
-    FaChevronDown   // Replace with Font Awesome icon
-} from 'react-icons/fa'; // Import from react-icons
+    FaUserCheck,
+    FaArchive,
+    FaCog,
+    FaChevronUp,
+    FaChevronDown
+} from 'react-icons/fa';
 import classes from './StatsControls.module.css';
 
 const data = [
-    { icon: FaUserCheck, label: 'Users Created' }, // Replace with Font Awesome icon
-    { icon: FaArchive, label: 'Users Archived' },   // Replace with Font Awesome icon
-    { icon: FaCog, label: 'Roles Created' },         // Replace with Font Awesome icon
+    { icon: FaUserCheck, label: 'Users Created' },
+    { icon: FaArchive, label: 'Users Archived' },
+    { icon: FaCog, label: 'Roles Created' },
 ];
 
 export function StatsControls() {
