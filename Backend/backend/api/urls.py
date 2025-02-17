@@ -5,6 +5,7 @@ from . import update_global_db
 urlpatterns = [
     path('departments/', views.get_all_departments ,name='get_all_departments'),
     path('batches/', views.get_all_batches ,name='get_all_batches'),
+    path('programmes/', views.get_all_programmes ,name='get_all_programmes'),
     path('get-user-roles-by-email/', views.get_user_role_by_email ,name='get_user_role_by_email'),
     path('update-user-roles/', views.update_user_roles ,name='update_user_roles'),
     path('view-roles/', views.global_designation_list ,name='global_designation_list'),

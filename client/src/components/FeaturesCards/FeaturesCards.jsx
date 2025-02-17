@@ -21,9 +21,9 @@ const mockdata = [
         description: 'Create a User, Delete a User & Reset the Password of a User.',
         icon: FaUser,
         menuItems: [
-            { label: 'Add Student', icon: FaUser, color: 'pink', route: '/UserManagement/CreateStudent' },
-            { label: 'Add Faculty', icon: FaUser, color: 'grape', route: '/UserManagement/CreateFaculty' },
-            { label: 'Add Staff', icon: FaUser, color: 'teal', route: '/UserManagement/CreateStaff' },
+            { label: 'Create Student', icon: FaUser, color: 'pink', route: '/UserManagement/CreateStudent' },
+            { label: 'Create Faculty', icon: FaUser, color: 'grape', route: '/UserManagement/CreateFaculty' },
+            { label: 'Create Staff', icon: FaUser, color: 'teal', route: '/UserManagement/CreateStaff' },
             { label: 'Reset Password', icon: FaExchangeAlt, color: 'violet', route: '/UserManagement/ResetUserPassword' },
         ],
     },
