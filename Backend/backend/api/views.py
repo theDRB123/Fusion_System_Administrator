@@ -7,19 +7,17 @@ from django.utils import timezone
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import status
-from .models import GlobalsExtrainfo, GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, GlobalsFaculty, Staff, Programme
-from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, StaffSerializer, GlobalsDepartmentinfoSerializer, BatchSerializer, ProgrammeSerializer
+from .models import GlobalsDesignation, GlobalsHoldsdesignation, GlobalsModuleaccess, AuthUser, Batch, Student, GlobalsDepartmentinfo, Programme
+from .serializers import GlobalExtraInfoSerializer, GlobalsDesignationSerializer, GlobalsModuleaccessSerializer, AuthUserSerializer, GlobalsHoldsDesignationSerializer, StudentSerializer, GlobalsFacultySerializer, GlobalsDepartmentinfoSerializer, BatchSerializer, ProgrammeSerializer
 from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, configure_password_mail, add_user_extra_info, add_user_designation_info, add_student_info
 from django.contrib.auth.hashers import make_password
 from backend.settings import EMAIL_TEST_ARRAY
-from django.contrib.auth import authenticate
-from rest_framework.authtoken.models import Token
 
 
 @api_view(['GET'])
 def get_all_departments(request):
-    records = GlobalsDepartmentinfo.objects.all()
+    records = GlobalsDepartmentinfo.objects.all().order_by('id')
     serializer = GlobalsDepartmentinfoSerializer(records, many=True)
     return Response(serializer.data)
 
@@ -31,7 +29,7 @@ def get_all_batches(request):
 
 @api_view(['GET'])
 def get_all_programmes(request):
-    records = Programme.objects.all()
+    records = Programme.objects.all().order_by('id')
     serializer = ProgrammeSerializer(records, many=True)
     return Response(serializer.data)
 
@@ -46,7 +44,6 @@ def get_user_role_by_email(request):
         user = AuthUser.objects.get(email=email)
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
         holds_designation_entries = GlobalsHoldsdesignation.objects.filter(user=user)
-        print(holds_designation_entries)
         
         designation_ids = [entry.designation.id for entry in holds_designation_entries]
         
@@ -176,41 +173,6 @@ def update_designation(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
-def add_user(request):
-    password = create_password(request.data)
-    student_role = GlobalsDesignation.objects.get(name='student')
-    student_role_id = student_role.id
-    data = {
-        'password': password,
-        'password': password,
-        'is_superuser': request.data.get('is_superuser') or False,
-        'username': request.data.get('rollNo').upper(),
-        'first_name': request.data.get('name').split(' ')[0].capitalize(),
-        'last_name': ' '.join(request.data.get('name').split(' ')[1:]).capitalize() if len(request.data.get('name').split(' ')) > 1 else '-',
-        'email': f"{request.data.get('rollNo').lower()}@iiitdmj.ac.in",
-        'is_staff': request.data.get('role')!=student_role_id,
-        'is_active': True,
-        'date_joined': datetime.datetime.now().isoformat(),
-    }
-    serializer = AuthUserSerializer(data=data)
-    if serializer.is_valid():
-        serializer.save()
-        created_users = []
-        created_users.append(serializer.data)
-        role_data = {
-            'held_at': datetime.datetime.now().isoformat(),
-            'designation': request.data.get('role'),
-            'user': serializer.data.get('id'),
-            'working': serializer.data.get('id')
-        }
-        role_serializer = GlobalsHoldsDesignationSerializer(data=role_data)
-        if role_serializer.is_valid():
-            role_serializer.save()
-        mail_to_user(created_users)
-        return Response({'created_users':created_users}, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-@api_view(['POST'])
 def reset_password(request):
     roll_no = request.data.get('rollNo')
     try:
@@ -335,7 +297,6 @@ def add_individual_student(request):
     }
     holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
     if holds_designation_serializer.is_valid():
-        print(f"Valid data: {holds_designation_data}")
         holds_designation_serializer.save()
     else:
         return Response({
@@ -343,20 +304,18 @@ def add_individual_student(request):
             "data": holds_designation_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    programme = Programme.objects.filter(id=data.get('programme')).name
-    programme_name = 'B.Des' if programme[0]=='B' and programme[2]=='Design' else programme.split(" ")[0]
-    batch = Batch.objects.filter(name = programme_name, discipline__acronym = extra_info.department.name, year = data.get('batch')).first()
+    batch = Batch.objects.filter(name = data.get('programme'), discipline__acronym = extra_info.department.name, year = data.get('batch')).first()
     student_data = {
         'id' : extra_info.id,
-        'programme' : programme,
-        'batch' : data.get('batch'),
-        'batch_id' : batch.id,
+        'programme' : data.get('programme') if data.get('programme') else 'B.Tech',
+        'batch' : data.get('batch') if data.get('batch') else datetime.datetime.now().year,
+        'batch_id' : batch.id if batch else None,
         'cpi': 0.0,
         'category' : data['category'].upper() if data['category'].upper() else 'GEN',
-        'father_name' : data.get('father_name') if data.get('father_name') else "NA",
-        'mother_name' : data.get('mother_name') if data.get('mother_name') else "NA",
+        'father_name' : data.get('father_name') if data.get('father_name') else None,
+        'mother_name' : data.get('mother_name') if data.get('mother_name') else None,
         'hall_no': data.get('hall_no') if data.get('hall_no') else 3,
-        'room_no': 1,
+        'room_no': None,
         'specialization': None,
         'curr_semester_no' : 2*(datetime.datetime.now().year - data.get('batch')) + datetime.datetime.now().month // 7,
     }
@@ -368,14 +327,14 @@ def add_individual_student(request):
             "message": "Error in adding user to academic information student table",
             "data": student_data_serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+    response_data = {
+        "message": f"1 user created successfully.",
+        "created_users": [auth_serializer.data],
+        "skipped_users_count": 0,
+    }
 
-    return Response({
-        "message": "Student added successfully",
-        "auth_user_data": auth_user_data,
-        "extra_info_user_data": extra_info_data,
-        "holds_designation_user_data": holds_designation_data,
-        "academic_information_student_data": student_data,
-    }, status=status.HTTP_201_CREATED)
+    return Response(response_data, status=status.HTTP_201_CREATED)
 
 @api_view(['POST'])
 def add_individual_staff(request):
@@ -442,7 +401,6 @@ def add_individual_staff(request):
     }
     holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
     if holds_designation_serializer.is_valid():
-        print(f"Valid data: {holds_designation_data}")
         holds_designation_serializer.save()
     else:
         return Response({
@@ -520,7 +478,6 @@ def add_individual_faculty(request):
         'department': data.get("department") if data.get("department") else default_department,
         'user': user.id,
     }
-    print(extra_info_data)
     extra_info_serializer = GlobalExtraInfoSerializer(data=extra_info_data)
     extra_info = None
     if extra_info_serializer.is_valid():
@@ -538,7 +495,6 @@ def add_individual_faculty(request):
     }
     holds_designation_serializer = GlobalsHoldsDesignationSerializer(data=holds_designation_data)
     if holds_designation_serializer.is_valid():
-        print(f"Valid data: {holds_designation_data}")
         holds_designation_serializer.save()
     else:
         return Response({
@@ -608,8 +564,8 @@ def bulk_import_users(request):
             user_data = {
                 'password': make_password("user@123"),
                 'username': row[0].upper(),
-                'first_name': row[1].lower().capitalize(),
-                'last_name': row[2].lower().capitalize(),
+                'first_name': row[1].lower().capitalize() if len(row[1]) > 0 else 'NA',
+                'last_name': row[2].lower().capitalize() if len(row[2]) > 0 else 'NA',
                 'email': f"{row[0].lower()}@iiitdmj.ac.in",
                 'is_staff': False,
                 'is_superuser': False,
@@ -620,7 +576,6 @@ def bulk_import_users(request):
             user = None
             if serializer.is_valid():
                 user = serializer.save()
-            print("Error in user",serializer.errors)
             extra_info_serializer = add_user_extra_info(row, user)
             extra_serializer = None
             if extra_info_serializer:

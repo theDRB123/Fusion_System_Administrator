@@ -21,7 +21,7 @@ import { FaCheck, FaDiceD6, FaTimes } from "react-icons/fa";
 import { notifications, showNotification } from "@mantine/notifications";
 import { DateInput, YearPickerInput } from "@mantine/dates";
 import { useMediaQuery } from "@mantine/hooks";
-import { getAllDepartments, getAllBatches, getAllProgrammes } from '../../api/Roles';
+import { getAllDepartments, getAllBatches } from '../../api/Roles';
 import { createStudent, bulkUploadUsers } from "../../api/Users";
 
 const StudentCreationPage = () => {
@@ -49,7 +49,6 @@ const StudentCreationPage = () => {
   const [progress, setProgress] = useState(0);
   const [departments, setDepartments] = useState([]);
   const [batches, setBatches] = useState([]);
-  const [programmes, setProgrammes] = useState([]);
   const [file, setFile] = useState(null);
 
   useEffect(() => {
@@ -75,7 +74,6 @@ const StudentCreationPage = () => {
       try {
           let all_departments = [];
           const response = await getAllDepartments();
-          console.log(response)
           for(let i=0; i<response.length; i++){
               all_departments[i] = {value: `${response[i].id}`, label: response[i].name}
           }
@@ -96,7 +94,6 @@ const StudentCreationPage = () => {
     try {
         let all_batches = [];
         const response = await getAllBatches();
-        console.log(response)
         for(let i=0; i<response.length; i++){
             all_batches[i] = `${response[i].year}`
         }
@@ -108,27 +105,6 @@ const StudentCreationPage = () => {
             position: "top-center",
             withCloseButton: true,
             message: 'An error occurred while fetching batches.',
-            color: 'red',
-        });
-    }
-  }
-
-  const fetchProgrammes = async () => {
-    try {
-        let all_programmes = [];
-        const response = await getAllProgrammes();
-        console.log(response)
-        for(let i=0; i<response.length; i++){
-            all_programmes[i] = {value: `${response[i].id}`, label: response[i].name}
-        }
-        setProgrammes(all_programmes);
-    } catch (error) {
-        showNotification({
-            title: 'Error',
-            icon: xIcon,
-            position: "top-center",
-            withCloseButton: true,
-            message: 'An error occurred while fetching programmes.',
             color: 'red',
         });
     }
@@ -209,7 +185,6 @@ const StudentCreationPage = () => {
   useEffect(() => {
     fetchDepartments();
     fetchBatches();
-    fetchProgrammes();
   }, []);
 
   useEffect(() => {
@@ -379,9 +354,9 @@ const StudentCreationPage = () => {
             <Select
               label="Programme"
               placeholder="Select programme"
-              data={programmes}
-              value={`${formValues.programme}`}
-              onChange={(value) => handleChange("programme", Number(value))}
+              data={['B.Tech', 'B.Des', 'M.Tech', 'M.Des', 'PhD']}
+              value={formValues.programme}
+              onChange={(value) => handleChange("programme", value)}
               required
             />
           </Grid.Col>
