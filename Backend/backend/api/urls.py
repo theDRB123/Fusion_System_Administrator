@@ -17,7 +17,6 @@ urlpatterns = [
     path('users/add-student/', views.add_individual_student, name='add_individual_student'),
     path('users/add-staff/', views.add_individual_staff, name='add_individual_staff'),
     path('users/add-faculty/', views.add_individual_faculty, name='add_individual_faculty'),
-    path('users/add/', views.add_user, name='add-user'),
     path('users/reset_password/', views.reset_password, name='reset-password'),
     path('users/import/', views.bulk_import_users, name='bulk-import-users'),
     path('users/export/', views.bulk_export_users, name='bulk-export-users'),
