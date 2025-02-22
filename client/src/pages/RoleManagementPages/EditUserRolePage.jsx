@@ -208,7 +208,7 @@ const EditUserRolePage = () => {
               {/* User Details */}
               <Stack spacing="1rem">
                 <Text style={{ fontSize: "1.1rem", fontWeight: "bold" }}>
-                  Name: {userDetails.first_name} [{userDetails.is_staff ? "Staff Member" : "Student"}]
+                  Name: {userDetails.first_name}
                 </Text>
                 <Text style={{ fontSize: "1.1rem", fontWeight: "bold" }}>Roll No: {userDetails.username}</Text>
 

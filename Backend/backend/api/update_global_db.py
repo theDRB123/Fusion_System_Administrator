@@ -95,7 +95,7 @@ def update_globals_db(request):
             cursor.execute("""
                 UPDATE globals_designation
                 SET basic = TRUE
-                WHERE name IN ('Professor', 'Associate Professor', 'Assistant Professor', 'student');
+                WHERE name IN ('Professor', 'Associate Professor', 'Assistant Professor', 'student', 'Registrar');
             """)
 
             cursor.execute("""
@@ -107,6 +107,8 @@ def update_globals_db(request):
                     THEN 'faculty'
                     WHEN name IN ('student', 'co-ordinator', 'co co-ordinator')
                     THEN 'student'
+                    WHEN name IN ('Registrar', 'Compounder')
+                    THEN 'staff'
                     ELSE category
                 END
                 WHERE name IS NOT NULL;

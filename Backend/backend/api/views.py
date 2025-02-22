@@ -13,6 +13,7 @@ from io import StringIO
 from .helpers import create_password, send_email, mail_to_user, configure_password_mail, add_user_extra_info, add_user_designation_info, add_student_info
 from django.contrib.auth.hashers import make_password
 from backend.settings import EMAIL_TEST_ARRAY
+from django.conf import settings
 
 
 @api_view(['GET'])
@@ -186,8 +187,7 @@ def reset_password(request):
         
         subject = 'Your Password has been reset!!'
         message = f"This Mail is to notify you that your password has been reset by the System Administrator.\n\nPlease check out the new password below:  {new_password}\n\nRegards,\nSystem Administrator,\nIIITDM Jabalpur."
-        recipient_list = ['agarwalsamaksh11@gmail.com']
-        # recipient_list = [f"{user.email}"]
+        recipient_list = [f"{user.email}" if settings.EMAIL_TEST_MODE == 0 else settings.EMAIL_TEST_USER]
         send_email(subject=subject, message=message, recipient_list=recipient_list)
         
         return Response({"password": new_password,"message": "Password reset successfully."}, status=status.HTTP_200_OK)
