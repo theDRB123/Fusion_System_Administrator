@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { MantineProvider } from "@mantine/core";
 import "@mantine/core/styles.css";
 
@@ -20,7 +20,7 @@ import CreateCustomRolePage from "./pages/RoleManagementPages/CreateCustomRolePa
 import EditUserRolePage from "./pages/RoleManagementPages/EditUserRolePage.jsx";
 import ManageRoleAccessPage from "./pages/RoleManagementPages/ManageRoleAccessPage.jsx";
 
-import SystemAdminDashboard from "./pages/DashboardPage/SystemAdminDashboard.jsx";
+
 import LoginPage from "./pages/Login/LoginPage.jsx";
 import Sidebar from "./components/Sidebar/Sidebar.jsx";
 import { Notifications } from '@mantine/notifications';
@@ -31,7 +31,6 @@ function Layout() {
       <Sidebar />
       <div style={{ flex: 1, overflowY: "auto", paddingRight: "80px" }}>
         <Routes>
-          <Route path="/" element={<RequireAuth><SystemAdminDashboard /></RequireAuth>} />
           <Route path="/UserManagement/CreateStudent" element={<RequireAuth><StudentCreationPage /></RequireAuth>} />
           <Route path="/UserManagement/CreateFaculty" element={<RequireAuth><FacultyCreationPage /></RequireAuth>} />
           <Route path="/UserManagement/CreateStaff" element={<RequireAuth><StaffCreationPage /></RequireAuth>} />
@@ -56,7 +55,13 @@ function App() {
       <AuthProvider>
         <Router>
           <Routes>
+            {/* Route to the Login page by default */}
             <Route path="/login" element={<LoginPage />} />
+            
+            {/* The default route now redirects to /login */}
+            <Route path="/" element={<Navigate to="/login" />} />
+            
+            {/* Other protected routes */}
             <Route path="/*" element={<Layout />} />
           </Routes>
         </Router>
