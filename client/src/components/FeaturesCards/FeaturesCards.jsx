@@ -11,7 +11,7 @@ import {
     Menu,
     Button,
 } from '@mantine/core';
-import { FaUser, FaArchive, FaStar, FaCog, FaExchangeAlt } from 'react-icons/fa';
+import { FaUser, FaStar, FaArchive, FaUserGraduate, FaChalkboardTeacher, FaUsersCog, FaKey, FaUserShield, FaTasks, FaEdit, FaArchive as FaArchiveIcon, FaCube } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 import classes from './FeaturesCards.module.css';
 
@@ -21,10 +21,10 @@ const mockdata = [
         description: 'Create a User, Delete a User & Reset the Password of a User.',
         icon: FaUser,
         menuItems: [
-            { label: 'Create Student', icon: FaUser, color: 'pink', route: '/UserManagement/CreateStudent' },
-            { label: 'Create Faculty', icon: FaUser, color: 'grape', route: '/UserManagement/CreateFaculty' },
-            { label: 'Create Staff', icon: FaUser, color: 'teal', route: '/UserManagement/CreateStaff' },
-            { label: 'Reset Password', icon: FaExchangeAlt, color: 'violet', route: '/UserManagement/ResetUserPassword' },
+            { label: 'Add Student', icon: FaUserGraduate, color: 'pink', route: '/UserManagement/CreateStudent' },
+            { label: 'Add Faculty', icon: FaChalkboardTeacher, color: 'grape', route: '/UserManagement/CreateFaculty' },
+            { label: 'Add Staff', icon: FaUsersCog, color: 'teal', route: '/UserManagement/CreateStaff' },
+            { label: 'Reset Password', icon: FaKey, color: 'violet', route: '/UserManagement/ResetUserPassword' },
         ],
     },
     {
@@ -32,9 +32,9 @@ const mockdata = [
         description: 'Create a Custom Role, Manage Role Access & Edit Role Access.',
         icon: FaStar,
         menuItems: [
-            { label: 'Create Custom Role', icon: FaCog, color: 'green', route: '/RoleManagement/CreateCustomRole' },
-            { label: 'Manage Role Access', icon: FaCog, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
-            { label: 'Edit Role Access', icon: FaCog, color: 'blue', route: '/RoleManagement/EditUserRole' },
+            { label: 'Create Role', icon: FaUserShield, color: 'green', route: '/RoleManagement/CreateCustomRole' },
+            { label: 'Manage Role Access', icon: FaTasks, color: 'orange', route: '/RoleManagement/ManageRoleAccess' },
+            { label: 'Edit Role Access', icon: FaEdit, color: 'blue', route: '/RoleManagement/EditUserRole' },
         ],
     },
     {
@@ -44,7 +44,6 @@ const mockdata = [
         menuItems: [
             { label: 'Archive Users', icon: FaArchive, color: 'green', route: '/archive/users' },
             { label: 'Archive Announcements', icon: FaArchive, color: 'orange', route: '/archive/announcements' },
-            { label: 'Archive Notifications', icon: FaArchive, color: 'blue', route: '/archive/notifications' },
         ],
     },
 ];
