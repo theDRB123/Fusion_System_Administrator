@@ -17,6 +17,24 @@ def update_globals_db(request):
             """)
 
             cursor.execute("""
+                DROP SEQUENCE IF EXISTS auth_user_id_seq CASCADE;
+            """)
+                
+            cursor.execute("""
+                CREATE SEQUENCE auth_user_id_seq;
+            """)
+                
+            cursor.execute("""
+                ALTER TABLE auth_user
+                ALTER COLUMN id SET DEFAULT NEXTVAL('auth_user_id_seq');
+            """)
+                
+            cursor.execute("""
+                SELECT SETVAL('auth_user_id_seq', COALESCE(MAX(id), 1))
+                FROM auth_user;
+            """)
+
+            cursor.execute("""
                 DROP SEQUENCE IF EXISTS globals_moduleaccess_id_seq CASCADE;
             """)
                 
