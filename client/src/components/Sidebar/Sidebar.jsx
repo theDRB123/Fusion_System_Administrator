@@ -1,167 +1,163 @@
-import { useState, useEffect } from "react";
-import { Menu, ActionIcon, Tooltip, Flex } from "@mantine/core";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mantine/hooks";
-import {
-  FaUser,
-  FaExchangeAlt,
-  FaCube,
-  FaArchive,
-  FaUserAlt,
-  FaClone as FaCloneFilled,
-  FaArchive as FaArchiveFilled,
-  FaCog,
-} from "react-icons/fa";
+import { FaUserAlt, FaClone, FaSignOutAlt, FaUserGraduate, FaChalkboardTeacher, FaUsersCog, FaKey, FaUserShield, FaTasks, FaEdit, FaArchive as FaArchiveIcon, FaCube } from "react-icons/fa";
+import { Tooltip, Flex, Modal, Button } from "@mantine/core";
+import { useAuth } from '../../context/AuthContext';
 
-export default function Sidebar() {
+const MANTINE_BLUE = "#228be6";
+const MANTINE_DARK_BLUE = "#1c7ed6";
+const LOGOUT_RED = "#d63031";
+const LOGOUT_DARK_RED = "#b71c1c";
+
+const Sidebar = () => {
   const navigate = useNavigate();
   const isSmallScreen = useMediaQuery("(max-width: 768px)");
+  const [hovered, setHovered] = useState(null);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
-  const [menuOpened, setMenuOpened] = useState({ user: false, role: false, archive: false });
+  const { logout } = useAuth();
 
-  const toggleMenu = (menuKey) => {
-    setMenuOpened((prev) => ({
-      user: false,
-      role: false,
-      archive: false,
-      [menuKey]: !prev[menuKey],
-    }));
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
-  const handleNavigate = (redirect) => {
-    navigate(redirect);
-    setMenuOpened({ user: false, role: false, archive: false });
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (event) => {
-      if (event.altKey) {
-        if (event.key.toLowerCase() === "u") {
-          toggleMenu("user");
-        } else if (event.key.toLowerCase() === "r") {
-          toggleMenu("role");
-        } else if (event.key.toLowerCase() === "a") {
-          toggleMenu("archive");
-        }
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-    };
-  }, []);
+  const menuItems = [
+    {
+      label: "Dashboard",
+      icon: <FaCube size={24} />,
+      path: "/",
+      height: "10%",
+      isDashboard: true,
+    },
+    {
+      label: "Logout",
+      icon: <FaSignOutAlt size={24} />,
+      height: "10%",
+      isLogout: true,
+      action: () => setLogoutConfirm(true),
+    },
+    {
+      label: "User Management",
+      icon: <FaUserAlt size={24} />,
+      menuKey: "user",
+      subItems: [
+        { label: "Add Student", path: "/UserManagement/CreateStudent", icon: <FaUserGraduate size={18} /> },
+        { label: "Add Faculty", path: "/UserManagement/CreateFaculty", icon: <FaChalkboardTeacher size={18} /> },
+        { label: "Add Staff", path: "/UserManagement/CreateStaff", icon: <FaUsersCog size={18} /> },
+        { label: "Reset Password", path: "/UserManagement/ResetUserPassword", icon: <FaKey size={18} /> },
+      ],
+    },
+    {
+      label: "Role Management",
+      icon: <FaClone size={24} />,
+      menuKey: "role",
+      subItems: [
+        { label: "Create Role", path: "/RoleManagement/CreateCustomRole", icon: <FaUserShield size={18} /> },
+        { label: "Manage Role Access", path: "/RoleManagement/ManageRoleAccess", icon: <FaTasks size={18} /> },
+        { label: "Edit Role", path: "/RoleManagement/EditUserRole", icon: <FaEdit size={18} /> },
+      ],
+    },
+    {
+      label: "Archive Management",
+      icon: <FaArchiveIcon size={24} />,
+      menuKey: "archive",
+      subItems: [
+        { label: "Archive User", path: "/archive/users", icon: <FaArchiveIcon size={18} /> },
+        { label: "Archive Announcements", path: "/archive/announcements", icon: <FaArchiveIcon size={18} /> },
+      ],
+    },
+  ];
 
   return (
-    <Flex
-      direction="column"
-      align="center"
-      style={{
-        position: "fixed",
-        right: 0,
-        top: 0,
-        height: "100vh",
-        width: isSmallScreen ? "60px" : "80px",
-        backgroundColor: "#ffffff",
-        zIndex: 10,
-        boxShadow: "-3px 0 10px rgba(0, 0, 0, 0.1)",
-      }}
-    >
-      {[
-        { label: "Dashboard", icon: <FaCube size={24} />, onClick: () => handleNavigate("/") },
-        {
-          label: "User Management",
-          icon: <FaUserAlt size={24} />,
-          menuKey: "user",
-          items: [
-            { label: "Add Student", path: "/UserManagement/CreateStudent", icon: <FaUser size={14} />, color: "blue" },
-            { label: "Add Faculty", path: "/UserManagement/CreateFaculty", icon: <FaUser size={14} />, color: "green" },
-            { label: "Add Staff", path: "/UserManagement/CreateStaff", icon: <FaUser size={14} />, color: "red" },
-            { label: "Reset Password", path: "/UserManagement/ResetUserPassword", icon: <FaExchangeAlt size={14} />, color: "teal" },
-          ],
-        },
-        {
-          label: "Role Management",
-          icon: <FaCloneFilled size={24} />,
-          menuKey: "role",
-          items: [
-            { label: "Create Custom Role", path: "/RoleManagement/CreateCustomRole", icon: <FaCog size={14} />, color: "blue" },
-            { label: "Manage Role Access", path: "/RoleManagement/ManageRoleAccess", icon: <FaCog size={14} />, color: "red" },
-            { label: "Edit Role Access", path: "/RoleManagement/EditUserRole", icon: <FaCog size={14} />, color: "teal" },
-          ],
-        },
-        {
-          label: "Archive Management",
-          icon: <FaArchiveFilled size={24} />,
-          menuKey: "archive",
-          items: [
-            { label: "Archive User", path: "/archive/users", icon: <FaArchive size={14} />, color: "blue" },
-            { label: "Archive Announcements", path: "/archive/announcements", icon: <FaArchive size={14} />, color: "red" },
-          ],
-        },
-      ].map(({ label, icon, onClick, menuKey, items }) => (
-        <Tooltip key={label} label={label} position="left" withArrow>
+    <>
+      <Flex
+        direction="column"
+        align="center"
+        style={{
+          position: "fixed",
+          right: 0,
+          top: 0,
+          height: "100vh",
+          width: isSmallScreen ? "60px" : "80px",
+          backgroundColor: "#ffffff",
+          boxShadow: "-3px 0 10px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        {menuItems.map(({ label, icon, path, menuKey, subItems, height, isDashboard, isLogout, action }) => (
           <div
+            key={label}
             style={{
-              height: "25%",
               width: "100%",
+              height: height || "30%",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
+              position: "relative",
+              backgroundColor: isDashboard
+                ? hovered === label
+                  ? MANTINE_DARK_BLUE
+                  : MANTINE_BLUE
+                : isLogout
+                  ? hovered === label
+                    ? LOGOUT_DARK_RED
+                    : LOGOUT_RED
+                  : hovered === menuKey || hovered === label
+                    ? MANTINE_BLUE
+                    : "transparent",
+              transition: "background 0.3s ease-in-out",
               cursor: "pointer",
-              transition: "background 0.3s",
+              color: isDashboard || hovered === menuKey || hovered === label || isLogout ? "white" : MANTINE_BLUE,
             }}
-            onMouseEnter={(e) => (e.currentTarget.style.background = "#f0f0f0")}
-            onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (menuKey) {
-                toggleMenu(menuKey);
-              } else if (onClick) {
-                onClick();
-              }
-            }}
+            onMouseEnter={() => setHovered(menuKey || label)}
+            onMouseLeave={() => setHovered(null)}
+            onClick={() => (action ? action() : path && navigate(path))}
           >
-            {items ? (
-              <Menu
-                opened={menuOpened[menuKey]}
-                onClose={() => setMenuOpened((prev) => ({ ...prev, [menuKey]: false }))}
-                withinPortal
-              >
-                <Menu.Target>
-                  <ActionIcon
-                    variant="subtle"
-                    size="xl"
-                    style={{ borderRadius: "50%" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleMenu(menuKey);
-                    }}
-                  >
-                    {icon}
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  {items.map(({ label, path, icon, color }) => (
-                    <Menu.Item
-                      key={label}
-                      onClick={() => handleNavigate(path)}
-                      leftSection={icon}
-                      style={{ color }}
+            {hovered === menuKey && subItems ? (
+              <Flex direction="column" align="center" style={{ width: "100%", height: "100%" }}>
+                {subItems.map(({ label, path, icon }) => (
+                  <Tooltip key={label} label={label} position="left" withArrow>
+                    <div
+                      style={{
+                        flex: 1,
+                        width: "100%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: MANTINE_DARK_BLUE,
+                        transition: "background 0.3s ease-in-out",
+                        color: "white",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = MANTINE_BLUE)}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = MANTINE_DARK_BLUE)}
+                      onClick={() => navigate(path)}
                     >
-                      {label}
-                    </Menu.Item>
-                  ))}
-                </Menu.Dropdown>
-              </Menu>
+                      {icon}
+                    </div>
+                  </Tooltip>
+                ))}
+              </Flex>
             ) : (
-              <ActionIcon variant="subtle" size="xl" style={{ borderRadius: "50%" }}>
-                {icon}
-              </ActionIcon>
+              <div style={{ color: "inherit" }}>{icon}</div>
             )}
           </div>
-        </Tooltip>
-      ))}
-    </Flex>
+        ))}
+      </Flex>
+
+      <Modal opened={logoutConfirm} onClose={() => setLogoutConfirm(false)} title="Confirm Logout" centered>
+        <p>Are you sure you want to logout?</p>
+        <Flex justify="space-between" mt="md">
+          <Button color="gray" onClick={() => setLogoutConfirm(false)}>
+            Cancel
+          </Button>
+          <Button color="red" onClick={handleLogout}>
+            Logout
+          </Button>
+        </Flex>
+      </Modal>
+    </>
   );
-}
+};
+
+export default Sidebar;
