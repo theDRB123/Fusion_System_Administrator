@@ -44,7 +44,7 @@ const ManageRoleAccessPage = () => {
   useEffect(() => {
     const fetchRoles = async () => {
       try {
-        const response = await axios.get(`http://localhost:8001/api/view-roles`);
+        const response = await axios.get(API_URL + `/api/view-roles`);
         setRoles(response.data.map((role) => ({
           label: role.name,
           value: role.name,
@@ -68,7 +68,7 @@ const ManageRoleAccessPage = () => {
     setLoading(true);
 
     try {
-      const response = await axios.get(`http://localhost:8001/api/get-module-access/`, {
+      const response = await axios.get(API_URL + `/api/get-module-access/`, {
         params: { designation: roleName },
       });
       setModuleAccess(response.data);
@@ -101,7 +101,7 @@ const ManageRoleAccessPage = () => {
   const handleSubmit = async () => {
     setIsOpen(false);
     try {
-      await axios.put(`http://localhost:8001/api/modify-roleaccess/`, {
+      await axios.put(API_URL + `/api/modify-roleaccess/`, {
         designation: roleName,
         ...moduleAccess,
       });
@@ -196,6 +196,8 @@ const ManageRoleAccessPage = () => {
   }));
 
   const matches = useMediaQuery('(min-width: 768px)');
+
+  const API_URL = import.meta.env.VITE_BACKEND_URL;
 
   return (
     <Box

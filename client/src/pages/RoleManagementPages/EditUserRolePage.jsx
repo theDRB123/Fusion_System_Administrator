@@ -28,11 +28,13 @@ const EditUserRolePage = () => {
   const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
   const checkIcon = <FaCheck style={{ width: rem(20), height: rem(20) }} />;
 
+  const API_URL = import.meta.env.VITE_BACKEND_URL;
+
   const fetchUserAndRoleDetails = async () => {
     try {
       setLoading(true);
       const response = await axios.get(
-        `http://localhost:8001/api/get-user-roles-by-email?email=${email}`
+        API_URL + `/api/get-user-roles-by-email?email=${email}`
       );
       setUserDetails(response.data.user);
       setCurrentRoles(response.data.roles);
@@ -57,7 +59,7 @@ const EditUserRolePage = () => {
       );
       console.log(updatedRoles);
 
-      await axios.put(`http://localhost:8001/api/update-user-roles/`, {
+      await axios.put(API_URL + `/api/update-user-roles/`, {
         email: email,
         roles: updatedRoles,
       });
@@ -92,7 +94,7 @@ const EditUserRolePage = () => {
 
   const fetchAvailableRoles = async () => {
     try {
-      const response = await axios.get(`http://localhost:8001/api/view-roles`);
+      const response = await axios.get(API_URL + `/api/view-roles`);
       setRoles(response.data);
     } catch (error) {
       console.log(error.response);
@@ -270,7 +272,7 @@ const EditUserRolePage = () => {
                         e.currentTarget.style.backgroundColor = "transparent";
                       }}
                     >
-                      <Text>{role.name}{role.basic?"(Base)":""}</Text>
+                      <Text>{role.name}{role.basic ? "(Base)" : ""}</Text>
                       <Button
                         variant="outline"
                         color="red"
@@ -290,7 +292,7 @@ const EditUserRolePage = () => {
                 placeholder="Select roles"
                 data={roles.map((role) => ({
                   value: role.name,
-                  label: `${role.name}${role.basic?"(Base)":""}`,
+                  label: `${role.name}${role.basic ? "(Base)" : ""}`,
                 }))}
                 value={newRoles}
                 onChange={setNewRoles}
