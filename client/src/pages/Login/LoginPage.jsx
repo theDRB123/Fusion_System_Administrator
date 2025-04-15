@@ -22,7 +22,7 @@ const LoginPage = () => {
       const user = await handleLogin(values.email, values.password);
       console.log("Logged in user:", user);
       login();
-      navigate("/");
+      navigate("/UserManagement/CreateStudent", { replace: true });
     } catch (error) {
       console.error("Login error:", error.message);
       alert("Invalid credentials or login failed. Please try again");

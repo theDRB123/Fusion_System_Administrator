@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMediaQuery } from "@mantine/hooks";
-import { FaUserAlt, FaClone, FaSignOutAlt, FaUserGraduate, FaChalkboardTeacher, FaUsersCog, FaKey, FaUserShield, FaTasks, FaEdit, FaArchive as FaArchiveIcon, FaCube } from "react-icons/fa";
+import { FaUserAlt, FaClone, FaSignOutAlt, FaUserGraduate, FaChalkboardTeacher, FaUsersCog, FaKey, FaUserShield, FaTasks, FaEdit, FaArchive as FaArchiveIcon } from "react-icons/fa";
 import { Tooltip, Flex, Modal, Button } from "@mantine/core";
 import { useAuth } from '../../context/AuthContext';
 
@@ -24,13 +24,6 @@ const Sidebar = () => {
   };
 
   const menuItems = [
-    {
-      label: "Dashboard",
-      icon: <FaCube size={24} />,
-      path: "/",
-      height: "10%",
-      isDashboard: true,
-    },
     {
       label: "Logout",
       icon: <FaSignOutAlt size={24} />,
