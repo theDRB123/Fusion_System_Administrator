@@ -63,3 +63,24 @@ export const bulkUploadUsers = async (userData) => {
         throw error;
     }
 }
+
+export const downloadSampleCSV = async () => {
+    try {
+      const response = await axios.get(API_URL + '/download-sample-csv', {
+        responseType: 'blob',
+      });
+  
+      const blob = new Blob([response.data], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sample.csv';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error fetching sample CSV:', error.response?.data || error.message);
+      throw error;
+    }
+};

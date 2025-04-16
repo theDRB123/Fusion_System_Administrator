@@ -27,8 +27,7 @@ import { resetPassword } from '../../api/Users';
 
 const ResetUserPasswordPage = () => {
     const [formData, setFormData] = useState({
-        name: '',
-        rollNo: '',
+        username: '',
     });
 
     const [errorMessage, setErrorMessage] = useState('');
@@ -48,8 +47,8 @@ const ResetUserPasswordPage = () => {
     };
 
     const openConfirmationDialog = () => {
-        if (formData.name.trim() === '' || formData.rollNo.trim() === '') {
-            setErrorMessage('Please fill all the fields.');
+        if (formData.username.trim() === '') {
+            setErrorMessage('Please enter username.');
         } else {
             setOpened(true);
         }
@@ -88,29 +87,6 @@ const ResetUserPasswordPage = () => {
 
     return (
         <Box style={{ background: '#f7f7f7', minHeight: '100vh', padding: '20px' }}>
-            {/* <Flex justify="space-between" align="center" mb="20px" direction={{ base: 'column', sm: 'row' }}>
-                <Box
-                    style={{
-                        padding: '10px',
-                        background: 'linear-gradient(to right, lightcoral, lightyellow)',
-                        borderRadius: '8px',
-                        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
-                        marginBottom: '10px',
-                        width: '100%',
-                        textAlign: 'center',
-                    }}
-                >
-                    <Text
-                        style={{
-                            fontSize: '24px',
-                            fontWeight: 'bold',
-                            color: 'white',
-                        }}
-                    >
-                        Reset Password
-                    </Text>
-                </Box>
-            </Flex> */}
             <Flex
                 direction={{ base: 'column', sm: 'row' }}
                 gap={{ base: 'sm', sm: 'lg' }}
@@ -143,11 +119,8 @@ const ResetUserPasswordPage = () => {
             </Flex>
 
 
-            {/* <StatsGrid data={archiveAnnouncementStats} />  */}
-
             <Divider
                 my="xs"
-                // variant="dashed"
                 labelPosition="center"
                 label={
                     <>
@@ -171,25 +144,16 @@ const ResetUserPasswordPage = () => {
                 <form>
                     <Stack spacing="md">
                         <TextInput
-                            label="Name"
-                            name="name"
+                            label="UserName"
+                            name="username"
                             placeholder="Enter user name"
-                            value={formData.name}
-                            onChange={handleChange}
-                            required
-                        />
-
-                        <TextInput
-                            label="Roll Number"
-                            name="rollNo"
-                            placeholder="Enter roll number"
-                            value={formData.rollNo}
+                            value={formData.username}
                             onChange={handleChange}
                             required
                         />
 
                         {errorMessage && (
-                            <Text color="red" style={{ fontSize: '14px' }}>
+                            <Text c="red" style={{ fontSize: '14px' }}>
                                 {errorMessage}
                             </Text>
                         )}
@@ -212,7 +176,7 @@ const ResetUserPasswordPage = () => {
                 title="Reset Password"
             >
                 <Text>
-                    Are you sure you want to reset the password for {formData.name}?
+                    Are you sure you want to reset the password for {formData.username}?
                 </Text>
                 <Flex justify="flex-end" mt="md">
                     <Button variant="outline" onClick={() => setOpened(false)}>

@@ -13,11 +13,10 @@ import os
 import threading
 
 def create_password(data):
-    first_name = data.get('name').split(' ')[0].lower().capitalize()
-    roll_no_part = data.get('rollNo')[-3:].upper()
+    user_name = data.get('username').lower().capitalize()
     special_characters = string.punctuation
-    random_specials = ''.join(random.choice(special_characters) for _ in range(2))
-    return f"{first_name}{roll_no_part}{random_specials}"
+    random_specials = ''.join(random.choice(special_characters) for _ in range(3))
+    return f"{user_name}{random_specials}"
 
 
 def create_password_from_authuser(student):
@@ -197,7 +196,7 @@ def add_student_info(row, extrainfo):
         'category' : row[4].upper() if row[4].upper() else 'GEN',
         'father_name' : row[5].lower().capitalize() if row[5] else 'NA',
         'mother_name' : row[6].lower().capitalize() if row[6] else 'NA',
-        'hall_no': row[14] if row[14] else 3,
+        'hall_no': 3,
         'room_no': None,
         'specialization': None,
         'curr_semester_no' : 2*(datetime.now().year - batch) + datetime.now().month // 7,

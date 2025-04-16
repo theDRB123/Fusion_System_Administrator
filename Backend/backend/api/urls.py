@@ -21,5 +21,6 @@ urlpatterns = [
     path('users/import/', views.bulk_import_users, name='bulk-import-users'),
     path('users/export/', views.bulk_export_users, name='bulk-export-users'),
     path('users/mail-batch/', views.mail_to_whole_batch, name='mail-to-whole-batch'),
-    path('update-globals-db/', update_global_db.update_globals_db, name='update_globals_db')
+    path('update-globals-db/', update_global_db.update_globals_db, name='update_globals_db'),
+    path('download-sample-csv/', views.download_sample_csv, name='download_sample_csv'),
 ]

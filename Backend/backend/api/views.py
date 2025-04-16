@@ -2,6 +2,7 @@ import csv
 import datetime
 from django.http import HttpResponse
 from django.db.models import Max
+from django.db.models.functions import Upper
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 from rest_framework.response import Response
@@ -175,9 +176,9 @@ def update_designation(request):
 
 @api_view(['POST'])
 def reset_password(request):
-    roll_no = request.data.get('rollNo')
+    user_name = request.data.get('username')
     try:
-        user = AuthUser.objects.get(username=roll_no.upper())
+        user = AuthUser.objects.annotate(username_upper=Upper('username')).get(username_upper=user_name.upper())
         new_password = create_password(request.data)
         while new_password == user.password:
             new_password = create_password(request.data)
@@ -185,12 +186,15 @@ def reset_password(request):
         user.password = new_password
         user.save()
         
-        subject = 'Your Password has been reset!!'
-        message = f"This Mail is to notify you that your password has been reset by the System Administrator.\n\nPlease check out the new password below:  {new_password}\n\nRegards,\nSystem Administrator,\nIIITDM Jabalpur."
-        recipient_list = [f"{user.email}" if settings.EMAIL_TEST_MODE == 0 else settings.EMAIL_TEST_USER]
-        send_email(subject=subject, message=message, recipient_list=recipient_list)
-        
-        return Response({"password": new_password,"message": "Password reset successfully."}, status=status.HTTP_200_OK)
+        try:
+            subject = 'Your Password has been reset!!'
+            message = f"This Mail is to notify you that your password has been reset by the System Administrator.\n\nPlease check out the new password below:  {new_password}\n\nRegards,\nSystem Administrator,\nIIITDM Jabalpur."
+            recipient_list = [f"{user.email}" if settings.EMAIL_TEST_MODE == 0 else settings.EMAIL_TEST_USER]
+            send_email(subject=subject, message=message, recipient_list=recipient_list)
+        except:
+            print(e)
+        finally:
+            return Response({"password": new_password,"message": "Password reset successfully."}, status=status.HTTP_200_OK)
     except AuthUser.DoesNotExist:
         return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
@@ -241,9 +245,10 @@ def add_individual_student(request):
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }, status=status.HTTP_400_BAD_REQUEST)
+    user_password = create_password(request)
     
     auth_user_data = {
-        "password": make_password("user@123"),
+        "password": make_password(user_password),
         "username": data['username'].upper(),
         "first_name": data['first_name'],
         "last_name": data.get('last_name', ""),
@@ -346,9 +351,9 @@ def add_individual_staff(request):
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+    user_password = create_password(request)
     auth_user_data = {
-        "password": make_password("user@123"),
+        "password": make_password(user_password),
         "username": data['username'].lower(),
         "first_name": data['first_name'].lower().capitalize(),
         "last_name": data.get('last_name').lower().capitalize(),
@@ -440,9 +445,9 @@ def add_individual_faculty(request):
             "error": "Missing required fields.",
             "missing_fields": missing_fields
         }, status=status.HTTP_400_BAD_REQUEST)
-    
+    user_password = create_password(request)
     auth_user_data = {
-        "password": make_password("user@123"),
+        "password": make_password(user_password),
         "username": data['username'].lower(),
         "first_name": data['first_name'].lower().capitalize(),
         "last_name": data.get('last_name').lower().capitalize(),
@@ -541,7 +546,6 @@ def bulk_import_users(request):
     # 12 address
     # 13 phone_no
     # 14 department
-    # 15 hall_no
     if 'file' not in request.FILES:
         return Response({"error": "No file provided."}, status=status.HTTP_400_BAD_REQUEST)
     
@@ -643,3 +647,15 @@ def mail_to_whole_batch(request):
     except Exception as e:
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     return Response({"message": "Mail sent to whole batch successfully."}, status=status.HTTP_200_OK)
+
+def download_sample_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="sample.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow([
+        "username", "first_name", "last_name", "sex", "category",
+        "father_name", "mother_name", "batch", "programme", "title",
+        "dob", "address", "phone_no", "department"
+    ])
+    return response
