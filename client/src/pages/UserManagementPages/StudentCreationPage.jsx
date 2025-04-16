@@ -22,7 +22,7 @@ import { notifications, showNotification } from "@mantine/notifications";
 import { DateInput, YearPickerInput } from "@mantine/dates";
 import { useMediaQuery } from "@mantine/hooks";
 import { getAllDepartments, getAllBatches } from '../../api/Roles';
-import { createStudent, bulkUploadUsers } from "../../api/Users";
+import { createStudent, bulkUploadUsers, downloadSampleCSV } from "../../api/Users";
 
 const StudentCreationPage = () => {
   const xIcon = <FaTimes style={{ width: rem(20), height: rem(20) }} />;
@@ -422,6 +422,14 @@ const StudentCreationPage = () => {
             >
               Create Students
             </Button>
+
+            <Button
+            variant="light"
+            color="gray"
+            onClick={downloadSampleCSV}
+          >
+            Download Sample CSV
+          </Button>
           </Stack>
       </Paper>
     </Box>
