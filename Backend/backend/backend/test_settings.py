@@ -5,6 +5,11 @@ from .settings import *
 # Empty means _get_fernet() returns None and encryption is skipped.
 BACKUP_ENCRYPTION_KEY = ""
 
+# Same reason: settings.py turns this on whenever DEBUG is off, so a shell
+# without DEBUG=True exported made every request 301 to https and the whole
+# suite fail on status codes.
+SECURE_SSL_REDIRECT = False
+
 # Two aliases, because SystemDBRouter routes by alias and its allow_migrate()
 # builds each app's tables on exactly one of them. With `default` alone, every
 # app in route_app_labels (auth, sessions, contenttypes, authtoken, iam) was
@@ -33,3 +38,8 @@ DATABASES = {
         "PORT": "5432",
     },
 }
+
+# Same reason again: whether a role policy violation is refused or merely
+# reported is a deployment decision, and a suite whose result depends on the
+# local .env is not a suite. Tests that care set it with override_settings.
+IAM_ENFORCE_ROLE_POLICY = False
